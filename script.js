@@ -1,7 +1,7 @@
 /**
  * ============================================================================
  * JAISHNAV M BARO (NOTNAV) — PORTFOLIO JAVASCRIPT
- * Subtle Web Audio FX, Dynamic Progress Bars, & Built-in Arcade Suite
+ * Subtle Web Audio FX, Dynamic Progress Bars, Arcade Suite & Global Leaderboard
  * ============================================================================
  */
 
@@ -10,7 +10,7 @@
 
   /* --------------------------------------------------------------------------
    * 1. AUDIO SYNTHESIZER (WEB AUDIO API)
-   * Subtle, clean UI sound effects
+   * High-quality procedural game & UI audio
    * -------------------------------------------------------------------------- */
   class SoundEngine {
     constructor() {
@@ -75,7 +75,7 @@
       this.playTone(480, 'sine', 0.05, 0.05);
     }
 
-    playJump() {
+    playBirdFlap() {
       if (!this.enabled) return;
       this.init();
       if (!this.ctx) return;
@@ -83,19 +83,62 @@
       try {
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
-
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(320, this.ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(650, this.ctx.currentTime + 0.1);
+        osc.frequency.setValueAtTime(420, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(820, this.ctx.currentTime + 0.09);
 
         gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.1);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.09);
 
         osc.connect(gain);
         gain.connect(this.ctx.destination);
-
         osc.start();
-        osc.stop(this.ctx.currentTime + 0.1);
+        osc.stop(this.ctx.currentTime + 0.09);
+      } catch (e) {}
+    }
+
+    playDinoJump() {
+      if (!this.enabled) return;
+      this.init();
+      if (!this.ctx) return;
+
+      try {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(260, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(680, this.ctx.currentTime + 0.12);
+
+        gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.12);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.12);
+      } catch (e) {}
+    }
+
+    playEatApple() {
+      if (!this.enabled) return;
+      this.init();
+      if (!this.ctx) return;
+
+      try {
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(587, now); // D5
+        osc.frequency.setValueAtTime(880, now + 0.06); // A5
+
+        gain.gain.setValueAtTime(0.15, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.16);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(now + 0.16);
       } catch (e) {}
     }
 
@@ -108,17 +151,15 @@
         const now = this.ctx.currentTime;
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
-
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(523.25, now); // C5
-        osc.frequency.setValueAtTime(783.99, now + 0.07); // G5
+        osc.frequency.setValueAtTime(523.25, now);
+        osc.frequency.setValueAtTime(783.99, now + 0.07);
 
         gain.gain.setValueAtTime(0.12, now);
         gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
 
         osc.connect(gain);
         gain.connect(this.ctx.destination);
-
         osc.start();
         osc.stop(now + 0.18);
       } catch (e) {}
@@ -132,20 +173,48 @@
       try {
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
-
-        osc.type = 'triangle';
+        osc.type = 'sawtooth';
         osc.frequency.setValueAtTime(180, this.ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(40, this.ctx.currentTime + 0.2);
+        osc.frequency.exponentialRampToValueAtTime(40, this.ctx.currentTime + 0.22);
 
         gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.2);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.22);
 
         osc.connect(gain);
         gain.connect(this.ctx.destination);
-
         osc.start();
-        osc.stop(this.ctx.currentTime + 0.2);
+        osc.stop(this.ctx.currentTime + 0.22);
       } catch (e) {}
+    }
+
+    playFanfare() {
+      if (!this.enabled) return;
+      this.init();
+      if (!this.ctx) return;
+
+      try {
+        const notes = [523.25, 659.25, 783.99, 1046.5]; // C5, E5, G5, C6
+        notes.forEach((freq, idx) => {
+          const startTime = this.ctx.currentTime + idx * 0.08;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, startTime);
+
+          gain.gain.setValueAtTime(0.14, startTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.25);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(startTime);
+          osc.stop(startTime + 0.25);
+        });
+      } catch (e) {}
+    }
+
+    playWarning() {
+      this.playTone(200, 'square', 0.15, 0.12);
     }
   }
 
@@ -221,7 +290,6 @@
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
         ctx.fill();
 
-        // Connect nearby particles
         for (let j = i + 1; j < particles.length; j++) {
           const p2 = particles[j];
           const dist = Math.hypot(p.x - p2.x, p.y - p2.y);
@@ -344,7 +412,350 @@
   }
 
   /* --------------------------------------------------------------------------
-   * 5. PLAYABLE ARCADE SUITE (HTML5 CANVAS)
+   * 5. PROFANITY MODERATION FILTER & GMAIL AUTH
+   * Ensures respectful, clean community gamer tags on the Leaderboard
+   * -------------------------------------------------------------------------- */
+  const PROFANITY_LIST = [
+    'fuck', 'shit', 'bitch', 'asshole', 'cunt', 'dick', 'pussy', 'bastard',
+    'slut', 'whore', 'nigger', 'nigga', 'faggot', 'retard', 'cock', 'penis',
+    'vagina', 'chutiya', 'madarchod', 'bhenchod', 'gandu', 'bhosdike', 'harami',
+    'randi', 'saala', 'kamina', 'lund', 'tatti', 'suar', 'mc', 'bc'
+  ];
+
+  function containsProfanity(text) {
+    if (!text) return false;
+    // Normalize leetspeak substitutions: @ -> a, $ -> s, 0 -> o, 1/! -> i, 3 -> e, 5 -> s
+    let clean = text.toLowerCase()
+      .replace(/@/g, 'a')
+      .replace(/\$/g, 's')
+      .replace(/0/g, 'o')
+      .replace(/[1!|]/g, 'i')
+      .replace(/3/g, 'e')
+      .replace(/5/g, 's')
+      .replace(/[^a-z0-9]/g, '');
+
+    for (const badWord of PROFANITY_LIST) {
+      if (clean.includes(badWord)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  // Auth State Management
+  const authState = {
+    user: null,
+
+    init() {
+      const saved = localStorage.getItem('jaishnav_auth_user');
+      if (saved) {
+        try {
+          this.user = JSON.parse(saved);
+        } catch (e) {
+          this.user = null;
+        }
+      }
+      this.updateUI();
+    },
+
+    signIn(email, displayName) {
+      this.user = {
+        email: email.trim().toLowerCase(),
+        displayName: displayName.trim(),
+        verified: true,
+        joinedAt: new Date().toLocaleDateString()
+      };
+      localStorage.setItem('jaishnav_auth_user', JSON.stringify(this.user));
+      this.updateUI();
+      sfx.playFanfare();
+    },
+
+    signOut() {
+      this.user = null;
+      localStorage.removeItem('jaishnav_auth_user');
+      this.updateUI();
+    },
+
+    updateUI() {
+      const container = document.getElementById('auth-status-container');
+      const openBtn = document.getElementById('open-auth-btn');
+      const btnLabel = document.getElementById('auth-btn-label');
+
+      if (!container) return;
+
+      if (this.user) {
+        container.innerHTML = `
+          <div class="user-signed-in-pill">
+            <span class="status-dot"></span>
+            <span class="user-name-tag">${this.user.displayName}</span>
+            <span class="user-email-tag hide-mobile">(${this.user.email})</span>
+            <span class="verified-gmail-badge"><i class="fa-solid fa-circle-check"></i> Verified</span>
+          </div>
+        `;
+        if (openBtn) {
+          openBtn.className = 'btn btn-sm btn-ghost';
+          openBtn.innerHTML = '<i class="fa-solid fa-arrow-right-from-bracket"></i> Sign Out';
+          openBtn.onclick = () => {
+            this.signOut();
+          };
+        }
+      } else {
+        container.innerHTML = `
+          <span class="guest-indicator"><i class="fa-regular fa-user"></i> Playing as <strong>Guest</strong></span>
+          <span class="ribbon-hint hide-mobile">&bull; Sign in with Gmail to save your name on the Leaderboard!</span>
+        `;
+        if (openBtn) {
+          openBtn.className = 'btn btn-sm btn-google-auth';
+          openBtn.innerHTML = `
+            <svg class="google-svg-icon" viewBox="0 0 24 24" width="16" height="16">
+              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+            </svg>
+            <span>Sign In with Gmail</span>
+          `;
+          openBtn.onclick = openAuthModal;
+        }
+      }
+    }
+  };
+
+  // Auth Modal Elements
+  const authModal = document.getElementById('auth-modal');
+  const authModalCloseBtn = document.getElementById('auth-modal-close-btn');
+  const authForm = document.getElementById('auth-form');
+  const authEmailInput = document.getElementById('auth-email-input');
+  const authNameInput = document.getElementById('auth-name-input');
+  const authModWarning = document.getElementById('auth-mod-warning');
+  const authModWarningText = document.getElementById('auth-mod-warning-text');
+
+  function openAuthModal() {
+    if (!authModal) return;
+    authModal.style.display = 'flex';
+    authModal.setAttribute('aria-hidden', 'false');
+    if (authModWarning) authModWarning.style.display = 'none';
+    if (authEmailInput) authEmailInput.focus();
+  }
+
+  function closeAuthModal() {
+    if (!authModal) return;
+    authModal.style.display = 'none';
+    authModal.setAttribute('aria-hidden', 'true');
+  }
+
+  if (authModalCloseBtn) authModalCloseBtn.addEventListener('click', closeAuthModal);
+  if (authModal) {
+    authModal.addEventListener('click', (e) => {
+      if (e.target === authModal) closeAuthModal();
+    });
+  }
+
+  if (authForm) {
+    authForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const email = authEmailInput.value.trim();
+      const name = authNameInput.value.trim();
+
+      // Check Gmail address
+      if (!email.toLowerCase().endsWith('@gmail.com') || email.length < 11) {
+        authModWarning.style.display = 'flex';
+        authModWarningText.textContent = 'Please enter a valid @gmail.com address.';
+        sfx.playWarning();
+        return;
+      }
+
+      // Check name length
+      if (name.length < 3 || name.length > 16) {
+        authModWarning.style.display = 'flex';
+        authModWarningText.textContent = 'Gamer tag must be between 3 and 16 characters.';
+        sfx.playWarning();
+        return;
+      }
+
+      // Automated Profanity Moderation Check
+      if (containsProfanity(name)) {
+        authModWarning.style.display = 'flex';
+        authModWarningText.textContent = '⚠️ Inappropriate or abusive language detected. Please choose a clean, friendly gamer tag to protect our community.';
+        sfx.playWarning();
+        return;
+      }
+
+      // Successful verification
+      authModWarning.style.display = 'none';
+      authState.signIn(email, name);
+      closeAuthModal();
+
+      // Check and update leaderboard with current high score
+      leaderboardSystem.recordUserScore();
+    });
+  }
+
+  /* --------------------------------------------------------------------------
+   * 6. GLOBAL LEADERBOARD ENGINE
+   * Persistent community high score rankings
+   * -------------------------------------------------------------------------- */
+  const DEFAULT_LEADERBOARD = {
+    flappy: [
+      { name: 'VajraAce', email: 'vajra***@gmail.com', score: 38, rank: 1 },
+      { name: 'ShadowStrike', email: 'shad***@gmail.com', score: 29, rank: 2 },
+      { name: 'Phoenix99', email: 'phoe***@gmail.com', score: 24, rank: 3 },
+      { name: 'SkySniper', email: 'sky.***@gmail.com', score: 19, rank: 4 },
+      { name: 'GhostOperator', email: 'ghos***@gmail.com', score: 15, rank: 5 }
+    ],
+    runner: [
+      { name: 'CyberRex', email: 'cybe***@gmail.com', score: 642, rank: 1 },
+      { name: 'VajraSprint', email: 'v.sp***@gmail.com', score: 518, rank: 2 },
+      { name: 'NeonRider', email: 'neon***@gmail.com', score: 430, rank: 3 },
+      { name: 'SpeedyBot', email: 'spee***@gmail.com', score: 365, rank: 4 },
+      { name: 'PixelDino', email: 'pixe***@gmail.com', score: 290, rank: 5 }
+    ],
+    snake: [
+      { name: 'ViperKing', email: 'vipe***@gmail.com', score: 210, rank: 1 },
+      { name: 'AppleHunter', email: 'appl***@gmail.com', score: 180, rank: 2 },
+      { name: 'VajraClouds', email: 'vajr***@gmail.com', score: 150, rank: 3 },
+      { name: 'Cobra9', email: 'cobr***@gmail.com', score: 120, rank: 4 },
+      { name: 'GreenMamba', email: 'gree***@gmail.com', score: 90, rank: 5 }
+    ]
+  };
+
+  const leaderboardSystem = {
+    data: null,
+    activeLbGame: 'flappy',
+
+    init() {
+      const saved = localStorage.getItem('jaishnav_leaderboard_data');
+      if (saved) {
+        try {
+          this.data = JSON.parse(saved);
+        } catch (e) {
+          this.data = JSON.parse(JSON.stringify(DEFAULT_LEADERBOARD));
+        }
+      } else {
+        this.data = JSON.parse(JSON.stringify(DEFAULT_LEADERBOARD));
+      }
+      this.render();
+    },
+
+    save() {
+      localStorage.setItem('jaishnav_leaderboard_data', JSON.stringify(this.data));
+    },
+
+    submitScore(gameKey, score) {
+      if (!authState.user || score <= 0) return;
+
+      const list = this.data[gameKey] || [];
+      const userEmailMasked = authState.user.email.replace(/(.{3})(.*)(@gmail\.com)/, '$1***$3');
+
+      // Check if user already exists
+      const existingIdx = list.findIndex(p => p.email === userEmailMasked || p.name === authState.user.displayName);
+
+      if (existingIdx !== -1) {
+        if (score > list[existingIdx].score) {
+          list[existingIdx].score = score;
+        }
+      } else {
+        list.push({
+          name: authState.user.displayName,
+          email: userEmailMasked,
+          score: score
+        });
+      }
+
+      // Sort descending
+      list.sort((a, b) => b.score - a.score);
+
+      // Re-assign ranks
+      list.forEach((item, idx) => {
+        item.rank = idx + 1;
+      });
+
+      // Keep top 10
+      this.data[gameKey] = list.slice(0, 10);
+      this.save();
+      this.render();
+    },
+
+    recordUserScore() {
+      const birdHs = parseInt(localStorage.getItem('jaishnav_hs_flappy') || '0', 10);
+      const dinoHs = parseInt(localStorage.getItem('jaishnav_hs_runner') || '0', 10);
+      const snakeHs = parseInt(localStorage.getItem('jaishnav_hs_snake') || '0', 10);
+
+      if (birdHs > 0) this.submitScore('flappy', birdHs);
+      if (dinoHs > 0) this.submitScore('runner', dinoHs);
+      if (snakeHs > 0) this.submitScore('snake', snakeHs);
+    },
+
+    render() {
+      const tbody = document.getElementById('leaderboard-tbody');
+      if (!tbody) return;
+
+      const list = this.data[this.activeLbGame] || [];
+      tbody.innerHTML = '';
+
+      if (list.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-secondary); padding: 2rem;">No scores yet! Play a game and be the first on the board.</td></tr>`;
+        return;
+      }
+
+      list.forEach((item) => {
+        const tr = document.createElement('tr');
+
+        let rankClass = 'rank-other';
+        let crown = '';
+        if (item.rank === 1) { rankClass = 'rank-1'; crown = '<i class="fa-solid fa-crown text-amber"></i> '; }
+        else if (item.rank === 2) { rankClass = 'rank-2'; crown = '<i class="fa-solid fa-medal text-slate"></i> '; }
+        else if (item.rank === 3) { rankClass = 'rank-3'; crown = '<i class="fa-solid fa-award text-amber"></i> '; }
+
+        const initial = item.name.charAt(0).toUpperCase();
+
+        tr.innerHTML = `
+          <td><span class="rank-badge ${rankClass}">${crown}${item.rank}</span></td>
+          <td>
+            <div class="player-name-cell">
+              <span class="player-avatar-circle">${initial}</span>
+              <span>${item.name}</span>
+            </div>
+          </td>
+          <td><span class="verified-gmail-badge"><i class="fa-solid fa-circle-check"></i> ${item.email}</span></td>
+          <td><span class="table-score-val">${item.score}</span></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+  };
+
+  // Leaderboard filter buttons
+  document.querySelectorAll('.lb-filter-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.lb-filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      leaderboardSystem.activeLbGame = btn.dataset.lb;
+      leaderboardSystem.render();
+      sfx.playClick();
+    });
+  });
+
+  const viewLbShortcut = document.getElementById('view-leaderboard-shortcut-btn');
+  if (viewLbShortcut) {
+    viewLbShortcut.addEventListener('click', () => {
+      const tabLb = document.getElementById('tab-leaderboard');
+      if (tabLb) tabLb.click();
+    });
+  }
+
+  const modalSigninPromptBtn = document.getElementById('modal-signin-prompt-btn');
+  if (modalSigninPromptBtn) {
+    modalSigninPromptBtn.addEventListener('click', () => {
+      openAuthModal();
+    });
+  }
+
+  /* --------------------------------------------------------------------------
+   * 7. PLAYABLE ARCADE SUITE (HTML5 CANVAS)
+   * Game 1: Nav Cyber Bird
+   * Game 2: Nav Cyber Dino (Authentic Cyber T-Rex)
+   * Game 3: Nav Snake (Apple Eating Game)
    * -------------------------------------------------------------------------- */
   const canvas = document.getElementById('game-canvas');
   if (canvas) {
@@ -352,14 +763,25 @@
 
     const tabFlappy = document.getElementById('tab-flappy');
     const tabRunner = document.getElementById('tab-runner');
+    const tabSnake = document.getElementById('tab-snake');
+    const tabLeaderboard = document.getElementById('tab-leaderboard');
+
+    const canvasContainer = document.getElementById('canvas-container');
+    const leaderboardView = document.getElementById('leaderboard-view');
+    const arcadeScoreBar = document.getElementById('arcade-score-bar');
+    const snakeTouchControls = document.getElementById('snake-touch-controls');
+
     const currentScoreEl = document.getElementById('current-score-text');
     const highScoreEl = document.getElementById('high-score-text');
+    const helpTextEl = document.getElementById('arcade-help-text');
     const instructionsEl = document.getElementById('game-instructions-text');
+
     const gameModalOverlay = document.getElementById('game-modal-overlay');
     const modalTag = document.getElementById('modal-tag');
     const modalTitle = document.getElementById('modal-title');
     const modalDesc = document.getElementById('modal-desc');
     const modalScoreSummary = document.getElementById('modal-score-summary');
+    const modalLeaderboardCta = document.getElementById('modal-leaderboard-cta');
     const summaryFinalScore = document.getElementById('summary-final-score');
     const summaryBestScore = document.getElementById('summary-best-score');
     const startGameBtn = document.getElementById('start-game-btn');
@@ -368,13 +790,14 @@
     const V_WIDTH = 800;
     const V_HEIGHT = 420;
 
-    let activeGame = 'flappy';
+    let activeGame = 'flappy'; // 'flappy' | 'runner' | 'snake' | 'leaderboard'
     let isPlaying = false;
     let animationFrameId = null;
 
     let highScores = {
       flappy: parseInt(localStorage.getItem('jaishnav_hs_flappy') || '0', 10),
-      runner: parseInt(localStorage.getItem('jaishnav_hs_runner') || '0', 10)
+      runner: parseInt(localStorage.getItem('jaishnav_hs_runner') || '0', 10),
+      snake: parseInt(localStorage.getItem('jaishnav_hs_snake') || '0', 10)
     };
 
     function updateScoreUI(current, high) {
@@ -382,9 +805,20 @@
       if (highScoreEl) highScoreEl.textContent = high;
     }
 
-    /* --- GAME 1: CYBER DRONE (FLAPPY CLONE) --- */
+    /* ========================================================================
+     * GAME 1: NAV CYBER BIRD
+     * ======================================================================== */
     const flappyGame = {
-      drone: { x: 140, y: 200, width: 34, height: 22, vy: 0, gravity: 0.36, jump: -7.2, tilt: 0 },
+      bird: {
+        x: 140,
+        y: 200,
+        radius: 16,
+        vy: 0,
+        gravity: 0.36,
+        jump: -7.2,
+        tilt: 0,
+        wingPhase: 0
+      },
       pipes: [],
       particles: [],
       frameCounter: 0,
@@ -392,9 +826,10 @@
       speed: 2.8,
 
       init() {
-        this.drone.y = 190;
-        this.drone.vy = 0;
-        this.drone.tilt = 0;
+        this.bird.y = 190;
+        this.bird.vy = 0;
+        this.bird.tilt = 0;
+        this.bird.wingPhase = 0;
         this.pipes = [];
         this.particles = [];
         this.frameCounter = 0;
@@ -403,12 +838,15 @@
       },
 
       flap() {
-        this.drone.vy = this.drone.jump;
-        sfx.playJump();
+        this.bird.vy = this.bird.jump;
+        this.bird.wingPhase = 1;
+        sfx.playBirdFlap();
+
+        // Feather / thrust sparks
         for (let i = 0; i < 5; i++) {
           this.particles.push({
-            x: this.drone.x - 10,
-            y: this.drone.y + (Math.random() - 0.5) * 6,
+            x: this.bird.x - 12,
+            y: this.bird.y + (Math.random() - 0.5) * 8,
             vx: -Math.random() * 3 - 1.5,
             vy: (Math.random() - 0.5) * 2,
             size: Math.random() * 2.5 + 1.5,
@@ -419,15 +857,16 @@
       },
 
       update() {
-        this.drone.vy += this.drone.gravity;
-        this.drone.y += this.drone.vy;
-        this.drone.tilt = Math.min(Math.max(this.drone.vy * 3, -25), 45);
+        this.bird.vy += this.bird.gravity;
+        this.bird.y += this.bird.vy;
+        this.bird.tilt = Math.min(Math.max(this.bird.vy * 3, -25), 45);
+        this.bird.wingPhase += 0.2;
 
-        if (this.drone.y < 0) {
-          this.drone.y = 0;
-          this.drone.vy = 0;
+        if (this.bird.y < 16) {
+          this.bird.y = 16;
+          this.bird.vy = 0;
         }
-        if (this.drone.y + this.drone.height / 2 >= V_HEIGHT - 20) {
+        if (this.bird.y >= V_HEIGHT - 36) {
           return true; // Crash
         }
 
@@ -439,7 +878,7 @@
           const topH = Math.floor(Math.random() * maxH) + minH;
           this.pipes.push({
             x: V_WIDTH,
-            width: 46,
+            width: 48,
             top: topH,
             bottom: topH + gap,
             passed: false
@@ -450,15 +889,21 @@
           const p = this.pipes[i];
           p.x -= this.speed;
 
-          const dx = this.drone.x - this.drone.width / 2 + 4;
-          const dy = this.drone.y - this.drone.height / 2 + 4;
-          const dw = this.drone.width - 8;
-          const dh = this.drone.height - 8;
+          // Bird circle collision against top & bottom pipes
+          const bx = this.bird.x;
+          const by = this.bird.y;
+          const r = this.bird.radius - 2;
 
-          if (dx + dw > p.x && dx < p.x + p.width && dy < p.top) return true;
-          if (dx + dw > p.x && dx < p.x + p.width && dy + dh > p.bottom) return true;
+          // Top pipe collision
+          if (bx + r > p.x && bx - r < p.x + p.width && by - r < p.top) {
+            return true;
+          }
+          // Bottom pipe collision
+          if (bx + r > p.x && bx - r < p.x + p.width && by + r > p.bottom) {
+            return true;
+          }
 
-          if (!p.passed && p.x + p.width < this.drone.x) {
+          if (!p.passed && p.x + p.width < this.bird.x) {
             p.passed = true;
             this.score++;
             sfx.playScore();
@@ -485,7 +930,7 @@
         ctx.fillStyle = '#070b14';
         ctx.fillRect(0, 0, V_WIDTH, V_HEIGHT);
 
-        // Subtle background grid
+        // Faint skyline grid
         ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
         ctx.lineWidth = 1;
         for (let x = 0; x < V_WIDTH; x += 40) {
@@ -495,7 +940,7 @@
           ctx.stroke();
         }
 
-        // Ground
+        // Ground platform
         ctx.fillStyle = '#0f172a';
         ctx.fillRect(0, V_HEIGHT - 20, V_WIDTH, 20);
         ctx.strokeStyle = '#38bdf8';
@@ -505,7 +950,7 @@
         ctx.lineTo(V_WIDTH, V_HEIGHT - 20);
         ctx.stroke();
 
-        // Obstacles (Clean pillars)
+        // Laser Pillars
         for (const p of this.pipes) {
           ctx.fillStyle = '#1e293b';
           ctx.fillRect(p.x, 0, p.width, p.top);
@@ -517,7 +962,6 @@
           ctx.fillRect(p.x, p.bottom, p.width, botH);
           ctx.strokeRect(p.x, p.bottom, p.width, botH);
 
-          // Subtle glowing accent
           ctx.fillStyle = '#0284c7';
           ctx.fillRect(p.x - 2, p.top - 8, p.width + 4, 8);
           ctx.fillRect(p.x - 2, p.bottom, p.width + 4, 8);
@@ -533,79 +977,108 @@
         }
         ctx.globalAlpha = 1;
 
-        // Drone
+        // Draw Cute Cyber Bird
+        const b = this.bird;
         ctx.save();
-        ctx.translate(this.drone.x, this.drone.y);
-        ctx.rotate((this.drone.tilt * Math.PI) / 180);
+        ctx.translate(b.x, b.y);
+        ctx.rotate((b.tilt * Math.PI) / 180);
 
-        ctx.fillStyle = '#1e293b';
+        // Bird Oval Body
+        ctx.fillStyle = '#0284c7';
         ctx.beginPath();
-        ctx.moveTo(16, 0);
-        ctx.lineTo(-12, -10);
-        ctx.lineTo(-6, 0);
-        ctx.lineTo(-12, 10);
-        ctx.closePath();
+        ctx.ellipse(0, 0, 16, 12, 0, 0, Math.PI * 2);
         ctx.fill();
-
         ctx.strokeStyle = '#38bdf8';
-        ctx.lineWidth = 1.5;
+        ctx.lineWidth = 2;
         ctx.stroke();
 
+        // Belly
         ctx.fillStyle = '#38bdf8';
         ctx.beginPath();
-        ctx.arc(2, 0, 3.5, 0, Math.PI * 2);
+        ctx.ellipse(-2, 3, 10, 7, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Wing (Flapping)
+        const wingY = Math.sin(b.wingPhase) * 6;
+        ctx.fillStyle = '#0369a1';
+        ctx.beginPath();
+        ctx.ellipse(-4, wingY, 8, 5, -0.2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#7dd3fc';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        // Eye & Glow
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(7, -4, 4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#0f172a';
+        ctx.beginPath();
+        ctx.arc(8, -4, 2, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Beak
+        ctx.fillStyle = '#f59e0b';
+        ctx.beginPath();
+        ctx.moveTo(14, -2);
+        ctx.lineTo(21, 0);
+        ctx.lineTo(14, 3);
+        ctx.closePath();
         ctx.fill();
 
         ctx.restore();
       }
     };
 
-    /* --- GAME 2: CYBER RUNNER (T-REX CLONE) --- */
+    /* ========================================================================
+     * GAME 2: NAV CYBER DINO (AUTHENTIC CYBER T-REX)
+     * ======================================================================== */
     const runnerGame = {
-      player: {
-        x: 100,
+      dino: {
+        x: 90,
         y: 0,
-        baseY: V_HEIGHT - 28 - 44,
-        width: 30,
-        height: 44,
+        baseY: V_HEIGHT - 28 - 48,
+        width: 44,
+        height: 48,
         vy: 0,
-        gravity: 0.6,
-        jump: -12.2,
+        gravity: 0.62,
+        jump: -12.4,
         isJumping: false,
-        legCycle: 0
+        stepCycle: 0
       },
       obstacles: [],
       particles: [],
       groundOffset: 0,
       score: 0,
-      speed: 5.4,
+      speed: 5.5,
       spawnTimer: 0,
       nextSpawnIn: 85,
 
       init() {
-        this.player.y = this.player.baseY;
-        this.player.vy = 0;
-        this.player.isJumping = false;
-        this.player.legCycle = 0;
+        this.dino.y = this.dino.baseY;
+        this.dino.vy = 0;
+        this.dino.isJumping = false;
+        this.dino.stepCycle = 0;
         this.obstacles = [];
         this.particles = [];
         this.groundOffset = 0;
         this.score = 0;
-        this.speed = 5.4;
+        this.speed = 5.5;
         this.spawnTimer = 0;
         this.nextSpawnIn = 80;
       },
 
       jump() {
-        if (!this.player.isJumping) {
-          this.player.vy = this.player.jump;
-          this.player.isJumping = true;
-          sfx.playJump();
+        if (!this.dino.isJumping) {
+          this.dino.vy = this.dino.jump;
+          this.dino.isJumping = true;
+          sfx.playDinoJump();
 
           for (let i = 0; i < 4; i++) {
             this.particles.push({
-              x: this.player.x + 8,
-              y: this.player.baseY + this.player.height,
+              x: this.dino.x + 12,
+              y: this.dino.baseY + this.dino.height,
               vx: -Math.random() * 2 - 1,
               vy: -Math.random() * 2,
               size: Math.random() * 2.5 + 1.5,
@@ -617,17 +1090,17 @@
       },
 
       update() {
-        this.player.vy += this.player.gravity;
-        this.player.y += this.player.vy;
+        this.dino.vy += this.dino.gravity;
+        this.dino.y += this.dino.vy;
 
-        if (this.player.y >= this.player.baseY) {
-          this.player.y = this.player.baseY;
-          this.player.vy = 0;
-          this.player.isJumping = false;
+        if (this.dino.y >= this.dino.baseY) {
+          this.dino.y = this.dino.baseY;
+          this.dino.vy = 0;
+          this.dino.isJumping = false;
         }
 
-        if (!this.player.isJumping) {
-          this.player.legCycle += 0.25;
+        if (!this.dino.isJumping) {
+          this.dino.stepCycle += 0.28;
         }
 
         this.score += 0.15;
@@ -644,7 +1117,7 @@
 
           const isTall = Math.random() > 0.6;
           const obsW = isTall ? 22 : 30;
-          const obsH = isTall ? 42 : 28;
+          const obsH = isTall ? 44 : 28;
 
           this.obstacles.push({
             x: V_WIDTH,
@@ -659,16 +1132,17 @@
           const obs = this.obstacles[i];
           obs.x -= this.speed;
 
-          const px = this.player.x + 4;
-          const py = this.player.y + 4;
-          const pw = this.player.width - 8;
-          const ph = this.player.height - 8;
+          // Dinosaur hitbox
+          const dx = this.dino.x + 8;
+          const dy = this.dino.y + 4;
+          const dw = this.dino.width - 14;
+          const dh = this.dino.height - 6;
 
           if (
-            px < obs.x + obs.width &&
-            px + pw > obs.x &&
-            py < obs.y + obs.height &&
-            py + ph > obs.y
+            dx < obs.x + obs.width &&
+            dx + dw > obs.x &&
+            dy < obs.y + obs.height &&
+            dy + dh > obs.y
           ) {
             return true;
           }
@@ -704,7 +1178,16 @@
         ctx.lineTo(V_WIDTH, groundY);
         ctx.stroke();
 
-        // Obstacles
+        // Ground hashes
+        ctx.strokeStyle = 'rgba(16, 185, 129, 0.2)';
+        for (let x = -this.groundOffset; x < V_WIDTH; x += 40) {
+          ctx.beginPath();
+          ctx.moveTo(x, groundY + 2);
+          ctx.lineTo(x + 15, groundY + 12);
+          ctx.stroke();
+        }
+
+        // Obstacles (Cyber Cacti)
         for (const obs of this.obstacles) {
           ctx.fillStyle = '#1e293b';
           ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
@@ -714,7 +1197,7 @@
           ctx.strokeRect(obs.x, obs.y, obs.width, obs.height);
         }
 
-        // Particles
+        // Dust particles
         for (const pt of this.particles) {
           ctx.fillStyle = pt.color;
           ctx.globalAlpha = pt.life / 14;
@@ -724,69 +1207,340 @@
         }
         ctx.globalAlpha = 1;
 
-        // Player
-        const p = this.player;
+        // DRAW AUTHENTIC CYBER DINOSAUR (T-REX)
+        const d = this.dino;
         ctx.save();
-        ctx.translate(p.x, p.y);
+        ctx.translate(d.x, d.y);
 
-        ctx.fillStyle = '#0f172a';
-        ctx.fillRect(5, 10, 18, 20);
-        ctx.strokeStyle = '#38bdf8';
-        ctx.lineWidth = 1.5;
-        ctx.strokeRect(5, 10, 18, 20);
+        ctx.fillStyle = '#065f46';
+        ctx.strokeStyle = '#10b981';
+        ctx.lineWidth = 2;
 
-        ctx.fillStyle = '#1e293b';
-        ctx.fillRect(7, 0, 14, 10);
-        ctx.fillStyle = '#10b981';
-        ctx.fillRect(13, 3, 7, 3);
+        // Dino Body & Torso
+        ctx.beginPath();
+        ctx.moveTo(6, 26);
+        ctx.lineTo(0, 32); // tail point
+        ctx.lineTo(8, 32);
+        ctx.lineTo(12, 38);
+        ctx.lineTo(26, 38);
+        ctx.lineTo(28, 22);
+        ctx.lineTo(20, 16);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
 
-        const legSwing = Math.sin(p.legCycle) * 8;
-        ctx.strokeStyle = '#38bdf8';
+        // Dino Head / Snout
+        ctx.beginPath();
+        ctx.rect(18, 4, 20, 14); // head box
+        ctx.fill();
+        ctx.stroke();
+
+        // Eye
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(24, 7, 3, 3);
+
+        // Mouth / Tooth gap
+        ctx.fillStyle = '#070b14';
+        ctx.fillRect(32, 13, 6, 2);
+
+        // Cute T-Rex Arms
+        ctx.strokeStyle = '#10b981';
         ctx.lineWidth = 2.5;
-
         ctx.beginPath();
-        ctx.moveTo(9, 30);
-        ctx.lineTo(9 - legSwing, 44);
+        ctx.moveTo(27, 26);
+        ctx.lineTo(33, 26);
+        ctx.lineTo(33, 29);
         ctx.stroke();
 
-        ctx.beginPath();
-        ctx.moveTo(19, 30);
-        ctx.lineTo(19 + legSwing, 44);
-        ctx.stroke();
+        // Legs (Running Animation Cycle)
+        const footStep = Math.sin(d.stepCycle);
+        if (d.isJumping) {
+          // Tucked legs when jumping
+          ctx.beginPath();
+          ctx.moveTo(16, 38);
+          ctx.lineTo(13, 44);
+          ctx.moveTo(22, 38);
+          ctx.lineTo(25, 44);
+          ctx.stroke();
+        } else {
+          // Left Leg
+          ctx.beginPath();
+          ctx.moveTo(16, 38);
+          ctx.lineTo(16 - footStep * 6, 48);
+          ctx.stroke();
+
+          // Right Leg
+          ctx.beginPath();
+          ctx.moveTo(22, 38);
+          ctx.lineTo(22 + footStep * 6, 48);
+          ctx.stroke();
+        }
 
         ctx.restore();
       }
     };
 
-    /* --- GAME COORDINATION --- */
+    /* ========================================================================
+     * GAME 3: NAV SNAKE GAME (APPLE EATING ADVENTURE)
+     * ======================================================================== */
+    const snakeGame = {
+      gridSize: 20,
+      cols: 40,
+      rows: 21,
+      snake: [],
+      dir: { x: 1, y: 0 },
+      nextDir: { x: 1, y: 0 },
+      apple: { x: 15, y: 10 },
+      particles: [],
+      score: 0,
+      speedTicks: 7, // updates every 7 frames (~8.5 fps)
+      tickCount: 0,
+
+      init() {
+        this.cols = Math.floor(V_WIDTH / this.gridSize);
+        this.rows = Math.floor(V_HEIGHT / this.gridSize);
+        this.snake = [
+          { x: 10, y: 10 },
+          { x: 9, y: 10 },
+          { x: 8, y: 10 }
+        ];
+        this.dir = { x: 1, y: 0 };
+        this.nextDir = { x: 1, y: 0 };
+        this.score = 0;
+        this.tickCount = 0;
+        this.speedTicks = 7;
+        this.particles = [];
+        this.spawnApple();
+      },
+
+      spawnApple() {
+        let valid = false;
+        while (!valid) {
+          const rx = Math.floor(Math.random() * (this.cols - 2)) + 1;
+          const ry = Math.floor(Math.random() * (this.rows - 2)) + 1;
+          const collision = this.snake.some(segment => segment.x === rx && segment.y === ry);
+          if (!collision) {
+            this.apple = { x: rx, y: ry };
+            valid = true;
+          }
+        }
+      },
+
+      setDirection(dx, dy) {
+        // Prevent 180-degree self-turn
+        if (dx !== -this.dir.x && dy !== -this.dir.y) {
+          this.nextDir = { x: dx, y: dy };
+        }
+      },
+
+      update() {
+        // Update apple particles
+        for (let i = this.particles.length - 1; i >= 0; i--) {
+          const pt = this.particles[i];
+          pt.x += pt.vx;
+          pt.y += pt.vy;
+          pt.life--;
+          if (pt.life <= 0) this.particles.splice(i, 1);
+        }
+
+        this.tickCount++;
+        if (this.tickCount < this.speedTicks) return false;
+        this.tickCount = 0;
+
+        this.dir = this.nextDir;
+        const head = { x: this.snake[0].x + this.dir.x, y: this.snake[0].y + this.dir.y };
+
+        // Wall collisions
+        if (head.x < 0 || head.x >= this.cols || head.y < 0 || head.y >= this.rows) {
+          return true; // Crash
+        }
+
+        // Self collisions
+        for (let i = 0; i < this.snake.length; i++) {
+          if (head.x === this.snake[i].x && head.y === this.snake[i].y) {
+            return true;
+          }
+        }
+
+        this.snake.unshift(head);
+
+        // Apple Eaten
+        if (head.x === this.apple.x && head.y === this.apple.y) {
+          this.score += 10;
+          sfx.playEatApple();
+          updateScoreUI(this.score, Math.max(this.score, highScores.snake));
+
+          // Burst particles
+          const px = head.x * this.gridSize + this.gridSize / 2;
+          const py = head.y * this.gridSize + this.gridSize / 2;
+          for (let p = 0; p < 8; p++) {
+            this.particles.push({
+              x: px,
+              y: py,
+              vx: (Math.random() - 0.5) * 4,
+              vy: (Math.random() - 0.5) * 4,
+              size: Math.random() * 3 + 2,
+              color: '#ef4444',
+              life: 18
+            });
+          }
+
+          // Accelerate slightly
+          if (this.score % 50 === 0 && this.speedTicks > 4) {
+            this.speedTicks--;
+          }
+
+          this.spawnApple();
+        } else {
+          this.snake.pop();
+        }
+
+        return false;
+      },
+
+      draw() {
+        ctx.fillStyle = '#060a12';
+        ctx.fillRect(0, 0, V_WIDTH, V_HEIGHT);
+
+        // Subtle grid
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.025)';
+        ctx.lineWidth = 1;
+        for (let x = 0; x <= V_WIDTH; x += this.gridSize) {
+          ctx.beginPath();
+          ctx.moveTo(x, 0);
+          ctx.lineTo(x, V_HEIGHT);
+          ctx.stroke();
+        }
+        for (let y = 0; y <= V_HEIGHT; y += this.gridSize) {
+          ctx.beginPath();
+          ctx.moveTo(0, y);
+          ctx.lineTo(V_WIDTH, y);
+          ctx.stroke();
+        }
+
+        // Particles
+        for (const pt of this.particles) {
+          ctx.fillStyle = pt.color;
+          ctx.globalAlpha = pt.life / 18;
+          ctx.beginPath();
+          ctx.arc(pt.x, pt.y, pt.size, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+
+        // Draw Apple
+        const ax = this.apple.x * this.gridSize + this.gridSize / 2;
+        const ay = this.apple.y * this.gridSize + this.gridSize / 2;
+
+        ctx.fillStyle = '#ef4444';
+        ctx.beginPath();
+        ctx.arc(ax, ay, this.gridSize / 2 - 2, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Apple Leaf
+        ctx.fillStyle = '#10b981';
+        ctx.beginPath();
+        ctx.arc(ax + 2, ay - 6, 3, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Draw Snake
+        for (let i = 0; i < this.snake.length; i++) {
+          const seg = this.snake[i];
+          const sx = seg.x * this.gridSize;
+          const sy = seg.y * this.gridSize;
+
+          if (i === 0) {
+            // Head
+            ctx.fillStyle = '#38bdf8';
+            ctx.beginPath();
+            ctx.roundRect(sx + 1, sy + 1, this.gridSize - 2, this.gridSize - 2, 6);
+            ctx.fill();
+
+            // Eyes
+            ctx.fillStyle = '#0f172a';
+            ctx.beginPath();
+            ctx.arc(sx + 6, sy + 6, 2, 0, Math.PI * 2);
+            ctx.arc(sx + 14, sy + 6, 2, 0, Math.PI * 2);
+            ctx.fill();
+          } else {
+            // Body segments
+            ctx.fillStyle = i % 2 === 0 ? '#0284c7' : '#0369a1';
+            ctx.beginPath();
+            ctx.roundRect(sx + 2, sy + 2, this.gridSize - 4, this.gridSize - 4, 4);
+            ctx.fill();
+          }
+        }
+      }
+    };
+
+    /* ========================================================================
+     * ARCADE STATE & GAME LOOP COORDINATION
+     * ======================================================================== */
     function switchGame(type) {
       activeGame = type;
       isPlaying = false;
       cancelAnimationFrame(animationFrameId);
 
-      if (type === 'flappy') {
-        tabFlappy.classList.add('active');
+      // Handle Leaderboard Tab vs Game Canvas
+      if (type === 'leaderboard') {
+        tabLeaderboard.classList.add('active');
+        tabFlappy.classList.remove('active');
         tabRunner.classList.remove('active');
-        if (instructionsEl) instructionsEl.textContent = 'Press Spacebar or Click/Tap canvas to keep drone airborne. Avoid laser gates!';
+        tabSnake.classList.remove('active');
+
+        canvasContainer.style.display = 'none';
+        arcadeScoreBar.style.display = 'none';
+        leaderboardView.style.display = 'block';
+        snakeTouchControls.style.display = 'none';
+        leaderboardSystem.render();
+        return;
+      }
+
+      // Show Game Canvas
+      canvasContainer.style.display = 'flex';
+      arcadeScoreBar.style.display = 'flex';
+      leaderboardView.style.display = 'none';
+
+      // Update Tabs
+      tabLeaderboard.classList.remove('active');
+      tabFlappy.classList.toggle('active', type === 'flappy');
+      tabRunner.classList.toggle('active', type === 'runner');
+      tabSnake.classList.toggle('active', type === 'snake');
+
+      // Mobile Touch D-Pad for Snake
+      snakeTouchControls.style.display = type === 'snake' ? 'flex' : 'none';
+
+      if (type === 'flappy') {
+        instructionsEl.textContent = 'Press Spacebar, Up Arrow, or Click/Tap canvas to keep bird airborne. Avoid laser gates!';
+        helpTextEl.innerHTML = 'Press <kbd>Space</kbd>, <kbd>&uarr;</kbd> or <strong>Click / Tap</strong> to Fly';
         modalTag.textContent = 'Ready to Play';
-        modalTitle.textContent = 'Cyber Drone';
-        modalDesc.textContent = 'Navigate through electric laser gates. Tap or press Space to keep flying!';
+        modalTitle.textContent = 'Nav Cyber Bird';
+        modalDesc.textContent = 'Guide your cyber bird safely through high-voltage laser gates. Tap or press Space to keep flying!';
         updateScoreUI(0, highScores.flappy);
         flappyGame.init();
         flappyGame.draw();
-      } else {
-        tabRunner.classList.add('active');
-        tabFlappy.classList.remove('active');
-        if (instructionsEl) instructionsEl.textContent = 'Press Spacebar, Up Arrow, or Click/Tap canvas to jump over obstacles!';
+      } else if (type === 'runner') {
+        instructionsEl.textContent = 'Press Spacebar, Up Arrow, or Click/Tap canvas to jump over obstacles!';
+        helpTextEl.innerHTML = 'Press <kbd>Space</kbd>, <kbd>&uarr;</kbd> or <strong>Click / Tap</strong> to Jump';
         modalTag.textContent = 'Ready to Play';
-        modalTitle.textContent = 'Cyber Runner';
-        modalDesc.textContent = 'Run across the cyber grid and leap over hazardous obstacles.';
+        modalTitle.textContent = 'Nav Cyber Dino';
+        modalDesc.textContent = 'Sprint across the cyber grid as an adorable cyber T-Rex dinosaur and leap over hazard barriers!';
         updateScoreUI(0, highScores.runner);
         runnerGame.init();
         runnerGame.draw();
+      } else if (type === 'snake') {
+        instructionsEl.textContent = 'Use Arrow Keys, WASD, or on-screen D-Pad to steer the snake. Eat apples to grow!';
+        helpTextEl.innerHTML = 'Steer with <kbd>&larr;</kbd><kbd>&uarr;</kbd><kbd>&rarr;</kbd><kbd>&darr;</kbd> or <strong>WASD</strong>';
+        modalTag.textContent = 'Ready to Play';
+        modalTitle.textContent = 'Nav Snake Game';
+        modalDesc.textContent = 'Slither around the arena, eat glowing apples, and grow your cyber snake without hitting the walls!';
+        updateScoreUI(0, highScores.snake);
+        snakeGame.init();
+        snakeGame.draw();
       }
 
       modalScoreSummary.style.display = 'none';
+      modalLeaderboardCta.style.display = 'none';
       gameModalOverlay.classList.remove('hidden');
     }
 
@@ -799,9 +1553,12 @@
         flappyGame.init();
         flappyGame.flap();
         updateScoreUI(0, highScores.flappy);
-      } else {
+      } else if (activeGame === 'runner') {
         runnerGame.init();
         updateScoreUI(0, highScores.runner);
+      } else if (activeGame === 'snake') {
+        snakeGame.init();
+        updateScoreUI(0, highScores.snake);
       }
 
       gameLoop();
@@ -812,8 +1569,8 @@
       cancelAnimationFrame(animationFrameId);
       sfx.playCrash();
 
-      const key = activeGame === 'flappy' ? 'flappy' : 'runner';
-      const storageKey = activeGame === 'flappy' ? 'jaishnav_hs_flappy' : 'jaishnav_hs_runner';
+      const key = activeGame;
+      const storageKey = `jaishnav_hs_${key}`;
 
       if (finalScore > highScores[key]) {
         highScores[key] = finalScore;
@@ -822,14 +1579,26 @@
 
       updateScoreUI(finalScore, highScores[key]);
 
+      // If user is signed in, automatically record to Leaderboard!
+      if (authState.user && finalScore > 0) {
+        leaderboardSystem.submitScore(key, finalScore);
+      }
+
       modalTag.textContent = 'Game Over';
-      modalTitle.textContent = 'Nice Try!';
-      modalDesc.textContent = 'You collided with an obstacle. Ready for another run?';
+      modalTitle.textContent = 'Nice Run!';
+      modalDesc.textContent = 'Mission ended. Want to jump back into action or check the leaderboard?';
       summaryFinalScore.textContent = finalScore;
       summaryBestScore.textContent = highScores[key];
       modalScoreSummary.style.display = 'flex';
-      startGameBtn.innerHTML = '<i class="fa-solid fa-rotate-right"></i> Play Again';
 
+      // Show leaderboard CTA if guest
+      if (!authState.user) {
+        modalLeaderboardCta.style.display = 'flex';
+      } else {
+        modalLeaderboardCta.style.display = 'none';
+      }
+
+      startGameBtn.innerHTML = '<i class="fa-solid fa-rotate-right"></i> Play Again';
       gameModalOverlay.classList.remove('hidden');
     }
 
@@ -844,11 +1613,18 @@
           handleGameOver(flappyGame.score);
           return;
         }
-      } else {
+      } else if (activeGame === 'runner') {
         crashed = runnerGame.update();
         runnerGame.draw();
         if (crashed) {
           handleGameOver(Math.floor(runnerGame.score));
+          return;
+        }
+      } else if (activeGame === 'snake') {
+        crashed = snakeGame.update();
+        snakeGame.draw();
+        if (crashed) {
+          handleGameOver(snakeGame.score);
           return;
         }
       }
@@ -859,50 +1635,92 @@
     function triggerAction() {
       if (!isPlaying) return;
       if (activeGame === 'flappy') flappyGame.flap();
-      else runnerGame.jump();
+      else if (activeGame === 'runner') runnerGame.jump();
     }
 
+    // Keyboard controls
     window.addEventListener('keydown', (e) => {
+      // Space or Up for Bird & Dino
       if (e.code === 'Space' || e.code === 'ArrowUp') {
-        if (isPlaying) {
+        if (isPlaying && (activeGame === 'flappy' || activeGame === 'runner')) {
           e.preventDefault();
           triggerAction();
         }
       }
+
+      // Snake steering controls
+      if (isPlaying && activeGame === 'snake') {
+        if (e.code === 'ArrowUp' || e.key === 'w' || e.key === 'W') {
+          e.preventDefault();
+          snakeGame.setDirection(0, -1);
+        } else if (e.code === 'ArrowDown' || e.key === 's' || e.key === 'S') {
+          e.preventDefault();
+          snakeGame.setDirection(0, 1);
+        } else if (e.code === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+          e.preventDefault();
+          snakeGame.setDirection(-1, 0);
+        } else if (e.code === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+          e.preventDefault();
+          snakeGame.setDirection(1, 0);
+        }
+      }
     });
 
+    // Mouse / Touch for Bird & Dino
     canvas.addEventListener('mousedown', (e) => {
       e.preventDefault();
-      triggerAction();
+      if (activeGame === 'flappy' || activeGame === 'runner') triggerAction();
     });
 
     canvas.addEventListener('touchstart', (e) => {
-      if (isPlaying) {
+      if (isPlaying && (activeGame === 'flappy' || activeGame === 'runner')) {
         e.preventDefault();
         triggerAction();
       }
     }, { passive: false });
 
+    // Touch D-Pad for Snake
+    document.querySelectorAll('.dpad-btn').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const dir = btn.dataset.dir;
+        if (dir === 'up') snakeGame.setDirection(0, -1);
+        else if (dir === 'down') snakeGame.setDirection(0, 1);
+        else if (dir === 'left') snakeGame.setDirection(-1, 0);
+        else if (dir === 'right') snakeGame.setDirection(1, 0);
+        sfx.playClick();
+      });
+    });
+
+    // Tab Listeners
     tabFlappy.addEventListener('click', () => switchGame('flappy'));
     tabRunner.addEventListener('click', () => switchGame('runner'));
+    tabSnake.addEventListener('click', () => switchGame('snake'));
+    tabLeaderboard.addEventListener('click', () => switchGame('leaderboard'));
     startGameBtn.addEventListener('click', startGame);
 
     if (resetHighscoresBtn) {
       resetHighscoresBtn.addEventListener('click', () => {
         highScores.flappy = 0;
         highScores.runner = 0;
+        highScores.snake = 0;
         localStorage.removeItem('jaishnav_hs_flappy');
         localStorage.removeItem('jaishnav_hs_runner');
+        localStorage.removeItem('jaishnav_hs_snake');
         updateScoreUI(0, 0);
       });
     }
 
+    // Initialize Auth & Leaderboard
+    authState.init();
+    leaderboardSystem.init();
+
+    // Start with Nav Cyber Bird
     switchGame('flappy');
   }
 
   /* --------------------------------------------------------------------------
-   * 6. SMOOTH SCROLL REVEAL / POP-UP ANIMATIONS (INTERSECTION OBSERVER)
-   * Cards, sections, and grids smoothly float & pop up as you scroll down
+   * 8. SMOOTH SCROLL REVEAL / POP-UP ANIMATIONS (INTERSECTION OBSERVER)
    * -------------------------------------------------------------------------- */
   function initScrollReveal() {
     if (!('IntersectionObserver' in window)) return;
@@ -924,7 +1742,6 @@
 
     const elementsToReveal = document.querySelectorAll(revealSelectors.join(', '));
 
-    // Stagger delays across grid children for cascading flow
     const gridContainers = document.querySelectorAll('.skills-grid, .games-grid, .hardware-grid, .teasers-grid, .detail-badges-row');
     gridContainers.forEach((grid) => {
       Array.from(grid.children).forEach((child, index) => {
@@ -938,7 +1755,6 @@
           if (entry.isIntersecting) {
             entry.target.classList.add('revealed');
 
-            // If roadmap is scrolled into view, auto-animate progress bars
             if (entry.target.classList.contains('roadmap-card')) {
               triggerProgressAnimations();
             }
