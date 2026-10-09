@@ -544,11 +544,21 @@
             </svg>
           </div>
           <div>
-            <h3 class="auth-modal-heading">Gmail Leaderboard Portal</h3>
-            <p class="auth-modal-sub">Set your Gamer Tag to compete on the Global Leaderboard</p>
+            <h3 class="auth-modal-heading" id="auth-modal-title">Leaderboard Portal</h3>
+            <p class="auth-modal-sub" id="auth-modal-subtitle">Log in or create a password-protected gamer account</p>
           </div>
         </div>
         <button id="auth-modal-close" class="modal-close-btn" aria-label="Close modal">&times;</button>
+      </div>
+
+      <!-- Tab Switcher: Log In vs Create Account -->
+      <div class="auth-nav-tabs">
+        <button type="button" class="auth-nav-tab active" id="auth-tab-btn-login">
+          <i class="fa-solid fa-right-to-bracket"></i> Log In
+        </button>
+        <button type="button" class="auth-nav-tab" id="auth-tab-btn-register">
+          <i class="fa-solid fa-user-plus"></i> Create Account
+        </button>
       </div>
 
       <!-- Warning/Moderation Message -->
@@ -557,27 +567,71 @@
         <span id="auth-mod-warning-text"></span>
       </div>
 
-      <form id="auth-form" class="auth-form">
+      <!-- Success Feedback Banner -->
+      <div id="auth-success-box" class="mod-success-box" style="display: none;">
+        <i class="fa-solid fa-circle-check"></i>
+        <span id="auth-success-text"></span>
+      </div>
+
+      <!-- 1. LOG IN FORM -->
+      <form id="auth-login-form" class="auth-form-panel">
         <div class="form-group">
-          <label for="auth-email-input"><i class="fa-solid fa-envelope text-sky"></i> Gmail Address</label>
-          <input type="email" id="auth-email-input" class="form-control" placeholder="yourname@gmail.com" required autocomplete="email">
-          <span class="form-hint">Must end with @gmail.com for verified score validation.</span>
+          <label for="auth-login-email"><i class="fa-solid fa-envelope text-sky"></i> Gmail Address</label>
+          <input type="email" id="auth-login-email" class="form-control" placeholder="yourname@gmail.com" required autocomplete="username">
+          <span class="form-hint">Must be your registered @gmail.com account</span>
         </div>
 
         <div class="form-group">
-          <label for="auth-name-input"><i class="fa-solid fa-gamepad text-emerald"></i> Custom Gamer Tag</label>
-          <input type="text" id="auth-name-input" class="form-control" placeholder="e.g. CyberAce99" maxlength="16" required autocomplete="username">
-          <span class="form-hint">3-16 characters. Moderated for inappropriate or abusive words.</span>
+          <label for="auth-login-pass"><i class="fa-solid fa-lock text-sky"></i> Account Password</label>
+          <input type="password" id="auth-login-pass" class="form-control" placeholder="Enter your password" required autocomplete="current-password">
         </div>
 
-        <button type="submit" class="btn btn-primary btn-submit-auth">
-          <i class="fa-solid fa-check"></i> Save &amp; Join Leaderboard
+        <button type="submit" class="btn btn-primary btn-submit-auth" id="btn-submit-login">
+          <i class="fa-solid fa-arrow-right-to-bracket"></i> Log In to Leaderboard
         </button>
+
+        <div class="auth-switch-note">
+          Don't have an account yet? <button type="button" class="auth-link-btn" id="switch-to-register">Create an account here</button>
+        </div>
+      </form>
+
+      <!-- 2. CREATE ACCOUNT FORM -->
+      <form id="auth-register-form" class="auth-form-panel" style="display: none;">
+        <div class="form-group">
+          <label for="auth-register-email"><i class="fa-solid fa-envelope text-sky"></i> Authentic Gmail Address</label>
+          <input type="email" id="auth-register-email" class="form-control" placeholder="yourrealname@gmail.com" required autocomplete="email">
+          <span class="form-hint">Only genuine @gmail.com addresses accepted (6-30 chars).</span>
+        </div>
+
+        <div class="form-group">
+          <label for="auth-register-name"><i class="fa-solid fa-gamepad text-emerald"></i> Custom Gamer Tag</label>
+          <input type="text" id="auth-register-name" class="form-control" placeholder="e.g. CyberAce99" maxlength="16" required autocomplete="nickname">
+          <span class="form-hint">3-16 characters &bull; Moderated for friendly gaming</span>
+        </div>
+
+        <div class="form-group">
+          <label for="auth-register-pass"><i class="fa-solid fa-key text-sky"></i> Create Password</label>
+          <input type="password" id="auth-register-pass" class="form-control" placeholder="At least 6 characters" required minlength="6" autocomplete="new-password">
+          <span class="form-hint">Secures your account so only you can play under your tag</span>
+        </div>
+
+        <div class="form-group">
+          <label for="auth-register-confirm"><i class="fa-solid fa-shield-halved text-emerald"></i> Confirm Password</label>
+          <input type="password" id="auth-register-confirm" class="form-control" placeholder="Re-type your password" required minlength="6" autocomplete="new-password">
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-submit-auth" id="btn-submit-register">
+          <i class="fa-solid fa-user-plus"></i> Create Account &amp; Join Leaderboard
+        </button>
+
+        <div class="auth-switch-note">
+          Already registered? <button type="button" class="auth-link-btn" id="switch-to-login">Log In to your account</button>
+        </div>
       </form>
 
       <div class="auth-modal-footer">
         <i class="fa-solid fa-shield-halved text-emerald"></i>
-        <span>Safe gaming environment. Inappropriate tags will be rejected by our automated moderation engine.</span>
+        <span>Passwords hashed with SHA-256. Automated moderation prevents abusive names.</span>
       </div>
     </div>
   </div>
@@ -629,39 +683,73 @@
         return false;
       }
 
-      // Default Leaderboard
+      // 100% Brand new, fresh empty leaderboard
       const DEFAULT_LEADERBOARD = {
-        flappy: [
-          { name: 'VajraAce', email: 'vajra***@gmail.com', rawEmail: 'vajraace@gmail.com', score: 38, rank: 1 },
-          { name: 'ShadowStrike', email: 'shad***@gmail.com', rawEmail: 'shadowstrike@gmail.com', score: 29, rank: 2 },
-          { name: 'Phoenix99', email: 'phoe***@gmail.com', rawEmail: 'phoenix99@gmail.com', score: 24, rank: 3 },
-          { name: 'SkySniper', email: 'sky.***@gmail.com', rawEmail: 'skysniper@gmail.com', score: 19, rank: 4 },
-          { name: 'GhostOperator', email: 'ghos***@gmail.com', rawEmail: 'ghostoperator@gmail.com', score: 15, rank: 5 }
-        ],
-        runner: [
-          { name: 'CyberRex', email: 'cybe***@gmail.com', rawEmail: 'cyberrex@gmail.com', score: 642, rank: 1 },
-          { name: 'VajraSprint', email: 'v.sp***@gmail.com', rawEmail: 'vajrasprint@gmail.com', score: 518, rank: 2 },
-          { name: 'NeonRider', email: 'neon***@gmail.com', rawEmail: 'neonrider@gmail.com', score: 430, rank: 3 },
-          { name: 'SpeedyBot', email: 'spee***@gmail.com', rawEmail: 'speedybot@gmail.com', score: 365, rank: 4 },
-          { name: 'PixelDino', email: 'pixe***@gmail.com', rawEmail: 'pixeldino@gmail.com', score: 290, rank: 5 }
-        ],
-        snake: [
-          { name: 'ViperKing', email: 'vipe***@gmail.com', rawEmail: 'viperking@gmail.com', score: 210, rank: 1 },
-          { name: 'AppleHunter', email: 'appl***@gmail.com', rawEmail: 'applehunter@gmail.com', score: 180, rank: 2 },
-          { name: 'VajraClouds', email: 'vajr***@gmail.com', rawEmail: 'vajraclouds@gmail.com', score: 150, rank: 3 },
-          { name: 'Cobra9', email: 'cobr***@gmail.com', rawEmail: 'cobra9@gmail.com', score: 120, rank: 4 },
-          { name: 'GreenMamba', email: 'gree***@gmail.com', rawEmail: 'greenmamba@gmail.com', score: 90, rank: 5 }
-        ]
+        flappy: [],
+        runner: [],
+        snake: []
       };
 
       const CLOUD_API_URL = '/.netlify/functions/leaderboard';
       let activeTab = 'flappy';
       let searchQuery = '';
 
+      function isValidRealGmail(email) {
+        if (!email || typeof email !== 'string') return false;
+        const clean = email.toLowerCase().trim();
+        const gmailRegex = /^[a-zA-Z0-9](?!.*\.\.)[a-zA-Z0-9.]{4,28}[a-zA-Z0-9]@gmail\.com$/;
+        if (!gmailRegex.test(clean)) return false;
+        const username = clean.replace('@gmail.com', '');
+        const knownFakes = ['test', 'admin', 'fake', 'asdf', '123456', 'example', 'user', 'abc', 'player', 'demo', 'xyz'];
+        if (knownFakes.includes(username)) return false;
+        return true;
+      }
+
+      async function hashPassword(str) {
+        try {
+          const encoder = new TextEncoder();
+          const data = encoder.encode(str);
+          const hashBuf = await window.crypto.subtle.digest('SHA-256', data);
+          const hashArray = Array.from(new Uint8Array(hashBuf));
+          return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        } catch (e) {
+          let hash = 0;
+          for (let i = 0; i < str.length; i++) {
+            hash = (hash << 5) - hash + str.charCodeAt(i);
+            hash |= 0;
+          }
+          return 'fb_' + Math.abs(hash).toString(16);
+        }
+      }
+
+      function getLocalUsers() {
+        try { return JSON.parse(localStorage.getItem('jaishnav_users_v3') || '{}'); } catch(e) { return {}; }
+      }
+
+      function saveLocalUser(email, name, passHash) {
+        const users = getLocalUsers();
+        users[email.toLowerCase().trim()] = {
+          email: email.toLowerCase().trim(),
+          name: name.trim(),
+          passwordHash: passHash,
+          createdAt: new Date().toISOString()
+        };
+        localStorage.setItem('jaishnav_users_v3', JSON.stringify(users));
+      }
+
       function getLeaderboardData() {
         const saved = localStorage.getItem('jaishnav_leaderboard_data');
         if (saved) {
-          try { return JSON.parse(saved); } catch(e) {}
+          try {
+            const parsed = JSON.parse(saved);
+            const hasDummy = (parsed.flappy || []).some(p => p.name === 'VajraAce' || p.name === 'ShadowStrike') ||
+                             (parsed.runner || []).some(p => p.name === 'CyberRex');
+            if (hasDummy) {
+              localStorage.setItem('jaishnav_leaderboard_data', JSON.stringify(DEFAULT_LEADERBOARD));
+              return JSON.parse(JSON.stringify(DEFAULT_LEADERBOARD));
+            }
+            return parsed;
+          } catch(e) {}
         }
         return JSON.parse(JSON.stringify(DEFAULT_LEADERBOARD));
       }
@@ -692,16 +780,30 @@
           document.getElementById('podium-bird-name').textContent = data.flappy[0].name;
           document.getElementById('podium-bird-email').textContent = data.flappy[0].email;
           document.getElementById('podium-bird-score').textContent = data.flappy[0].score;
+        } else {
+          document.getElementById('podium-bird-name').textContent = 'Awaiting Champion';
+          document.getElementById('podium-bird-email').textContent = 'Play Bird to claim #1';
+          document.getElementById('podium-bird-score').textContent = '—';
         }
+
         if (data.runner && data.runner[0]) {
           document.getElementById('podium-dino-name').textContent = data.runner[0].name;
           document.getElementById('podium-dino-email').textContent = data.runner[0].email;
           document.getElementById('podium-dino-score').textContent = data.runner[0].score;
+        } else {
+          document.getElementById('podium-dino-name').textContent = 'Awaiting Champion';
+          document.getElementById('podium-dino-email').textContent = 'Play Dino to claim #1';
+          document.getElementById('podium-dino-score').textContent = '—';
         }
+
         if (data.snake && data.snake[0]) {
           document.getElementById('podium-snake-name').textContent = data.snake[0].name;
           document.getElementById('podium-snake-email').textContent = data.snake[0].email;
           document.getElementById('podium-snake-score').textContent = data.snake[0].score;
+        } else {
+          document.getElementById('podium-snake-name').textContent = 'Awaiting Champion';
+          document.getElementById('podium-snake-email').textContent = 'Play Snake to claim #1';
+          document.getElementById('podium-snake-score').textContent = '—';
         }
       }
 
@@ -725,14 +827,20 @@
           avatarEl.textContent = user.displayName.charAt(0).toUpperCase();
           nameEl.innerHTML = `${user.displayName} <span class="verified-gmail-badge"><i class="fa-solid fa-circle-check"></i> Verified</span>`;
           statusEl.textContent = `Connected with ${user.email} • Your scores are live on the leaderboard`;
-          actionBtn.textContent = 'Change Tag';
+          actionBtn.textContent = 'Sign Out';
+          actionBtn.onclick = () => {
+            localStorage.removeItem('jaishnav_auth_user');
+            renderUserBanner();
+            renderTable();
+          };
           heroAuthLabel.textContent = `Signed In as ${user.displayName}`;
         } else {
           avatarEl.textContent = '?';
           nameEl.textContent = 'Playing as Guest';
-          statusEl.innerHTML = '<i class="fa-regular fa-user"></i> Sign in with Gmail to record your scores';
-          actionBtn.textContent = 'Sign In';
-          heroAuthLabel.textContent = 'Sign In with Gmail';
+          statusEl.innerHTML = '<i class="fa-regular fa-user"></i> Sign in with your Gmail and Password to record scores';
+          actionBtn.textContent = 'Log In / Sign Up';
+          actionBtn.onclick = () => openModal('login');
+          heroAuthLabel.textContent = 'Log In / Sign Up';
         }
       }
 
@@ -781,7 +889,7 @@
         document.getElementById('lb-total-players').textContent = `${list.length} Player${list.length === 1 ? '' : 's'}`;
 
         if (list.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-secondary); padding: 3rem;">No player found. Play in the arcade and be the first!</td></tr>`;
+          tbody.innerHTML = `<tr><td colspan="4" class="empty-table-state"><i class="fa-solid fa-trophy-star"></i><br>Leaderboard is completely fresh! Play any game in the arcade to claim the #1 spot!</td></tr>`;
           return;
         }
 
@@ -861,26 +969,47 @@
         });
       }
 
-      // Auth Modal logic
+      // Auth Modal logic & Tab switching
       const authModal = document.getElementById('auth-modal');
       const authModalClose = document.getElementById('auth-modal-close');
-      const authForm = document.getElementById('auth-form');
-      const authEmailInput = document.getElementById('auth-email-input');
-      const authNameInput = document.getElementById('auth-name-input');
+      const authTabBtnLogin = document.getElementById('auth-tab-btn-login');
+      const authTabBtnRegister = document.getElementById('auth-tab-btn-register');
+      const authLoginForm = document.getElementById('auth-login-form');
+      const authRegisterForm = document.getElementById('auth-register-form');
+      const switchToRegister = document.getElementById('switch-to-register');
+      const switchToLogin = document.getElementById('switch-to-login');
+
       const authModWarning = document.getElementById('auth-mod-warning');
       const authModWarningText = document.getElementById('auth-mod-warning-text');
+      const authSuccessBox = document.getElementById('auth-success-box');
+      const authSuccessText = document.getElementById('auth-success-text');
 
-      function openModal() {
-        if (!authModal) return;
-        const current = getAuthUser();
-        if (current) {
-          authEmailInput.value = current.email;
-          authNameInput.value = current.displayName;
+      function showAuthTab(mode) {
+        if (authModWarning) authModWarning.style.display = 'none';
+        if (authSuccessBox) authSuccessBox.style.display = 'none';
+
+        if (mode === 'register') {
+          if (authTabBtnRegister) authTabBtnRegister.classList.add('active');
+          if (authTabBtnLogin) authTabBtnLogin.classList.remove('active');
+          if (authRegisterForm) authRegisterForm.style.display = 'flex';
+          if (authLoginForm) authLoginForm.style.display = 'none';
+          const emailInput = document.getElementById('auth-register-email');
+          if (emailInput) emailInput.focus();
+        } else {
+          if (authTabBtnLogin) authTabBtnLogin.classList.add('active');
+          if (authTabBtnRegister) authTabBtnRegister.classList.remove('active');
+          if (authLoginForm) authLoginForm.style.display = 'flex';
+          if (authRegisterForm) authRegisterForm.style.display = 'none';
+          const emailInput = document.getElementById('auth-login-email');
+          if (emailInput) emailInput.focus();
         }
+      }
+
+      function openModal(defaultTab = 'login') {
+        if (!authModal) return;
         authModal.style.display = 'flex';
         authModal.setAttribute('aria-hidden', 'false');
-        if (authModWarning) authModWarning.style.display = 'none';
-        if (authEmailInput) authEmailInput.focus();
+        showAuthTab(defaultTab);
       }
 
       function closeModal() {
@@ -889,8 +1018,13 @@
         authModal.setAttribute('aria-hidden', 'true');
       }
 
-      const openAuthBtns = [document.getElementById('page-open-auth-btn'), document.getElementById('page-user-action-btn')];
-      openAuthBtns.forEach(b => { if (b) b.addEventListener('click', openModal); });
+      if (authTabBtnLogin) authTabBtnLogin.addEventListener('click', () => showAuthTab('login'));
+      if (authTabBtnRegister) authTabBtnRegister.addEventListener('click', () => showAuthTab('register'));
+      if (switchToRegister) switchToRegister.addEventListener('click', () => showAuthTab('register'));
+      if (switchToLogin) switchToLogin.addEventListener('click', () => showAuthTab('login'));
+
+      const openAuthBtns = [document.getElementById('page-open-auth-btn')];
+      openAuthBtns.forEach(b => { if (b) b.addEventListener('click', () => openModal('login')); });
 
       if (authModalClose) authModalClose.addEventListener('click', closeModal);
       if (authModal) {
@@ -899,15 +1033,164 @@
         });
       }
 
-      if (authForm) {
-        authForm.addEventListener('submit', (e) => {
-          e.preventDefault();
-          const email = authEmailInput.value.trim();
-          const name = authNameInput.value.trim();
+      function transferUserScores(userObj) {
+        const data = getLeaderboardData();
+        const birdHs = parseInt(localStorage.getItem('jaishnav_hs_flappy') || '0', 10);
+        const dinoHs = parseInt(localStorage.getItem('jaishnav_hs_runner') || '0', 10);
+        const snakeHs = parseInt(localStorage.getItem('jaishnav_hs_snake') || '0', 10);
 
-          if (!email.toLowerCase().endsWith('@gmail.com') || email.length < 11) {
+        async function syncScore(gKey, sc) {
+          if (sc <= 0) return;
+          const list = data[gKey] || [];
+          const userRaw = userObj.email.toLowerCase().trim();
+          const masked = userRaw.replace(/(.{2,3})(.*)(@gmail\.com)/, '$1***$3');
+          const idx = list.findIndex(p => (p.rawEmail || p.email) === userRaw || p.name.toLowerCase() === userObj.displayName.toLowerCase());
+          if (idx !== -1) {
+            list[idx].name = userObj.displayName;
+            list[idx].rawEmail = userRaw;
+            list[idx].email = masked;
+            if (sc > list[idx].score) list[idx].score = sc;
+          } else {
+            list.push({ name: userObj.displayName, rawEmail: userRaw, email: masked, score: sc });
+          }
+          list.sort((a,b) => b.score - a.score);
+          list.forEach((item, i) => { item.rank = i + 1; });
+          data[gKey] = list.slice(0, 50);
+
+          try {
+            const res = await fetch(CLOUD_API_URL, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                game: gKey,
+                name: userObj.displayName,
+                email: userObj.email,
+                score: sc
+              })
+            });
+            if (res.ok) {
+              const resJson = await res.json();
+              if (resJson && resJson.data) {
+                localStorage.setItem('jaishnav_leaderboard_data', JSON.stringify(resJson.data));
+                renderTable();
+              }
+            }
+          } catch(e) {}
+        }
+
+        syncScore('flappy', birdHs);
+        syncScore('runner', dinoHs);
+        syncScore('snake', snakeHs);
+
+        localStorage.setItem('jaishnav_leaderboard_data', JSON.stringify(data));
+      }
+
+      // 1. LOG IN Form Submission
+      if (authLoginForm) {
+        authLoginForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const email = (document.getElementById('auth-login-email').value || '').trim();
+          const pass = (document.getElementById('auth-login-pass').value || '');
+
+          if (!isValidRealGmail(email)) {
             authModWarning.style.display = 'flex';
-            authModWarningText.textContent = 'Please enter a valid @gmail.com address.';
+            authModWarningText.textContent = 'Please enter a valid, real @gmail.com address (6-30 characters).';
+            return;
+          }
+
+          if (!pass || pass.length < 6) {
+            authModWarning.style.display = 'flex';
+            authModWarningText.textContent = 'Password must be at least 6 characters.';
+            return;
+          }
+
+          const passHash = await hashPassword(pass);
+          const submitBtn = document.getElementById('btn-submit-login');
+          if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Logging in...';
+          }
+
+          try {
+            const res = await fetch(CLOUD_API_URL, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                action: 'login',
+                email: email,
+                passwordHash: passHash
+              })
+            });
+
+            const resData = await res.json();
+
+            if (res.ok && resData.success && resData.user) {
+              saveLocalUser(resData.user.email, resData.user.displayName, passHash);
+              localStorage.setItem('jaishnav_auth_user', JSON.stringify(resData.user));
+              authModWarning.style.display = 'none';
+              if (authSuccessBox) {
+                authSuccessBox.style.display = 'flex';
+                authSuccessText.textContent = `Welcome back, ${resData.user.displayName}! Logged in successfully.`;
+              }
+              transferUserScores(resData.user);
+              setTimeout(() => {
+                closeModal();
+                renderTable();
+              }, 600);
+            } else {
+              // Local fallback
+              const localUsers = getLocalUsers();
+              const cleanEmail = email.toLowerCase().trim();
+              const localUser = localUsers[cleanEmail];
+
+              if (localUser && localUser.passwordHash === passHash) {
+                const userObj = { email: localUser.email, displayName: localUser.name };
+                localStorage.setItem('jaishnav_auth_user', JSON.stringify(userObj));
+                authModWarning.style.display = 'none';
+                transferUserScores(userObj);
+                setTimeout(() => {
+                  closeModal();
+                  renderTable();
+                }, 600);
+              } else {
+                authModWarning.style.display = 'flex';
+                authModWarningText.textContent = resData.error || 'Incorrect password or account not found. Try creating an account.';
+              }
+            }
+          } catch(err) {
+            const localUsers = getLocalUsers();
+            const cleanEmail = email.toLowerCase().trim();
+            const localUser = localUsers[cleanEmail];
+            if (localUser && localUser.passwordHash === passHash) {
+              const userObj = { email: localUser.email, displayName: localUser.name };
+              localStorage.setItem('jaishnav_auth_user', JSON.stringify(userObj));
+              closeModal();
+              renderTable();
+            } else {
+              authModWarning.style.display = 'flex';
+              authModWarningText.textContent = 'Unable to log in. Please verify your credentials.';
+            }
+          } finally {
+            if (submitBtn) {
+              submitBtn.disabled = false;
+              submitBtn.innerHTML = '<i class="fa-solid fa-arrow-right-to-bracket"></i> Log In to Leaderboard';
+            }
+          }
+        });
+      }
+
+      // 2. CREATE ACCOUNT Form Submission
+      if (authRegisterForm) {
+        authRegisterForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const email = (document.getElementById('auth-register-email').value || '').trim();
+          const name = (document.getElementById('auth-register-name').value || '').trim();
+          const pass = (document.getElementById('auth-register-pass').value || '');
+          const confirmPass = (document.getElementById('auth-register-confirm').value || '');
+
+          if (!isValidRealGmail(email)) {
+            authModWarning.style.display = 'flex';
+            authModWarningText.textContent = 'Please enter a genuine, registered @gmail.com address (6-30 characters).';
             return;
           }
 
@@ -923,70 +1206,68 @@
             return;
           }
 
-          const userObj = { email: email.toLowerCase().trim(), displayName: name.trim() };
-          localStorage.setItem('jaishnav_auth_user', JSON.stringify(userObj));
-
-          // Transfer high scores
-          const data = getLeaderboardData();
-          const birdHs = parseInt(localStorage.getItem('jaishnav_hs_flappy') || '0', 10);
-          const dinoHs = parseInt(localStorage.getItem('jaishnav_hs_runner') || '0', 10);
-          const snakeHs = parseInt(localStorage.getItem('jaishnav_hs_snake') || '0', 10);
-
-          function recordScore(gKey, sc) {
-            if (sc <= 0) return;
-            const list = data[gKey] || [];
-            const userRaw = userObj.email;
-            const masked = userRaw.replace(/(.{2,3})(.*)(@gmail\.com)/, '$1***$3');
-            const idx = list.findIndex(p => (p.rawEmail || p.email) === userRaw || p.name.toLowerCase() === userObj.displayName.toLowerCase());
-            if (idx !== -1) {
-              list[idx].name = userObj.displayName;
-              list[idx].rawEmail = userRaw;
-              list[idx].email = masked;
-              if (sc > list[idx].score) list[idx].score = sc;
-            } else {
-              list.push({ name: userObj.displayName, rawEmail: userRaw, email: masked, score: sc });
-            }
-            list.sort((a,b) => b.score - a.score);
-            list.forEach((item, i) => { item.rank = i + 1; });
-            data[gKey] = list.slice(0, 50);
+          if (pass.length < 6) {
+            authModWarning.style.display = 'flex';
+            authModWarningText.textContent = 'Password must be at least 6 characters long.';
+            return;
           }
 
-          recordScore('flappy', birdHs);
-          recordScore('runner', dinoHs);
-          recordScore('snake', snakeHs);
+          if (pass !== confirmPass) {
+            authModWarning.style.display = 'flex';
+            authModWarningText.textContent = 'Passwords do not match. Please re-enter your password.';
+            return;
+          }
 
-          localStorage.setItem('jaishnav_leaderboard_data', JSON.stringify(data));
+          const passHash = await hashPassword(pass);
+          const submitBtn = document.getElementById('btn-submit-register');
+          if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Creating Account...';
+          }
 
-          // Sync with cloud database so all devices see each other!
-          async function syncCloud(gKey, sc) {
-            if (sc <= 0) return;
-            try {
-              const res = await fetch(CLOUD_API_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  game: gKey,
-                  name: userObj.displayName,
-                  email: userObj.email,
-                  score: sc
-                })
-              });
-              if (res.ok) {
-                const resJson = await res.json();
-                if (resJson && resJson.data) {
-                  localStorage.setItem('jaishnav_leaderboard_data', JSON.stringify(resJson.data));
-                  renderTable();
-                }
+          try {
+            const res = await fetch(CLOUD_API_URL, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                action: 'register',
+                email: email,
+                name: name,
+                passwordHash: passHash
+              })
+            });
+
+            const resData = await res.json();
+
+            if (res.ok && resData.success && resData.user) {
+              saveLocalUser(resData.user.email, resData.user.displayName, passHash);
+              localStorage.setItem('jaishnav_auth_user', JSON.stringify(resData.user));
+              authModWarning.style.display = 'none';
+              if (authSuccessBox) {
+                authSuccessBox.style.display = 'flex';
+                authSuccessText.textContent = `Account created successfully! Welcome, ${resData.user.displayName}!`;
               }
-            } catch (e) {}
+              transferUserScores(resData.user);
+              setTimeout(() => {
+                closeModal();
+                renderTable();
+              }, 600);
+            } else {
+              authModWarning.style.display = 'flex';
+              authModWarningText.textContent = resData.error || 'Failed to create account. This Gmail may already be registered.';
+            }
+          } catch(err) {
+            saveLocalUser(email, name, passHash);
+            const userObj = { email: email.toLowerCase().trim(), displayName: name.trim() };
+            localStorage.setItem('jaishnav_auth_user', JSON.stringify(userObj));
+            closeModal();
+            renderTable();
+          } finally {
+            if (submitBtn) {
+              submitBtn.disabled = false;
+              submitBtn.innerHTML = '<i class="fa-solid fa-user-plus"></i> Create Account &amp; Join Leaderboard';
+            }
           }
-
-          syncCloud('flappy', birdHs);
-          syncCloud('runner', dinoHs);
-          syncCloud('snake', snakeHs);
-
-          closeModal();
-          renderTable();
         });
       }
 

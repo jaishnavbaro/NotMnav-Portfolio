@@ -361,6 +361,55 @@
   });
 
   /* --------------------------------------------------------------------------
+   * 3.5 DYNAMIC TYPEWRITER ANIMATION (ABOUT ME HERO)
+   * -------------------------------------------------------------------------- */
+  function initTypewriter() {
+    const el = document.getElementById('hero-typewriter-text');
+    if (!el) return;
+
+    const phrases = [
+      'Developer',
+      'Gamer',
+      'GFX Artist',
+      'Admin @ VajraClouds',
+      'NotNav'
+    ];
+
+    let phraseIndex = 0;
+    let charIndex = 0;
+    let isDeleting = false;
+    let speed = 90;
+
+    function tick() {
+      const current = phrases[phraseIndex];
+
+      if (isDeleting) {
+        el.textContent = current.substring(0, charIndex - 1);
+        charIndex--;
+        speed = 45;
+      } else {
+        el.textContent = current.substring(0, charIndex + 1);
+        charIndex++;
+        speed = 90;
+      }
+
+      if (!isDeleting && charIndex === current.length) {
+        isDeleting = true;
+        speed = 1800; // Pause when word is fully typed
+      } else if (isDeleting && charIndex === 0) {
+        isDeleting = false;
+        phraseIndex = (phraseIndex + 1) % phrases.length;
+        speed = 400; // Pause before typing next word
+      }
+
+      setTimeout(tick, speed);
+    }
+
+    tick();
+  }
+  initTypewriter();
+
+  /* --------------------------------------------------------------------------
    * 4. ROADMAP PROGRESS COUNTER ANIMATION
    * -------------------------------------------------------------------------- */
   const pythonBar = document.getElementById('python-bar');
@@ -442,6 +491,57 @@
     return false;
   }
 
+  // Strict Real Gmail Validation
+  function isValidRealGmail(email) {
+    if (!email || typeof email !== 'string') return false;
+    const clean = email.toLowerCase().trim();
+    const gmailRegex = /^[a-zA-Z0-9](?!.*\.\.)[a-zA-Z0-9.]{4,28}[a-zA-Z0-9]@gmail\.com$/;
+    if (!gmailRegex.test(clean)) return false;
+    const username = clean.replace('@gmail.com', '');
+    const knownFakes = ['test', 'admin', 'fake', 'asdf', '123456', 'example', 'user', 'abc', 'player', 'demo', 'xyz'];
+    if (knownFakes.includes(username)) return false;
+    return true;
+  }
+
+  // SHA-256 password hasher using standard Web Crypto API
+  async function hashPassword(str) {
+    try {
+      const encoder = new TextEncoder();
+      const data = encoder.encode(str);
+      const hashBuf = await window.crypto.subtle.digest('SHA-256', data);
+      const hashArray = Array.from(new Uint8Array(hashBuf));
+      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    } catch (e) {
+      // Fallback simple hash for older environments
+      let hash = 0;
+      for (let i = 0; i < str.length; i++) {
+        hash = (hash << 5) - hash + str.charCodeAt(i);
+        hash |= 0;
+      }
+      return 'fb_' + Math.abs(hash).toString(16);
+    }
+  }
+
+  // Local Accounts Database (persists accounts across offline / local preview)
+  function getLocalUsers() {
+    try {
+      return JSON.parse(localStorage.getItem('jaishnav_users_v3') || '{}');
+    } catch (e) {
+      return {};
+    }
+  }
+
+  function saveLocalUser(email, name, passHash) {
+    const users = getLocalUsers();
+    users[email.toLowerCase().trim()] = {
+      email: email.toLowerCase().trim(),
+      name: name.trim(),
+      passwordHash: passHash,
+      createdAt: new Date().toISOString()
+    };
+    localStorage.setItem('jaishnav_users_v3', JSON.stringify(users));
+  }
+
   // Auth State Management
   const authState = {
     user: null,
@@ -479,7 +579,6 @@
     updateUI() {
       const container = document.getElementById('auth-status-container');
       const openBtn = document.getElementById('open-auth-btn');
-      const btnLabel = document.getElementById('auth-btn-label');
 
       if (!container) return;
 
@@ -502,7 +601,7 @@
       } else {
         container.innerHTML = `
           <span class="guest-indicator"><i class="fa-regular fa-user"></i> Playing as <strong>Guest</strong></span>
-          <span class="ribbon-hint hide-mobile">&bull; Sign in with Gmail to save your name on the Leaderboard!</span>
+          <span class="ribbon-hint hide-mobile">&bull; Sign in with your Gmail and Password to record your rank!</span>
         `;
         if (openBtn) {
           openBtn.className = 'btn btn-sm btn-google-auth';
@@ -513,29 +612,55 @@
               <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
               <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
             </svg>
-            <span>Sign In with Gmail</span>
+            <span>Log In / Sign Up</span>
           `;
-          openBtn.onclick = openAuthModal;
+          openBtn.onclick = () => openAuthModal('login');
         }
       }
     }
   };
 
-  // Auth Modal Elements
+  // Auth Modal Elements & Tab Switching
   const authModal = document.getElementById('auth-modal');
   const authModalCloseBtn = document.getElementById('auth-modal-close-btn');
-  const authForm = document.getElementById('auth-form');
-  const authEmailInput = document.getElementById('auth-email-input');
-  const authNameInput = document.getElementById('auth-name-input');
+  const authTabBtnLogin = document.getElementById('auth-tab-btn-login');
+  const authTabBtnRegister = document.getElementById('auth-tab-btn-register');
+  const authLoginForm = document.getElementById('auth-login-form');
+  const authRegisterForm = document.getElementById('auth-register-form');
+  const switchToRegister = document.getElementById('switch-to-register');
+  const switchToLogin = document.getElementById('switch-to-login');
+
   const authModWarning = document.getElementById('auth-mod-warning');
   const authModWarningText = document.getElementById('auth-mod-warning-text');
+  const authSuccessBox = document.getElementById('auth-success-box');
+  const authSuccessText = document.getElementById('auth-success-text');
 
-  function openAuthModal() {
+  function showAuthTab(mode) {
+    if (authModWarning) authModWarning.style.display = 'none';
+    if (authSuccessBox) authSuccessBox.style.display = 'none';
+
+    if (mode === 'register') {
+      if (authTabBtnRegister) authTabBtnRegister.classList.add('active');
+      if (authTabBtnLogin) authTabBtnLogin.classList.remove('active');
+      if (authRegisterForm) authRegisterForm.style.display = 'flex';
+      if (authLoginForm) authLoginForm.style.display = 'none';
+      const emailInput = document.getElementById('auth-register-email');
+      if (emailInput) emailInput.focus();
+    } else {
+      if (authTabBtnLogin) authTabBtnLogin.classList.add('active');
+      if (authTabBtnRegister) authTabBtnRegister.classList.remove('active');
+      if (authLoginForm) authLoginForm.style.display = 'flex';
+      if (authRegisterForm) authRegisterForm.style.display = 'none';
+      const emailInput = document.getElementById('auth-login-email');
+      if (emailInput) emailInput.focus();
+    }
+  }
+
+  function openAuthModal(defaultTab = 'login') {
     if (!authModal) return;
     authModal.style.display = 'flex';
     authModal.setAttribute('aria-hidden', 'false');
-    if (authModWarning) authModWarning.style.display = 'none';
-    if (authEmailInput) authEmailInput.focus();
+    showAuthTab(defaultTab);
   }
 
   function closeAuthModal() {
@@ -544,6 +669,11 @@
     authModal.setAttribute('aria-hidden', 'true');
   }
 
+  if (authTabBtnLogin) authTabBtnLogin.addEventListener('click', () => showAuthTab('login'));
+  if (authTabBtnRegister) authTabBtnRegister.addEventListener('click', () => showAuthTab('register'));
+  if (switchToRegister) switchToRegister.addEventListener('click', () => showAuthTab('register'));
+  if (switchToLogin) switchToLogin.addEventListener('click', () => showAuthTab('login'));
+
   if (authModalCloseBtn) authModalCloseBtn.addEventListener('click', closeAuthModal);
   if (authModal) {
     authModal.addEventListener('click', (e) => {
@@ -551,21 +681,125 @@
     });
   }
 
-  if (authForm) {
-    authForm.addEventListener('submit', (e) => {
+  // 1. Handle LOG IN Submission
+  if (authLoginForm) {
+    authLoginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const email = authEmailInput.value.trim();
-      const name = authNameInput.value.trim();
+      const email = (document.getElementById('auth-login-email').value || '').trim();
+      const pass = (document.getElementById('auth-login-pass').value || '');
 
-      // Check Gmail address
-      if (!email.toLowerCase().endsWith('@gmail.com') || email.length < 11) {
+      if (!isValidRealGmail(email)) {
         authModWarning.style.display = 'flex';
-        authModWarningText.textContent = 'Please enter a valid @gmail.com address.';
+        authModWarningText.textContent = 'Please enter a valid, real @gmail.com address (6-30 characters).';
         sfx.playWarning();
         return;
       }
 
-      // Check name length
+      if (!pass || pass.length < 6) {
+        authModWarning.style.display = 'flex';
+        authModWarningText.textContent = 'Password must be at least 6 characters.';
+        sfx.playWarning();
+        return;
+      }
+
+      const passHash = await hashPassword(pass);
+      const submitBtn = document.getElementById('btn-submit-login');
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Logging in...';
+      }
+
+      try {
+        // Attempt cloud login
+        const res = await fetch(CLOUD_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'login',
+            email: email,
+            passwordHash: passHash
+          })
+        });
+
+        const resData = await res.json();
+
+        if (res.ok && resData.success && resData.user) {
+          saveLocalUser(resData.user.email, resData.user.displayName, passHash);
+          authModWarning.style.display = 'none';
+          if (authSuccessBox) {
+            authSuccessBox.style.display = 'flex';
+            authSuccessText.textContent = `Welcome back, ${resData.user.displayName}! Successfully logged in.`;
+          }
+          authState.signIn(resData.user.email, resData.user.displayName);
+          leaderboardSystem.recordUserScore();
+          setTimeout(() => {
+            closeAuthModal();
+            const tabLb = document.getElementById('tab-leaderboard');
+            if (tabLb) tabLb.click();
+          }, 600);
+        } else {
+          // Check local users DB as fallback
+          const localUsers = getLocalUsers();
+          const cleanEmail = email.toLowerCase().trim();
+          const localUser = localUsers[cleanEmail];
+
+          if (localUser && localUser.passwordHash === passHash) {
+            authModWarning.style.display = 'none';
+            if (authSuccessBox) {
+              authSuccessBox.style.display = 'flex';
+              authSuccessText.textContent = `Welcome back, ${localUser.name}! Successfully logged in.`;
+            }
+            authState.signIn(localUser.email, localUser.name);
+            leaderboardSystem.recordUserScore();
+            setTimeout(() => {
+              closeAuthModal();
+              const tabLb = document.getElementById('tab-leaderboard');
+              if (tabLb) tabLb.click();
+            }, 600);
+          } else {
+            authModWarning.style.display = 'flex';
+            authModWarningText.textContent = resData.error || 'Incorrect password or account not found. Try creating an account.';
+            sfx.playWarning();
+          }
+        }
+      } catch (err) {
+        // Network fallback to local DB
+        const localUsers = getLocalUsers();
+        const cleanEmail = email.toLowerCase().trim();
+        const localUser = localUsers[cleanEmail];
+        if (localUser && localUser.passwordHash === passHash) {
+          authState.signIn(localUser.email, localUser.name);
+          closeAuthModal();
+        } else {
+          authModWarning.style.display = 'flex';
+          authModWarningText.textContent = 'Unable to log in. Please check your password or network connection.';
+          sfx.playWarning();
+        }
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<i class="fa-solid fa-arrow-right-to-bracket"></i> Log In to Leaderboard';
+        }
+      }
+    });
+  }
+
+  // 2. Handle CREATE ACCOUNT Submission
+  if (authRegisterForm) {
+    authRegisterForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = (document.getElementById('auth-register-email').value || '').trim();
+      const name = (document.getElementById('auth-register-name').value || '').trim();
+      const pass = (document.getElementById('auth-register-pass').value || '');
+      const confirmPass = (document.getElementById('auth-register-confirm').value || '');
+
+      if (!isValidRealGmail(email)) {
+        authModWarning.style.display = 'flex';
+        authModWarningText.textContent = 'Please enter a genuine, registered @gmail.com address (6-30 characters).';
+        sfx.playWarning();
+        return;
+      }
+
       if (name.length < 3 || name.length > 16) {
         authModWarning.style.display = 'flex';
         authModWarningText.textContent = 'Gamer tag must be between 3 and 16 characters.';
@@ -573,56 +807,88 @@
         return;
       }
 
-      // Automated Profanity Moderation Check
       if (containsProfanity(name)) {
         authModWarning.style.display = 'flex';
-        authModWarningText.textContent = '⚠️ Inappropriate or abusive language detected. Please choose a clean, friendly gamer tag to protect our community.';
+        authModWarningText.textContent = '⚠️ Inappropriate or abusive language detected. Please choose a clean, friendly gamer tag.';
         sfx.playWarning();
         return;
       }
 
-      // Successful verification
-      authModWarning.style.display = 'none';
-      authState.signIn(email, name);
-      closeAuthModal();
+      if (pass.length < 6) {
+        authModWarning.style.display = 'flex';
+        authModWarningText.textContent = 'Password must be at least 6 characters long.';
+        sfx.playWarning();
+        return;
+      }
 
-      // Check and update leaderboard with current high score
-      leaderboardSystem.recordUserScore();
+      if (pass !== confirmPass) {
+        authModWarning.style.display = 'flex';
+        authModWarningText.textContent = 'Passwords do not match. Please re-enter your password.';
+        sfx.playWarning();
+        return;
+      }
 
-      // Automatically switch to the Leaderboard tab so player immediately sees their rank!
-      const tabLb = document.getElementById('tab-leaderboard');
-      if (tabLb) {
-        tabLb.click();
+      const passHash = await hashPassword(pass);
+      const submitBtn = document.getElementById('btn-submit-register');
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Creating Account...';
+      }
+
+      try {
+        const res = await fetch(CLOUD_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'register',
+            email: email,
+            name: name,
+            passwordHash: passHash
+          })
+        });
+
+        const resData = await res.json();
+
+        if (res.ok && resData.success && resData.user) {
+          saveLocalUser(resData.user.email, resData.user.displayName, passHash);
+          authModWarning.style.display = 'none';
+          if (authSuccessBox) {
+            authSuccessBox.style.display = 'flex';
+            authSuccessText.textContent = `Account created successfully! Welcome, ${resData.user.displayName}!`;
+          }
+          authState.signIn(resData.user.email, resData.user.displayName);
+          leaderboardSystem.recordUserScore();
+          setTimeout(() => {
+            closeAuthModal();
+            const tabLb = document.getElementById('tab-leaderboard');
+            if (tabLb) tabLb.click();
+          }, 600);
+        } else {
+          authModWarning.style.display = 'flex';
+          authModWarningText.textContent = resData.error || 'Failed to create account. This Gmail may already be registered.';
+          sfx.playWarning();
+        }
+      } catch (err) {
+        // Fallback local registration
+        saveLocalUser(email, name, passHash);
+        authState.signIn(email, name);
+        closeAuthModal();
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<i class="fa-solid fa-user-plus"></i> Create Account &amp; Join Leaderboard';
+        }
       }
     });
   }
 
   /* --------------------------------------------------------------------------
-   * 6. GLOBAL LEADERBOARD ENGINE
-   * Persistent community high score rankings
+   * 6. GLOBAL LEADERBOARD ENGINE (FRESH 100% NEW DATABASE)
    * -------------------------------------------------------------------------- */
   const DEFAULT_LEADERBOARD = {
-    flappy: [
-      { name: 'VajraAce', email: 'vajra***@gmail.com', score: 38, rank: 1 },
-      { name: 'ShadowStrike', email: 'shad***@gmail.com', score: 29, rank: 2 },
-      { name: 'Phoenix99', email: 'phoe***@gmail.com', score: 24, rank: 3 },
-      { name: 'SkySniper', email: 'sky.***@gmail.com', score: 19, rank: 4 },
-      { name: 'GhostOperator', email: 'ghos***@gmail.com', score: 15, rank: 5 }
-    ],
-    runner: [
-      { name: 'CyberRex', email: 'cybe***@gmail.com', score: 642, rank: 1 },
-      { name: 'VajraSprint', email: 'v.sp***@gmail.com', score: 518, rank: 2 },
-      { name: 'NeonRider', email: 'neon***@gmail.com', score: 430, rank: 3 },
-      { name: 'SpeedyBot', email: 'spee***@gmail.com', score: 365, rank: 4 },
-      { name: 'PixelDino', email: 'pixe***@gmail.com', score: 290, rank: 5 }
-    ],
-    snake: [
-      { name: 'ViperKing', email: 'vipe***@gmail.com', score: 210, rank: 1 },
-      { name: 'AppleHunter', email: 'appl***@gmail.com', score: 180, rank: 2 },
-      { name: 'VajraClouds', email: 'vajr***@gmail.com', score: 150, rank: 3 },
-      { name: 'Cobra9', email: 'cobr***@gmail.com', score: 120, rank: 4 },
-      { name: 'GreenMamba', email: 'gree***@gmail.com', score: 90, rank: 5 }
-    ]
+    flappy: [],
+    runner: [],
+    snake: []
   };
 
   const CLOUD_API_URL = '/.netlify/functions/leaderboard';
@@ -635,7 +901,15 @@
       const saved = localStorage.getItem('jaishnav_leaderboard_data');
       if (saved) {
         try {
-          this.data = JSON.parse(saved);
+          const parsed = JSON.parse(saved);
+          const hasDummy = (parsed.flappy || []).some(p => p.name === 'VajraAce' || p.name === 'ShadowStrike') ||
+                           (parsed.runner || []).some(p => p.name === 'CyberRex');
+          if (hasDummy) {
+            this.data = JSON.parse(JSON.stringify(DEFAULT_LEADERBOARD));
+            this.save();
+          } else {
+            this.data = parsed;
+          }
         } catch (e) {
           this.data = JSON.parse(JSON.stringify(DEFAULT_LEADERBOARD));
         }
@@ -753,7 +1027,7 @@
       tbody.innerHTML = '';
 
       if (list.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-secondary); padding: 2rem;">No scores yet! Play a game and be the first on the board.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="4" class="empty-table-state"><i class="fa-solid fa-trophy-star"></i><br>Leaderboard is brand new! Be the first player to set a verified high score!</td></tr>`;
         return;
       }
 
