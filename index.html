@@ -3,320 +3,197 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NotNav // Developer & Gamer Portfolio</title>
-  <meta name="description" content="Portfolio of NotNav - Class 9 Developer, Gamer & GFX Artist from Assam, India. Featuring gaming HUD UI, skills, hardware specs, and playable arcade games.">
+  <title>Jaishnav M Baro — Developer & Gamer Portfolio</title>
+  <meta name="description" content="Portfolio of Jaishnav M Baro (NotNav) — Class 9 Student, Developer, Gamer & GFX Artist from Assam, India.">
 
   <!-- Favicon -->
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><polygon points='50,5 95,28 95,72 50,95 5,72 5,28' fill='%23090d16' stroke='%2300f0ff' stroke-width='6'/><text x='50' y='62' font-family='sans-serif' font-size='42' font-weight='900' fill='%2300ff9d' text-anchor='middle'>N</text></svg>">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%230f172a'/><text x='50' y='65' font-family='sans-serif' font-size='44' font-weight='800' fill='%2338bdf8' text-anchor='middle'>J</text></svg>">
 
-  <!-- Google Fonts -->
+  <!-- Google Fonts: Plus Jakarta Sans, Inter, Fira Code -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,400;0,600;0,700;1,400;1,700&family=Orbitron:wght@500;700;800;900&family=Rajdhani:wght@500;600;700&family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
 
   <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-  <!-- Main Stylesheet -->
+  <!-- Stylesheet -->
   <link rel="stylesheet" href="style.css">
 </head>
-<body class="cyber-theme">
-  <!-- Scanlines & Noise Background Overlay -->
-  <div class="hud-scanlines" aria-hidden="true"></div>
-  <div class="hud-vignette" aria-hidden="true"></div>
-  <div class="hud-grid-background" aria-hidden="true"></div>
+<body class="classy-dark">
+  <!-- Subtle Ambient Glow Orbs -->
+  <div class="ambient-glow glow-top-left" aria-hidden="true"></div>
+  <div class="ambient-glow glow-top-right" aria-hidden="true"></div>
+  <div class="ambient-glow glow-bottom-center" aria-hidden="true"></div>
 
-  <!-- Ambient Glowing Particles Canvas -->
+  <!-- Ambient Micro Particles -->
   <canvas id="ambient-canvas" class="ambient-canvas" aria-hidden="true"></canvas>
 
-  <!-- Interactive Custom Cursor -->
-  <div id="custom-cursor" class="custom-cursor" aria-hidden="true">
-    <div class="cursor-crosshair"></div>
-    <div class="cursor-dot"></div>
-  </div>
-
-  <!-- TOP GAMING HUD NAVIGATION BAR -->
-  <header class="hud-header" id="hud-header">
-    <div class="hud-header-container">
-      <!-- Player Brand / Callout -->
-      <a href="#about" class="hud-brand" aria-label="NotNav Home">
-        <div class="brand-crest">
-          <span class="crest-bracket">[</span>
-          <span class="crest-symbol">NN</span>
-          <span class="crest-bracket">]</span>
-        </div>
-        <div class="brand-info">
-          <span class="brand-title">NOTNAV</span>
-          <span class="brand-badge"><i class="fa-solid fa-shield-halved"></i> LVL 09 // OPERATOR</span>
+  <!-- NAVIGATION BAR -->
+  <header class="site-header" id="site-header">
+    <div class="header-container">
+      <!-- Brand Logo / Monogram -->
+      <a href="#about" class="brand-monogram">
+        <span class="monogram-box">JB</span>
+        <div class="brand-text">
+          <span class="brand-name">Jaishnav M Baro</span>
+          <span class="brand-alias"><span class="status-dot"></span> NotNav &bull; Assam, IN</span>
         </div>
       </a>
 
-      <!-- Telemetry / Live Status Tracker -->
-      <div class="hud-telemetry hide-mobile">
-        <div class="telemetry-item">
-          <span class="telemetry-label">REGION:</span>
-          <span class="telemetry-value"><i class="fa-solid fa-location-dot"></i> ASSAM, IN</span>
-        </div>
-        <div class="telemetry-separator">/</div>
-        <div class="telemetry-item">
-          <span class="telemetry-label">STATUS:</span>
-          <span class="telemetry-value text-neon-green"><span class="live-dot"></span> ONLINE</span>
-        </div>
-        <div class="telemetry-separator">/</div>
-        <div class="telemetry-item">
-          <span class="telemetry-label">FPS:</span>
-          <span class="telemetry-value" id="hud-fps-counter">60</span>
-        </div>
-      </div>
-
-      <!-- Navigation Links -->
-      <nav class="hud-nav" id="hud-nav" aria-label="Main Navigation">
-        <ul class="nav-list">
-          <li class="nav-item">
-            <a href="#about" class="nav-link active" data-nav="about">
-              <span class="nav-num">01</span>
-              <span class="nav-text">DOSSIER</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="#skills" class="nav-link" data-nav="skills">
-              <span class="nav-num">02</span>
-              <span class="nav-text">ARSENAL</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="#games" class="nav-link" data-nav="games">
-              <span class="nav-num">03</span>
-              <span class="nav-text">TROPHIES</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="#learning" class="nav-link" data-nav="learning">
-              <span class="nav-num">04</span>
-              <span class="nav-text">PROGRESS</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="#hardware" class="nav-link" data-nav="hardware">
-              <span class="nav-num">05</span>
-              <span class="nav-text">RIG SPECS</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="#projects" class="nav-link" data-nav="projects">
-              <span class="nav-num">06</span>
-              <span class="nav-text">MISSIONS</span>
-            </a>
-          </li>
-          <li class="nav-item highlight-item">
-            <a href="#arcade" class="nav-link arcade-link" data-nav="arcade">
-              <span class="nav-icon"><i class="fa-solid fa-gamepad"></i></span>
-              <span class="nav-text">ARCADE</span>
-              <span class="arcade-ping">PLAY</span>
-            </a>
-          </li>
+      <!-- Desktop Navigation Menu -->
+      <nav class="nav-menu" id="nav-menu" aria-label="Main Navigation">
+        <ul class="nav-links">
+          <li><a href="#about" class="nav-item active">About</a></li>
+          <li><a href="#skills" class="nav-item">Skills</a></li>
+          <li><a href="#games" class="nav-item">Games</a></li>
+          <li><a href="#learning" class="nav-item">Roadmap</a></li>
+          <li><a href="#hardware" class="nav-item">Setup</a></li>
+          <li><a href="#projects" class="nav-item">Projects</a></li>
+          <li><a href="#arcade" class="nav-item arcade-pill"><i class="fa-solid fa-gamepad"></i> Arcade</a></li>
         </ul>
       </nav>
 
-      <!-- Action Buttons (SFX, Terminal, Mobile Menu) -->
-      <div class="hud-actions">
-        <!-- SFX Synthesizer Toggle -->
-        <button id="sfx-toggle" class="hud-btn hud-btn-icon" title="Toggle Audio FX" aria-label="Toggle Sound Effects">
+      <!-- Action Buttons -->
+      <div class="header-actions">
+        <!-- SFX Toggle -->
+        <button id="sfx-toggle" class="action-btn" title="Toggle Sound Feedback" aria-label="Toggle Sound Effects">
           <i class="fa-solid fa-volume-high" id="sfx-icon"></i>
-          <span class="btn-text hide-tablet">SFX</span>
         </button>
 
-        <!-- Command Terminal Modal Trigger -->
-        <button id="terminal-toggle" class="hud-btn hud-btn-icon" title="Open HUD Terminal" aria-label="Open System Terminal">
-          <i class="fa-solid fa-terminal"></i>
-          <span class="btn-text hide-tablet">CLI</span>
-        </button>
+        <!-- Direct Email Link -->
+        <a href="mailto:notjaishnav@gmail.com" class="action-btn email-btn" title="Send Email">
+          <i class="fa-solid fa-envelope"></i>
+          <span class="hide-mobile">Contact</span>
+        </a>
 
-        <!-- Mobile Menu Toggle Button -->
-        <button id="mobile-menu-btn" class="hud-btn hud-btn-icon mobile-only" aria-label="Toggle Navigation Menu" aria-expanded="false">
+        <!-- Mobile Menu Toggle -->
+        <button id="mobile-menu-btn" class="action-btn mobile-menu-toggle" aria-label="Toggle Menu" aria-expanded="false">
           <i class="fa-solid fa-bars"></i>
         </button>
       </div>
     </div>
-
-    <!-- Sub-header HUD decorative bar -->
-    <div class="hud-subbar">
-      <div class="subbar-segment subbar-segment-active"></div>
-      <div class="subbar-segment"></div>
-      <div class="subbar-segment"></div>
-      <div class="subbar-text">SYS.CONFIG // READY TO ENGAGE</div>
-      <div class="subbar-line"></div>
-      <div class="subbar-decor">V.2.4.9 // PROTOCOL ACTIVE</div>
-    </div>
   </header>
 
-  <!-- QUICK ACCESS SQUAD STATUS DRAWER (Floating Side Pill) -->
-  <aside class="quick-status-pill hide-tablet" aria-label="Player Quick Information">
-    <div class="status-pill-inner">
-      <span class="status-indicator"></span>
-      <span class="status-name">NOTNAV</span>
-      <span class="status-tag">DEV &bull; GMR</span>
-      <a href="mailto:notmnav@gmail.com" class="status-email-link" title="Send Transmission">
-        <i class="fa-solid fa-envelope"></i>
-      </a>
-    </div>
-  </aside>
-
-  <!-- MAIN VIEWPORT CONTAINER -->
-  <main class="hud-main">
+  <!-- MAIN VIEWPORT -->
+  <main class="main-content">
 
     <!-- ========================================== -->
-    <!-- SECTION 1: ABOUT ME (OPERATOR DOSSIER)     -->
+    <!-- SECTION 1: ABOUT ME                        -->
     <!-- ========================================== -->
-    <section id="about" class="hud-section section-about active-section" data-section="about">
-      <div class="section-container">
-        <!-- Section Corner Accents -->
-        <div class="cyber-corner top-left"></div>
-        <div class="cyber-corner top-right"></div>
-        <div class="cyber-corner bottom-left"></div>
-        <div class="cyber-corner bottom-right"></div>
-
-        <!-- Section Header -->
-        <div class="section-title-wrap">
-          <div class="section-tag"><i class="fa-solid fa-id-card"></i> FILE ARCHIVE // SEC-01</div>
-          <h1 class="section-title">OPERATOR <span class="neon-text-cyan">DOSSIER</span></h1>
-          <p class="section-subtitle">Tactical background, identity credentials, and player biography.</p>
-        </div>
-
-        <div class="dossier-grid">
-          <!-- Left Column: Holographic Player Card -->
-          <div class="dossier-card cyber-panel">
-            <div class="panel-header">
-              <span class="panel-id"><i class="fa-solid fa-fingerprint"></i> ID: NN-7530-AS</span>
-              <span class="panel-badge-pill">CLEARANCE: ALPHA</span>
+    <section id="about" class="content-section section-about">
+      <div class="content-container">
+        <div class="hero-layout">
+          <!-- Left: Hero Text & Information -->
+          <div class="hero-text-col">
+            <div class="status-pill">
+              <span class="pulse-indicator"></span>
+              <span>Available for collaborations &bull; Class 9 Student</span>
             </div>
 
-            <!-- Avatar Hologram -->
-            <div class="avatar-holo-wrapper">
-              <div class="holo-ring outer-ring"></div>
-              <div class="holo-ring inner-ring"></div>
-              <div class="holo-hex">
-                <div class="avatar-emblem">
-                  <i class="fa-solid fa-headset emblem-icon"></i>
-                  <span class="emblem-callsign">NOTNAV</span>
+            <h1 class="hero-title">
+              Hi, I'm <span class="gradient-text">Jaishnav M Baro</span>
+            </h1>
+
+            <p class="hero-tagline">
+              Developer, Gamer, and Graphic Artist based in <strong>Assam, India</strong>. Known online as <strong>NotNav</strong>.
+            </p>
+
+            <p class="hero-description">
+              I blend the precision, quick thinking, and dedication of competitive gaming with a passion for clean web development and visual design. Currently navigating Class 9 while actively expanding my skill set in frontend architecture, object-oriented programming, and creative graphics.
+            </p>
+
+            <!-- Quick Detail Badges -->
+            <div class="detail-badges-row">
+              <div class="detail-badge">
+                <i class="fa-solid fa-graduation-cap"></i>
+                <div>
+                  <span class="badge-label">Education</span>
+                  <strong>Class 9 Student</strong>
                 </div>
               </div>
-              <div class="holo-sweep"></div>
-            </div>
 
-            <!-- Operator Quick Data List -->
-            <div class="operator-meta">
-              <div class="meta-row">
-                <span class="meta-label"><i class="fa-solid fa-user-astronaut"></i> CALLSIGN:</span>
-                <span class="meta-val text-neon-cyan">NotNav</span>
+              <div class="detail-badge">
+                <i class="fa-solid fa-location-dot"></i>
+                <div>
+                  <span class="badge-label">Location</span>
+                  <strong>Assam, India 🇮🇳</strong>
+                </div>
               </div>
-              <div class="meta-row">
-                <span class="meta-label"><i class="fa-solid fa-graduation-cap"></i> EDUCATION:</span>
-                <span class="meta-val text-neon-green">Class 9 Student</span>
-              </div>
-              <div class="meta-row">
-                <span class="meta-label"><i class="fa-solid fa-map-pin"></i> LOCATION:</span>
-                <span class="meta-val">Assam, India 🇮🇳</span>
-              </div>
-              <div class="meta-row">
-                <span class="meta-label"><i class="fa-solid fa-gamepad"></i> MAIN PLATFORM:</span>
-                <span class="meta-val text-neon-purple">Xbox &amp; PC</span>
-              </div>
-              <div class="meta-row">
-                <span class="meta-label"><i class="fa-solid fa-envelope"></i> DIRECT COMMS:</span>
-                <a href="mailto:notmnav@gmail.com" class="meta-val text-neon-cyan email-link">notmnav@gmail.com</a>
+
+              <div class="detail-badge">
+                <i class="fa-solid fa-gamepad"></i>
+                <div>
+                  <span class="badge-label">Platform</span>
+                  <strong>Xbox &amp; PC</strong>
+                </div>
               </div>
             </div>
 
-            <!-- Action Buttons inside Player Card -->
-            <div class="dossier-card-actions">
-              <a href="mailto:notmnav@gmail.com" class="cyber-btn cyber-btn-primary">
-                <i class="fa-solid fa-paper-plane"></i> TRANSMIT MESSAGE
+            <!-- Hero Action Buttons -->
+            <div class="hero-cta-group">
+              <a href="mailto:notjaishnav@gmail.com" class="btn btn-primary">
+                <i class="fa-solid fa-paper-plane"></i> Get in Touch
               </a>
-              <a href="#arcade" class="cyber-btn cyber-btn-secondary">
-                <i class="fa-solid fa-gamepad"></i> LAUNCH ARCADE
+              <a href="#arcade" class="btn btn-secondary">
+                <i class="fa-solid fa-gamepad"></i> Play Mini-Games
+              </a>
+              <a href="#projects" class="btn btn-ghost">
+                View Projects &rarr;
               </a>
             </div>
           </div>
 
-          <!-- Right Column: Biography & Tactical Summary -->
-          <div class="dossier-details">
-            <!-- Bio Card -->
-            <div class="cyber-panel bio-panel">
-              <div class="panel-header">
-                <span class="panel-id"><i class="fa-solid fa-file-lines"></i> OPERATOR BIOGRAPHY</span>
-                <span class="panel-status-indicator"><span class="live-dot"></span> SYNCHRONIZED</span>
-              </div>
-
-              <div class="bio-body">
-                <div class="quote-bar">
-                  <p class="bio-lead">
-                    "Blending the precision of competitive gaming with the creativity of web engineering."
-                  </p>
+          <!-- Right: Sleek Profile Card -->
+          <div class="hero-card-col">
+            <div class="profile-card">
+              <div class="profile-avatar-wrap">
+                <div class="avatar-monogram-circle">
+                  <span>JB</span>
                 </div>
-                
-                <p class="bio-text">
-                  Hey there! I am <strong>NotNav</strong>, a Class 9 student and tech enthusiast based in <strong>Assam, India</strong>. I spend my days building modern, responsive web experiences and diving into high-octane virtual campaigns.
-                </p>
-
-                <p class="bio-text">
-                  As both an aspiring developer and a passionate gamer, I see code as the ultimate gameplay mechanic: you design the rules, craft the interface, and deploy seamless interactions. Whether I am fine-tuning layouts with modern CSS, writing logical algorithms, designing digital graphics (GFX), or conquering tactical campaigns on Xbox, I am driven by relentless curiosity and continuous improvement.
-                </p>
-
-                <!-- Core Pillars -->
-                <div class="pillars-grid">
-                  <div class="pillar-box">
-                    <div class="pillar-icon text-neon-cyan"><i class="fa-solid fa-code"></i></div>
-                    <div class="pillar-info">
-                      <h4>WEB DEVELOPER</h4>
-                      <p>Building responsive, interactive interfaces with modern web standards.</p>
-                    </div>
-                  </div>
-
-                  <div class="pillar-box">
-                    <div class="pillar-icon text-neon-green"><i class="fa-solid fa-trophy"></i></div>
-                    <div class="pillar-info">
-                      <h4>TACTICAL GAMER</h4>
-                      <p>Veteran player conquered COD Modern Warfare trilogy and Hogwarts Legacy.</p>
-                    </div>
-                  </div>
-
-                  <div class="pillar-box">
-                    <div class="pillar-icon text-neon-purple"><i class="fa-solid fa-pen-nib"></i></div>
-                    <div class="pillar-info">
-                      <h4>GFX ARTIST</h4>
-                      <p>Designing eye-catching banners, gaming thumbnails, and cyber assets.</p>
-                    </div>
-                  </div>
-
-                  <div class="pillar-box">
-                    <div class="pillar-icon text-neon-yellow"><i class="fa-solid fa-bolt"></i></div>
-                    <div class="pillar-info">
-                      <h4>ALWAYS LEVELING UP</h4>
-                      <p>Actively mastering Python, Discord Bot architecture, and AI concepts.</p>
-                    </div>
-                  </div>
+                <div class="online-status-badge">
+                  <span class="status-dot-sm"></span> Online
                 </div>
               </div>
-            </div>
 
-            <!-- Tactical Stats Strip -->
-            <div class="tactical-stats-strip">
-              <div class="stat-cell">
-                <span class="stat-number text-neon-cyan">09</span>
-                <span class="stat-tag">ACADEMIC CLASS</span>
+              <div class="profile-meta">
+                <h3 class="profile-name">Jaishnav M Baro</h3>
+                <span class="profile-handle">@NotNav</span>
+                <p class="profile-mini-bio">
+                  Curious student builder passionate about clean code, tactical campaigns, and digital arts.
+                </p>
               </div>
-              <div class="stat-cell">
-                <span class="stat-number text-neon-green">04</span>
-                <span class="stat-tag">CORE SKILLS</span>
+
+              <div class="profile-contact-list">
+                <a href="mailto:notjaishnav@gmail.com" class="contact-item">
+                  <i class="fa-solid fa-envelope"></i>
+                  <span>notjaishnav@gmail.com</span>
+                </a>
+                <div class="contact-item">
+                  <i class="fa-solid fa-map-pin"></i>
+                  <span>Assam, India</span>
+                </div>
+                <div class="contact-item">
+                  <i class="fa-solid fa-code"></i>
+                  <span>HTML &bull; CSS &bull; Java &bull; GFX</span>
+                </div>
               </div>
-              <div class="stat-cell">
-                <span class="stat-number text-neon-purple">04+</span>
-                <span class="stat-tag">TITLES COMPLETED</span>
-              </div>
-              <div class="stat-cell">
-                <span class="stat-number text-neon-cyan">02</span>
-                <span class="stat-tag">ARCADE GAMES BUILT</span>
+
+              <div class="profile-stat-bar">
+                <div class="mini-stat">
+                  <strong>4+</strong>
+                  <span>Games Beaten</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="mini-stat">
+                  <strong>4</strong>
+                  <span>Core Skills</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="mini-stat">
+                  <strong>2</strong>
+                  <span>Playable Games</span>
+                </div>
               </div>
             </div>
           </div>
@@ -325,545 +202,217 @@
     </section>
 
     <!-- ========================================== -->
-    <!-- SECTION 2: SKILLS (TACTICAL ARSENAL)       -->
+    <!-- SECTION 2: SKILLS                          -->
     <!-- ========================================== -->
-    <section id="skills" class="hud-section section-skills" data-section="skills">
-      <div class="section-container">
-        <div class="cyber-corner top-left"></div>
-        <div class="cyber-corner top-right"></div>
-        <div class="cyber-corner bottom-left"></div>
-        <div class="cyber-corner bottom-right"></div>
-
-        <div class="section-title-wrap">
-          <div class="section-tag"><i class="fa-solid fa-microchip"></i> LOADOUT // SEC-02</div>
-          <h2 class="section-title">COMBAT <span class="neon-text-green">ARSENAL</span> &amp; SKILLS</h2>
-          <p class="section-subtitle">Core technical capabilities, creative mastery, and operational weapons of choice.</p>
+    <section id="skills" class="content-section">
+      <div class="content-container">
+        <div class="section-header">
+          <span class="section-tag">Capabilities</span>
+          <h2 class="section-heading">Core Skills &amp; Tools</h2>
+          <p class="section-lead">The technologies, programming languages, and creative tools I work with.</p>
         </div>
 
         <div class="skills-grid">
           <!-- Skill 1: HTML -->
-          <div class="skill-card cyber-panel" data-skill="html">
-            <div class="skill-card-top">
-              <div class="skill-icon-wrap html-theme">
+          <div class="skill-card">
+            <div class="skill-icon-header">
+              <div class="icon-wrap html-icon">
                 <i class="fa-brands fa-html5"></i>
               </div>
-              <div class="skill-rank-badge">TIER: ELITE</div>
+              <span class="skill-tier-badge">Proficient</span>
             </div>
-            
-            <div class="skill-info">
-              <h3 class="skill-name">HTML</h3>
-              <p class="skill-role">Structure, Semantic Web &amp; Canvas API</p>
-              <p class="skill-desc">
-                Crafting robust, semantic, and accessible document architectures. Skilled in HTML5 Canvas for real-time 2D rendering, interactive web components, and clean DOM structures.
-              </p>
-            </div>
-
-            <!-- Skill Metrics -->
-            <div class="skill-metrics">
-              <div class="metric-row">
-                <span>COMPATIBILITY</span>
-                <span class="text-neon-cyan">100%</span>
+            <h3 class="skill-title">HTML5</h3>
+            <p class="skill-desc">
+              Strong knowledge of semantic markup, accessible document hierarchies, and HTML5 Canvas API for interactive 2D web rendering.
+            </p>
+            <div class="skill-progress-wrap">
+              <div class="progress-info">
+                <span>Mastery</span>
+                <span class="progress-percent">90%</span>
               </div>
-              <div class="metric-bar-bg">
-                <div class="metric-bar-fill fill-cyan" style="width: 90%;"></div>
-              </div>
-              <div class="skill-tags">
-                <span class="cyber-pill">HTML5</span>
-                <span class="cyber-pill">Canvas 2D</span>
-                <span class="cyber-pill">Semantics</span>
-                <span class="cyber-pill">Audio API</span>
+              <div class="progress-bar">
+                <div class="progress-fill fill-html" style="width: 90%;"></div>
               </div>
             </div>
-            <div class="card-glow-edge cyan-edge"></div>
+            <div class="skill-tags-list">
+              <span class="tag-pill">Semantic Web</span>
+              <span class="tag-pill">Canvas 2D</span>
+              <span class="tag-pill">Accessibility</span>
+            </div>
           </div>
 
           <!-- Skill 2: CSS -->
-          <div class="skill-card cyber-panel" data-skill="css">
-            <div class="skill-card-top">
-              <div class="skill-icon-wrap css-theme">
+          <div class="skill-card">
+            <div class="skill-icon-header">
+              <div class="icon-wrap css-icon">
                 <i class="fa-brands fa-css3-alt"></i>
               </div>
-              <div class="skill-rank-badge">TIER: SPECIALIST</div>
+              <span class="skill-tier-badge">Specialist</span>
             </div>
-
-            <div class="skill-info">
-              <h3 class="skill-name">CSS</h3>
-              <p class="skill-role">Modern Layouts, Neon FX &amp; Keyframe FX</p>
-              <p class="skill-desc">
-                Building responsive cyber aesthetics with Flexbox, CSS Grid, custom properties, glassmorphism, glowing neon filters, and buttery-smooth micro-animations.
-              </p>
-            </div>
-
-            <div class="skill-metrics">
-              <div class="metric-row">
-                <span>VISUAL FIDELITY</span>
-                <span class="text-neon-green">95%</span>
+            <h3 class="skill-title">CSS3</h3>
+            <p class="skill-desc">
+              Crafting modern, responsive interfaces with Flexbox, CSS Grid, smooth transitions, custom properties, and refined dark theme palettes.
+            </p>
+            <div class="skill-progress-wrap">
+              <div class="progress-info">
+                <span>Mastery</span>
+                <span class="progress-percent">88%</span>
               </div>
-              <div class="metric-bar-bg">
-                <div class="metric-bar-fill fill-green" style="width: 88%;"></div>
-              </div>
-              <div class="skill-tags">
-                <span class="cyber-pill">Flexbox / Grid</span>
-                <span class="cyber-pill">Gaming HUD</span>
-                <span class="cyber-pill">Animations</span>
-                <span class="cyber-pill">Responsive</span>
+              <div class="progress-bar">
+                <div class="progress-fill fill-css" style="width: 88%;"></div>
               </div>
             </div>
-            <div class="card-glow-edge green-edge"></div>
+            <div class="skill-tags-list">
+              <span class="tag-pill">Flexbox &amp; Grid</span>
+              <span class="tag-pill">Responsive Design</span>
+              <span class="tag-pill">Micro-interactions</span>
+            </div>
           </div>
 
           <!-- Skill 3: Java -->
-          <div class="skill-card cyber-panel" data-skill="java">
-            <div class="skill-card-top">
-              <div class="skill-icon-wrap java-theme">
+          <div class="skill-card">
+            <div class="skill-icon-header">
+              <div class="icon-wrap java-icon">
                 <i class="fa-brands fa-java"></i>
               </div>
-              <div class="skill-rank-badge">TIER: CORE LOGIC</div>
+              <span class="skill-tier-badge">Core Logic</span>
             </div>
-
-            <div class="skill-info">
-              <h3 class="skill-name">JAVA</h3>
-              <p class="skill-role">Object-Oriented Programming &amp; Logic</p>
-              <p class="skill-desc">
-                Strong understanding of core object-oriented programming (OOP) principles, structured data flow, algorithm building, class inheritance, and computational logic.
-              </p>
-            </div>
-
-            <div class="skill-metrics">
-              <div class="metric-row">
-                <span>OOP SYNTAX</span>
-                <span class="text-neon-yellow">80%</span>
+            <h3 class="skill-title">Java</h3>
+            <p class="skill-desc">
+              Solid understanding of object-oriented programming (OOP), data structures, control flow, functions, and structured problem solving.
+            </p>
+            <div class="skill-progress-wrap">
+              <div class="progress-info">
+                <span>Mastery</span>
+                <span class="progress-percent">75%</span>
               </div>
-              <div class="metric-bar-bg">
-                <div class="metric-bar-fill fill-yellow" style="width: 75%;"></div>
-              </div>
-              <div class="skill-tags">
-                <span class="cyber-pill">Core Java</span>
-                <span class="cyber-pill">OOP Architecture</span>
-                <span class="cyber-pill">Algorithms</span>
-                <span class="cyber-pill">Control Flow</span>
+              <div class="progress-bar">
+                <div class="progress-fill fill-java" style="width: 75%;"></div>
               </div>
             </div>
-            <div class="card-glow-edge yellow-edge"></div>
+            <div class="skill-tags-list">
+              <span class="tag-pill">OOP Fundamentals</span>
+              <span class="tag-pill">Algorithms</span>
+              <span class="tag-pill">Class Architecture</span>
+            </div>
           </div>
 
           <!-- Skill 4: GFX Artist -->
-          <div class="skill-card cyber-panel" data-skill="gfx">
-            <div class="skill-card-top">
-              <div class="skill-icon-wrap gfx-theme">
-                <i class="fa-solid fa-wand-magic-sparkles"></i>
+          <div class="skill-card">
+            <div class="skill-icon-header">
+              <div class="icon-wrap gfx-icon">
+                <i class="fa-solid fa-palette"></i>
               </div>
-              <div class="skill-rank-badge">TIER: ARTISAN</div>
+              <span class="skill-tier-badge">Creative</span>
             </div>
-
-            <div class="skill-info">
-              <h3 class="skill-name">GFX ARTIST</h3>
-              <p class="skill-role">Gaming Thumbnails, Overlays &amp; Branding</p>
-              <p class="skill-desc">
-                Designing punchy visual graphics for gaming creators, esports banners, YouTube thumbnails, cyber vector illustrations, color grading, and custom digital badges.
-              </p>
-            </div>
-
-            <div class="skill-metrics">
-              <div class="metric-row">
-                <span>CREATIVE RENDERING</span>
-                <span class="text-neon-purple">92%</span>
+            <h3 class="skill-title">GFX Artist</h3>
+            <p class="skill-desc">
+              Designing impactful graphic design assets, high-engagement gaming thumbnails, esports banners, vector artwork, and digital branding.
+            </p>
+            <div class="skill-progress-wrap">
+              <div class="progress-info">
+                <span>Mastery</span>
+                <span class="progress-percent">85%</span>
               </div>
-              <div class="metric-bar-bg">
-                <div class="metric-bar-fill fill-purple" style="width: 85%;"></div>
-              </div>
-              <div class="skill-tags">
-                <span class="cyber-pill">Thumbnails</span>
-                <span class="cyber-pill">Gaming Overlays</span>
-                <span class="cyber-pill">Composition</span>
-                <span class="cyber-pill">Color Grading</span>
+              <div class="progress-bar">
+                <div class="progress-fill fill-gfx" style="width: 85%;"></div>
               </div>
             </div>
-            <div class="card-glow-edge purple-edge"></div>
-          </div>
-        </div>
-
-        <!-- Skill Loadout Diagnostic Footer -->
-        <div class="skills-footer-terminal cyber-panel">
-          <div class="footer-terminal-header">
-            <span><i class="fa-solid fa-terminal"></i> DIAGNOSTIC FEED: ARSENAL EQUIPPED</span>
-            <span class="text-neon-cyan">[STATUS: OPTIMIZED]</span>
-          </div>
-          <div class="footer-terminal-text">
-            <span>&gt; HTML5, CSS3, Java OOP, &amp; Digital GFX are loaded into active slots. Ready for full deployment.</span>
+            <div class="skill-tags-list">
+              <span class="tag-pill">Thumbnails</span>
+              <span class="tag-pill">Stream Graphics</span>
+              <span class="tag-pill">Composition</span>
+            </div>
           </div>
         </div>
       </div>
     </section>
 
     <!-- ========================================== -->
-    <!-- SECTION 3: GAMES COMPLETED (HALL OF FAME)  -->
+    <!-- SECTION 3: GAMES COMPLETED                 -->
     <!-- ========================================== -->
-    <section id="games" class="hud-section section-games" data-section="games">
-      <div class="section-container">
-        <div class="cyber-corner top-left"></div>
-        <div class="cyber-corner top-right"></div>
-        <div class="cyber-corner bottom-left"></div>
-        <div class="cyber-corner bottom-right"></div>
-
-        <div class="section-title-wrap">
-          <div class="section-tag"><i class="fa-solid fa-trophy"></i> TROPHY ROOM // SEC-03</div>
-          <h2 class="section-title">CAMPAIGNS <span class="neon-text-purple">CONQUERED</span></h2>
-          <p class="section-subtitle">Showcasing major titles completed with full tactical story campaigns and mission objectives.</p>
+    <section id="games" class="content-section">
+      <div class="content-container">
+        <div class="section-header">
+          <span class="section-tag">Gaming Milestone</span>
+          <h2 class="section-heading">Games Completed</h2>
+          <p class="section-lead">Major video game titles conquered with full story campaign completion.</p>
         </div>
 
         <div class="games-grid">
           <!-- Game 1: Call of Duty: Modern Warfare -->
-          <div class="game-card cyber-panel">
-            <div class="game-cover-art cod-mw-art">
-              <div class="game-overlay-tint"></div>
-              <div class="game-status-badge">
-                <i class="fa-solid fa-check-double"></i> 100% CAMPAIGN CLEARED
-              </div>
-              <div class="game-trophy-icon gold-trophy">
-                <i class="fa-solid fa-award"></i>
-              </div>
-              <div class="game-title-overlay">
-                <span class="game-genre">TACTICAL FPS // REBOOT</span>
-                <h3 class="game-title">Call of Duty: Modern Warfare</h3>
-              </div>
+          <div class="game-card">
+            <div class="game-banner mw-banner">
+              <span class="game-complete-badge"><i class="fa-solid fa-check"></i> 100% Campaign</span>
+              <div class="game-platform-pill"><i class="fa-brands fa-xbox"></i> Xbox</div>
             </div>
-
-            <div class="game-details">
-              <div class="game-meta-row">
-                <div class="game-meta-item">
-                  <span class="game-meta-k">SERIES:</span>
-                  <span class="game-meta-v text-neon-cyan">MW (2019)</span>
-                </div>
-                <div class="game-meta-item">
-                  <span class="game-meta-k">PLATFORM:</span>
-                  <span class="game-meta-v text-neon-green"><i class="fa-brands fa-xbox"></i> Xbox</span>
-                </div>
-              </div>
-
-              <p class="game-description">
-                Conquered Captain Price's gritty tactical reboot campaign. Mastered covert night vision incursions, intense urban breach-and-clears, and high-stakes cinematic military operations.
+            <div class="game-body">
+              <span class="game-series">CALL OF DUTY SERIES</span>
+              <h3 class="game-title">Modern Warfare (2019)</h3>
+              <p class="game-desc">
+                Completed the gritty tactical reboot story campaign featuring Captain Price and Farah Karim. Mastered covert night operations and intense CQB breach missions.
               </p>
-
-              <div class="game-achievements">
-                <span class="achievement-pill"><i class="fa-solid fa-crosshairs"></i> Veteran Operator</span>
-                <span class="achievement-pill"><i class="fa-solid fa-medal"></i> Bravo Team</span>
-                <span class="achievement-pill"><i class="fa-solid fa-shield-cat"></i> Clean House</span>
+              <div class="game-tags">
+                <span class="game-tag">Tactical FPS</span>
+                <span class="game-tag">Veteran</span>
               </div>
             </div>
           </div>
 
           <!-- Game 2: Call of Duty: Modern Warfare II -->
-          <div class="game-card cyber-panel">
-            <div class="game-cover-art cod-mw2-art">
-              <div class="game-overlay-tint"></div>
-              <div class="game-status-badge">
-                <i class="fa-solid fa-check-double"></i> 100% CAMPAIGN CLEARED
-              </div>
-              <div class="game-trophy-icon gold-trophy">
-                <i class="fa-solid fa-award"></i>
-              </div>
-              <div class="game-title-overlay">
-                <span class="game-genre">GLOBAL SPEC OPS</span>
-                <h3 class="game-title">Call of Duty: Modern Warfare II</h3>
-              </div>
+          <div class="game-card">
+            <div class="game-banner mw2-banner">
+              <span class="game-complete-badge"><i class="fa-solid fa-check"></i> 100% Campaign</span>
+              <div class="game-platform-pill"><i class="fa-brands fa-xbox"></i> Xbox</div>
             </div>
-
-            <div class="game-details">
-              <div class="game-meta-row">
-                <div class="game-meta-item">
-                  <span class="game-meta-k">SERIES:</span>
-                  <span class="game-meta-v text-neon-cyan">MW II (2022)</span>
-                </div>
-                <div class="game-meta-item">
-                  <span class="game-meta-k">PLATFORM:</span>
-                  <span class="game-meta-v text-neon-green"><i class="fa-brands fa-xbox"></i> Xbox</span>
-                </div>
-              </div>
-
-              <p class="game-description">
-                Executed Task Force 141 operations alongside Ghost, Soap, and Alejandro. Completed global reconnaissance, stealth sniper infiltrations, and high-velocity convoy pursuits.
+            <div class="game-body">
+              <span class="game-series">CALL OF DUTY SERIES</span>
+              <h3 class="game-title">Modern Warfare II (2022)</h3>
+              <p class="game-desc">
+                Executed Task Force 141 operations alongside Ghost, Soap, and Gaz. Cleared complex stealth reconnaissance, convoy pursuits, and global special ops.
               </p>
-
-              <div class="game-achievements">
-                <span class="achievement-pill"><i class="fa-solid fa-skull"></i> Ghost Protocol</span>
-                <span class="achievement-pill"><i class="fa-solid fa-users"></i> TF 141 Cleared</span>
-                <span class="achievement-pill"><i class="fa-solid fa-water"></i> Dark Water Executed</span>
+              <div class="game-tags">
+                <span class="game-tag">Task Force 141</span>
+                <span class="game-tag">Spec Ops</span>
               </div>
             </div>
           </div>
 
           <!-- Game 3: Call of Duty: Modern Warfare III -->
-          <div class="game-card cyber-panel">
-            <div class="game-cover-art cod-mw3-art">
-              <div class="game-overlay-tint"></div>
-              <div class="game-status-badge">
-                <i class="fa-solid fa-check-double"></i> 100% CAMPAIGN CLEARED
-              </div>
-              <div class="game-trophy-icon platinum-trophy">
-                <i class="fa-solid fa-crown"></i>
-              </div>
-              <div class="game-title-overlay">
-                <span class="game-genre">CLIMACTIC WARFARE</span>
-                <h3 class="game-title">Call of Duty: Modern Warfare III</h3>
-              </div>
+          <div class="game-card">
+            <div class="game-banner mw3-banner">
+              <span class="game-complete-badge"><i class="fa-solid fa-check"></i> 100% Campaign</span>
+              <div class="game-platform-pill"><i class="fa-brands fa-xbox"></i> Xbox</div>
             </div>
-
-            <div class="game-details">
-              <div class="game-meta-row">
-                <div class="game-meta-item">
-                  <span class="game-meta-k">SERIES:</span>
-                  <span class="game-meta-v text-neon-cyan">MW III (2023)</span>
-                </div>
-                <div class="game-meta-item">
-                  <span class="game-meta-k">PLATFORM:</span>
-                  <span class="game-meta-v text-neon-green"><i class="fa-brands fa-xbox"></i> Xbox</span>
-                </div>
-              </div>
-
-              <p class="game-description">
-                The ultimate confrontation against Vladimir Makarov. Mastered open-combat missions, tactical air strikes, and concluded the epic Modern Warfare trilogy with full completion.
+            <div class="game-body">
+              <span class="game-series">CALL OF DUTY SERIES</span>
+              <h3 class="game-title">Modern Warfare III (2023)</h3>
+              <p class="game-desc">
+                The climax against Makarov. Conquered open-combat campaign missions and concluded the epic Modern Warfare trilogy with full story completion.
               </p>
-
-              <div class="game-achievements">
-                <span class="achievement-pill"><i class="fa-solid fa-jet-fighter"></i> Open Combat Pro</span>
-                <span class="achievement-pill"><i class="fa-solid fa-fire"></i> Makarov Halted</span>
-                <span class="achievement-pill"><i class="fa-solid fa-star"></i> Trilogy Master</span>
+              <div class="game-tags">
+                <span class="game-tag">Trilogy Master</span>
+                <span class="game-tag">Open Combat</span>
               </div>
             </div>
           </div>
 
           <!-- Game 4: Hogwarts Legacy -->
-          <div class="game-card cyber-panel">
-            <div class="game-cover-art hogwarts-art">
-              <div class="game-overlay-tint"></div>
-              <div class="game-status-badge">
-                <i class="fa-solid fa-wand-magic"></i> MAIN STORY COMPLETED
-              </div>
-              <div class="game-trophy-icon gold-trophy">
-                <i class="fa-solid fa-hat-wizard"></i>
-              </div>
-              <div class="game-title-overlay">
-                <span class="game-genre">OPEN WORLD ACTION RPG</span>
-                <h3 class="game-title">Hogwarts Legacy</h3>
-              </div>
+          <div class="game-card">
+            <div class="game-banner hogwarts-banner">
+              <span class="game-complete-badge"><i class="fa-solid fa-check"></i> Main Story Cleared</span>
+              <div class="game-platform-pill"><i class="fa-brands fa-xbox"></i> Xbox</div>
             </div>
-
-            <div class="game-details">
-              <div class="game-meta-row">
-                <div class="game-meta-item">
-                  <span class="game-meta-k">GENRE:</span>
-                  <span class="game-meta-v text-neon-cyan">Fantasy RPG</span>
-                </div>
-                <div class="game-meta-item">
-                  <span class="game-meta-k">PLATFORM:</span>
-                  <span class="game-meta-v text-neon-green"><i class="fa-brands fa-xbox"></i> Xbox</span>
-                </div>
-              </div>
-
-              <p class="game-description">
-                Unraveled 1800s Wizarding World secrets as a fifth-year prodigy. Mastered ancient magic spells, room of requirement alchemy, flight on Hippogriffs, and quelled the goblin rebellion.
+            <div class="game-body">
+              <span class="game-series">WARNER BROS. GAMES</span>
+              <h3 class="game-title">Hogwarts Legacy</h3>
+              <p class="game-desc">
+                Unraveled the secrets of ancient magic in the 1800s Wizarding World. Mastered spell dueling, flight, and finished the complete primary storyline.
               </p>
-
-              <div class="game-achievements">
-                <span class="achievement-pill"><i class="fa-solid fa-broom"></i> Master Duelist</span>
-                <span class="achievement-pill"><i class="fa-solid fa-scroll"></i> Ancient Magic</span>
-                <span class="achievement-pill"><i class="fa-solid fa-dungeon"></i> Keeper Trials</span>
+              <div class="game-tags">
+                <span class="game-tag">Action RPG</span>
+                <span class="game-tag">Ancient Magic</span>
               </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Trophy Summary Banner -->
-        <div class="trophy-banner cyber-panel">
-          <div class="banner-badge-icon">
-            <i class="fa-solid fa-shield-virus"></i>
-          </div>
-          <div class="banner-text">
-            <h4>TRILOGY COMPLETIONIST &amp; RPG EXPLORER</h4>
-            <p>Full single-player campaigns conquered across major modern franchises. Ready for future campaign drops!</p>
-          </div>
-          <div class="banner-badge-num">
-            <span>4 / 4</span>
-            <small>CAMPAIGNS</small>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ========================================== -->
-    <!-- SECTION 4: LEARNING PROGRESS (GAME LOADING)-->
-    <!-- ========================================== -->
-    <section id="learning" class="hud-section section-learning" data-section="learning">
-      <div class="section-container">
-        <div class="cyber-corner top-left"></div>
-        <div class="cyber-corner top-right"></div>
-        <div class="cyber-corner bottom-left"></div>
-        <div class="cyber-corner bottom-right"></div>
-
-        <div class="section-title-wrap">
-          <div class="section-tag"><i class="fa-solid fa-spinner fa-spin"></i> SYNC ENGINE // SEC-04</div>
-          <h2 class="section-title">SYSTEM <span class="neon-text-cyan">UPGRADE</span> MATRIX</h2>
-          <p class="section-subtitle">Active tech learning stats presented as a high-tech game loading screen and interactive skill tree.</p>
-        </div>
-
-        <!-- GAME LOADING SCREEN CONTAINER -->
-        <div class="loading-screen-wrapper cyber-panel">
-          <!-- Game Loading Screen Header -->
-          <div class="loading-screen-header">
-            <div class="loading-status-left">
-              <span class="blinking-dot"></span>
-              <span class="loading-title">INITIALIZING SYSTEM UPGRADES</span>
-              <span class="loading-version">[PATCH v2.9.0]</span>
-            </div>
-            <div class="loading-controls-right">
-              <button id="simulate-stream-btn" class="cyber-btn-mini">
-                <i class="fa-solid fa-arrows-rotate"></i> RE-SYNC STREAM
-              </button>
-            </div>
-          </div>
-
-          <!-- Loading Screen Hint / Tip of the day -->
-          <div class="game-tip-box">
-            <div class="tip-icon"><i class="fa-solid fa-lightbulb"></i></div>
-            <div class="tip-content">
-              <span class="tip-label">OPERATOR TIP:</span>
-              <span class="tip-text" id="loading-tip-text">"Class 9 is the prime launchpad. Master the fundamentals of syntax before optimizing performance."</span>
-            </div>
-          </div>
-
-          <!-- PROGRESS BARS GRID -->
-          <div class="loading-progress-stack">
-            <!-- Progress Item 1: Python (25%) -->
-            <div class="progress-module" data-progress="25">
-              <div class="progress-module-head">
-                <div class="module-title-group">
-                  <div class="module-icon python-color"><i class="fa-brands fa-python"></i></div>
-                  <div>
-                    <h3 class="module-name">Python Scripting &amp; Data Structures</h3>
-                    <span class="module-sub">Status: Core syntax, loops, lists &amp; basic automation algorithms</span>
-                  </div>
-                </div>
-                <div class="module-percentage-display">
-                  <span class="counter-number text-neon-cyan" id="python-counter">25</span>
-                  <span class="counter-symbol">%</span>
-                </div>
-              </div>
-
-              <!-- Sci-Fi Futuristic Loading Bar -->
-              <div class="scifi-loading-bar-track">
-                <div class="scifi-loading-bar-fill fill-python" id="python-bar" style="width: 25%;">
-                  <div class="bar-scanner-line"></div>
-                  <div class="bar-glow-cap"></div>
-                </div>
-                <div class="bar-grid-pattern"></div>
-              </div>
-
-              <div class="module-footer">
-                <span class="footer-step"><i class="fa-solid fa-code-commit"></i> MILESTONE 1 / 4 REACHED</span>
-                <span class="footer-status text-neon-cyan">[IN PROGRESS]</span>
-              </div>
-            </div>
-
-            <!-- Progress Item 2: AI / ML (0%) -->
-            <div class="progress-module" data-progress="0">
-              <div class="progress-module-head">
-                <div class="module-title-group">
-                  <div class="module-icon aiml-color"><i class="fa-solid fa-brain"></i></div>
-                  <div>
-                    <h3 class="module-name">Artificial Intelligence &amp; Machine Learning</h3>
-                    <span class="module-sub">Status: Neural network foundations &amp; math prerequisites queued</span>
-                  </div>
-                </div>
-                <div class="module-percentage-display">
-                  <span class="counter-number text-neon-yellow" id="aiml-counter">0</span>
-                  <span class="counter-symbol">%</span>
-                </div>
-              </div>
-
-              <!-- Sci-Fi Futuristic Loading Bar -->
-              <div class="scifi-loading-bar-track">
-                <div class="scifi-loading-bar-fill fill-aiml" id="aiml-bar" style="width: 0%;">
-                  <div class="bar-scanner-line"></div>
-                  <div class="bar-glow-cap"></div>
-                </div>
-                <div class="bar-grid-pattern"></div>
-              </div>
-
-              <div class="module-footer">
-                <span class="footer-step"><i class="fa-solid fa-hourglass-start"></i> QUEUED IN PIPELINE</span>
-                <span class="footer-status text-neon-yellow">[INITIALIZING SOON]</span>
-              </div>
-            </div>
-
-            <!-- Progress Item 3: Discord Bot Development (50%) -->
-            <div class="progress-module" data-progress="50">
-              <div class="progress-module-head">
-                <div class="module-title-group">
-                  <div class="module-icon discord-color"><i class="fa-brands fa-discord"></i></div>
-                  <div>
-                    <h3 class="module-name">Discord Bot Engineering</h3>
-                    <span class="module-sub">Status: Slash commands, embed builders, event listeners &amp; token security</span>
-                  </div>
-                </div>
-                <div class="module-percentage-display">
-                  <span class="counter-number text-neon-green" id="discord-counter">50</span>
-                  <span class="counter-symbol">%</span>
-                </div>
-              </div>
-
-              <!-- Sci-Fi Futuristic Loading Bar -->
-              <div class="scifi-loading-bar-track">
-                <div class="scifi-loading-bar-fill fill-discord" id="discord-bar" style="width: 50%;">
-                  <div class="bar-scanner-line"></div>
-                  <div class="bar-glow-cap"></div>
-                </div>
-                <div class="bar-grid-pattern"></div>
-              </div>
-
-              <div class="module-footer">
-                <span class="footer-step"><i class="fa-solid fa-code-fork"></i> HALFWAY COMPLETED</span>
-                <span class="footer-status text-neon-green">[ACTIVE COMPILATION]</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Interactive Skill Node Tree Branch Preview -->
-          <div class="skill-tree-preview">
-            <div class="tree-title"><i class="fa-solid fa-network-wired"></i> SKILL TREE TOPOLOGY</div>
-            <div class="tree-nodes-row">
-              <div class="tree-node unlocked">
-                <div class="node-circle"><i class="fa-brands fa-html5"></i></div>
-                <span class="node-label">Web Core</span>
-                <span class="node-status text-neon-green">UNLOCKED</span>
-              </div>
-              <div class="tree-connector active"></div>
-              <div class="tree-node in-progress">
-                <div class="node-circle"><i class="fa-brands fa-discord"></i></div>
-                <span class="node-label">Discord Bot</span>
-                <span class="node-status text-neon-cyan">50% SYNC</span>
-              </div>
-              <div class="tree-connector in-progress"></div>
-              <div class="tree-node in-progress">
-                <div class="node-circle"><i class="fa-brands fa-python"></i></div>
-                <span class="node-label">Python</span>
-                <span class="node-status text-neon-cyan">25% SYNC</span>
-              </div>
-              <div class="tree-connector locked"></div>
-              <div class="tree-node locked">
-                <div class="node-circle"><i class="fa-solid fa-brain"></i></div>
-                <span class="node-label">AI / ML</span>
-                <span class="node-status text-muted">QUEUED</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Bottom Live Terminal Stream -->
-          <div class="loading-console">
-            <div class="console-title"><i class="fa-solid fa-terminal"></i> REAL-TIME TELEMETRY STREAM:</div>
-            <div class="console-log" id="loading-console-stream">
-              <p class="log-line">&gt; Loading modules: Python.v3 (25%), Discord.API (50%), AI.Tensor (Queued)...</p>
-              <p class="log-line">&gt; Compiler state: Stable. Node connections synced with primary workspace.</p>
             </div>
           </div>
         </div>
@@ -871,350 +420,310 @@
     </section>
 
     <!-- ========================================== -->
-    <!-- SECTION 5: HARDWARE (BATTLE RIG LOADOUT)   -->
+    <!-- SECTION 4: LEARNING PROGRESS (ROADMAP)     -->
     <!-- ========================================== -->
-    <section id="hardware" class="hud-section section-hardware" data-section="hardware">
-      <div class="section-container">
-        <div class="cyber-corner top-left"></div>
-        <div class="cyber-corner top-right"></div>
-        <div class="cyber-corner bottom-left"></div>
-        <div class="cyber-corner bottom-right"></div>
+    <section id="learning" class="content-section">
+      <div class="content-container">
+        <div class="section-header">
+          <span class="section-tag">Active Growth</span>
+          <h2 class="section-heading">Learning Roadmap</h2>
+          <p class="section-lead">Technologies and disciplines I am actively learning right now.</p>
+        </div>
 
-        <div class="section-title-wrap">
-          <div class="section-tag"><i class="fa-solid fa-server"></i> INVENTORY INSPECT // SEC-05</div>
-          <h2 class="section-title">HARDWARE &amp; <span class="neon-text-green">BATTLE RIG</span></h2>
-          <p class="section-subtitle">Real-world workstation specifications, processing power, and gaming platform setup.</p>
+        <div class="roadmap-card">
+          <div class="roadmap-header">
+            <div>
+              <span class="roadmap-sub">Continuous Learning</span>
+              <h3 class="roadmap-title">Skill Progression Status</h3>
+            </div>
+            <button id="reanimate-progress-btn" class="btn btn-secondary btn-sm">
+              <i class="fa-solid fa-rotate"></i> Refresh View
+            </button>
+          </div>
+
+          <!-- Progress Module List -->
+          <div class="progress-items-stack">
+            <!-- Item 1: Python (25%) -->
+            <div class="progress-module">
+              <div class="module-top">
+                <div class="module-title-box">
+                  <div class="module-icon python-theme"><i class="fa-brands fa-python"></i></div>
+                  <div>
+                    <h4 class="module-heading">Python Programming</h4>
+                    <p class="module-caption">Core syntax, data structures, loops, file handling &amp; automation</p>
+                  </div>
+                </div>
+                <div class="module-score">
+                  <span class="score-number" id="python-counter">25</span>%
+                </div>
+              </div>
+              <div class="clean-bar-track">
+                <div class="clean-bar-fill fill-python" id="python-bar" style="width: 25%;"></div>
+              </div>
+              <div class="module-footer">
+                <span class="status-indicator-text text-sky"><i class="fa-solid fa-spinner fa-spin"></i> In Active Progress</span>
+                <span class="milestone-text">Milestone 1 / 4 Complete</span>
+              </div>
+            </div>
+
+            <!-- Item 2: AI / ML (0%) -->
+            <div class="progress-module">
+              <div class="module-top">
+                <div class="module-title-box">
+                  <div class="module-icon aiml-theme"><i class="fa-solid fa-brain"></i></div>
+                  <div>
+                    <h4 class="module-heading">Artificial Intelligence &amp; Machine Learning</h4>
+                    <p class="module-caption">Mathematics foundations, neural network basics &amp; computer vision concepts</p>
+                  </div>
+                </div>
+                <div class="module-score">
+                  <span class="score-number text-muted" id="aiml-counter">0</span>%
+                </div>
+              </div>
+              <div class="clean-bar-track">
+                <div class="clean-bar-fill fill-aiml" id="aiml-bar" style="width: 0%;"></div>
+              </div>
+              <div class="module-footer">
+                <span class="status-indicator-text text-muted"><i class="fa-solid fa-clock"></i> Queued on Roadmap</span>
+                <span class="milestone-text">Starting after Python foundations</span>
+              </div>
+            </div>
+
+            <!-- Item 3: Discord Bot Development (50%) -->
+            <div class="progress-module">
+              <div class="module-top">
+                <div class="module-title-box">
+                  <div class="module-icon discord-theme"><i class="fa-brands fa-discord"></i></div>
+                  <div>
+                    <h4 class="module-heading">Discord Bot Development</h4>
+                    <p class="module-caption">Slash command architecture, event handlers, interactive embeds &amp; bot security</p>
+                  </div>
+                </div>
+                <div class="module-score">
+                  <span class="score-number text-emerald" id="discord-counter">50</span>%
+                </div>
+              </div>
+              <div class="clean-bar-track">
+                <div class="clean-bar-fill fill-discord" id="discord-bar" style="width: 50%;"></div>
+              </div>
+              <div class="module-footer">
+                <span class="status-indicator-text text-emerald"><i class="fa-solid fa-circle-check"></i> Halfway Completed</span>
+                <span class="milestone-text">Core commands &amp; listeners functional</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SECTION 5: HARDWARE & SETUP                -->
+    <!-- ========================================== -->
+    <section id="hardware" class="content-section">
+      <div class="content-container">
+        <div class="section-header">
+          <span class="section-tag">Workstation</span>
+          <h2 class="section-heading">Hardware &amp; Setup</h2>
+          <p class="section-lead">The physical tools and gaming rig powering my code and play.</p>
         </div>
 
         <div class="hardware-grid">
-          <!-- Left: 3D Holographic Rig Blueprint Display -->
-          <div class="rig-blueprint cyber-panel">
-            <div class="panel-header">
-              <span class="panel-id"><i class="fa-solid fa-laptop"></i> SYSTEM MODEL: LENOVO</span>
-              <span class="panel-badge-pill">STATUS: ONLINE</span>
+          <!-- Spec 1: Laptop -->
+          <div class="spec-card">
+            <div class="spec-icon"><i class="fa-solid fa-laptop"></i></div>
+            <div class="spec-info">
+              <span class="spec-category">Primary Device</span>
+              <h3 class="spec-name">Lenovo Laptop</h3>
+              <p class="spec-desc">Reliable portable laptop built for fast multitasking, web development, and coding workflows.</p>
             </div>
-
-            <!-- Laptop Vector Visual with HUD scanlines -->
-            <div class="laptop-visual-box">
-              <div class="laptop-wireframe">
-                <!-- Screen Lid -->
-                <div class="laptop-lid">
-                  <div class="lid-screen">
-                    <div class="screen-code-lines">
-                      <span>$ ./notnav --rig-status</span>
-                      <span class="green-txt">>> RYZEN 5 7530U OK</span>
-                      <span class="cyan-txt">>> 16GB DDR4 ALLOCATED</span>
-                      <span class="yellow-txt">>> XBOX CONTROLLER PAIRED</span>
-                    </div>
-                    <div class="screen-grid"></div>
-                  </div>
-                </div>
-                <!-- Laptop Base / Keyboard Deck -->
-                <div class="laptop-base">
-                  <div class="keyboard-glow"></div>
-                  <div class="touchpad-outline"></div>
-                  <div class="brand-lenovo">LENOVO</div>
-                </div>
-              </div>
-              <div class="rig-radar-ring"></div>
-            </div>
-
-            <!-- Telemetry Gauges -->
-            <div class="rig-gauges-row">
-              <div class="gauge-item">
-                <span class="gauge-label">CPU LOAD</span>
-                <span class="gauge-val text-neon-cyan" id="gauge-cpu">18%</span>
-                <div class="mini-bar"><div class="mini-bar-fill" style="width: 18%;"></div></div>
-              </div>
-              <div class="gauge-item">
-                <span class="gauge-label">RAM USAGE</span>
-                <span class="gauge-val text-neon-green" id="gauge-ram">6.2 / 16 GB</span>
-                <div class="mini-bar"><div class="mini-bar-fill fill-green" style="width: 39%;"></div></div>
-              </div>
-              <div class="gauge-item">
-                <span class="gauge-label">CHASSIS TEMP</span>
-                <span class="gauge-val text-neon-yellow" id="gauge-temp">46&deg;C</span>
-                <div class="mini-bar"><div class="mini-bar-fill fill-yellow" style="width: 46%;"></div></div>
-              </div>
-            </div>
+            <span class="spec-badge">Workstation</span>
           </div>
 
-          <!-- Right: Detailed Spec Sheet Cards -->
-          <div class="spec-cards-stack">
-            <!-- Spec 1: Device -->
-            <div class="spec-card cyber-panel">
-              <div class="spec-icon-wrap"><i class="fa-solid fa-laptop-code"></i></div>
-              <div class="spec-content">
-                <div class="spec-category">PRIMARY WORKSTATION</div>
-                <h3 class="spec-title">Lenovo Laptop</h3>
-                <p class="spec-description">Sleek, lightweight mobile command center engineered for multi-tasking coding sessions and agile game development.</p>
-              </div>
-              <div class="spec-tag text-neon-cyan">PORTABLE</div>
+          <!-- Spec 2: CPU -->
+          <div class="spec-card">
+            <div class="spec-icon"><i class="fa-solid fa-microchip"></i></div>
+            <div class="spec-info">
+              <span class="spec-category">Processor</span>
+              <h3 class="spec-name">AMD Ryzen 5 7530U</h3>
+              <p class="spec-desc">6 Cores / 12 Threads based on Zen 3 architecture, delivering high efficiency and fast compilation.</p>
             </div>
+            <span class="spec-badge">6C / 12T</span>
+          </div>
 
-            <!-- Spec 2: CPU -->
-            <div class="spec-card cyber-panel">
-              <div class="spec-icon-wrap"><i class="fa-solid fa-microchip"></i></div>
-              <div class="spec-content">
-                <div class="spec-category">CENTRAL PROCESSING UNIT</div>
-                <h3 class="spec-title">AMD Ryzen 5 7530U</h3>
-                <p class="spec-description">6 Cores / 12 Threads with up to 4.5 GHz boost clock. Zen 3 architecture delivering fast compilation and snappy responsiveness.</p>
-              </div>
-              <div class="spec-tag text-neon-green">6C / 12T</div>
+          <!-- Spec 3: RAM -->
+          <div class="spec-card">
+            <div class="spec-icon"><i class="fa-solid fa-memory"></i></div>
+            <div class="spec-info">
+              <span class="spec-category">Memory</span>
+              <h3 class="spec-name">16 GB DDR4</h3>
+              <p class="spec-desc">High-speed dual-channel memory ensuring smooth multi-tab browsing, editors, and background processes.</p>
             </div>
+            <span class="spec-badge">Dual-Channel</span>
+          </div>
 
-            <!-- Spec 3: RAM -->
-            <div class="spec-card cyber-panel">
-              <div class="spec-icon-wrap"><i class="fa-solid fa-memory"></i></div>
-              <div class="spec-content">
-                <div class="spec-category">SYSTEM MEMORY</div>
-                <h3 class="spec-title">16 GB DDR4</h3>
-                <p class="spec-description">Dual-channel high-speed RAM. Effortlessly handles code editors, multi-tab documentation, emulator instances, and graphics design workflows.</p>
-              </div>
-              <div class="spec-tag text-neon-purple">DUAL CH</div>
+          <!-- Spec 4: GPU -->
+          <div class="spec-card">
+            <div class="spec-icon"><i class="fa-solid fa-display"></i></div>
+            <div class="spec-info">
+              <span class="spec-category">Graphics</span>
+              <h3 class="spec-name">AMD Radeon™ Graphics</h3>
+              <p class="spec-desc">Integrated graphics powering crisp 1080p display output, video playback, and Canvas 2D rendering.</p>
             </div>
+            <span class="spec-badge">Integrated</span>
+          </div>
 
-            <!-- Spec 4: GPU -->
-            <div class="spec-card cyber-panel">
-              <div class="spec-icon-wrap"><i class="fa-solid fa-display"></i></div>
-              <div class="spec-content">
-                <div class="spec-category">GRAPHICS PROCESSOR</div>
-                <h3 class="spec-title">AMD Radeon™ Graphics</h3>
-                <p class="spec-description">Integrated Radeon Vega architecture, providing crisp 1080p display rendering, hardware-accelerated Canvas 2D, and video playback.</p>
-              </div>
-              <div class="spec-tag text-neon-cyan">INTEGRATED</div>
+          <!-- Spec 5: Xbox -->
+          <div class="spec-card highlight-card">
+            <div class="spec-icon xbox-icon"><i class="fa-brands fa-xbox"></i></div>
+            <div class="spec-info">
+              <span class="spec-category">Gaming Platform</span>
+              <h3 class="spec-name">Xbox Console &amp; Controller</h3>
+              <p class="spec-desc">Primary platform for campaign playthroughs, high-fidelity FPS battles, and casual gaming sessions.</p>
             </div>
-
-            <!-- Spec 5: Gaming Console -->
-            <div class="spec-card cyber-panel highlight-xbox">
-              <div class="spec-icon-wrap xbox-green"><i class="fa-brands fa-xbox"></i></div>
-              <div class="spec-content">
-                <div class="spec-category">PRIMARY GAMING PLATFORM</div>
-                <h3 class="spec-title">Xbox Console &amp; Controller</h3>
-                <p class="spec-description">Dedicated gaming powerhouse for high-fidelity FPS battles, cinematic action RPGs, Game Pass library access, and 60+ FPS campaign play.</p>
-              </div>
-              <div class="spec-tag text-neon-green">BATTLE STATION</div>
-            </div>
+            <span class="spec-badge highlight-badge">Gaming Hub</span>
           </div>
         </div>
       </div>
     </section>
 
     <!-- ========================================== -->
-    <!-- SECTION 6: PROJECTS (UPCOMING OPERATIONS)  -->
+    <!-- SECTION 6: PROJECTS                        -->
     <!-- ========================================== -->
-    <section id="projects" class="hud-section section-projects" data-section="projects">
-      <div class="section-container">
-        <div class="cyber-corner top-left"></div>
-        <div class="cyber-corner top-right"></div>
-        <div class="cyber-corner bottom-left"></div>
-        <div class="cyber-corner bottom-right"></div>
-
-        <div class="section-title-wrap">
-          <div class="section-tag"><i class="fa-solid fa-rocket"></i> CLASSIFIED MISSIONS // SEC-06</div>
-          <h2 class="section-title">ACTIVE <span class="neon-text-yellow">PROJECTS</span></h2>
-          <p class="section-subtitle">Upcoming releases, works in progress, and upcoming software deployments.</p>
+    <section id="projects" class="content-section">
+      <div class="content-container">
+        <div class="section-header">
+          <span class="section-tag">Portfolio</span>
+          <h2 class="section-heading">Featured Projects</h2>
+          <p class="section-lead">Works in progress and software currently under active development.</p>
         </div>
 
-        <!-- HERO COMING SOON BANNER CARD -->
-        <div class="coming-soon-hero cyber-panel">
-          <div class="cs-blueprint-grid" aria-hidden="true"></div>
-          
-          <div class="cs-content-box">
-            <div class="cs-badge">
-              <span class="blinking-dot"></span>
-              <span>RESTRICTED ACCESS // IN PRODUCTION</span>
-            </div>
-
-            <h3 class="cs-title">
-              COMING SOON &mdash; <span class="neon-text-cyan glitch-text" data-text="BUILDING SOMETHING AWESOME!">BUILDING SOMETHING AWESOME!</span>
+        <!-- Classy Coming Soon Feature Card -->
+        <div class="coming-soon-card">
+          <div class="coming-soon-content">
+            <span class="coming-soon-badge">
+              <span class="status-dot"></span> In Development
+            </span>
+            <h3 class="coming-soon-title">
+              Coming Soon &mdash; Building something awesome!
             </h3>
-
-            <p class="cs-paragraph">
-              New web applications, interactive gamer tools, and intelligent Discord automation systems are currently under construction. Check back soon or test out the built-in mini-games in the arcade below!
+            <p class="coming-soon-desc">
+              I am currently working on brand-new web projects, Discord automation utilities, and open-source mini tools. Check back soon for full case studies and live demos!
             </p>
-
-            <div class="cs-countdown-strip">
-              <div class="countdown-cell">
-                <span class="cell-k">PROTOTYPE:</span>
-                <span class="cell-v text-neon-green">ACTIVE LAB</span>
-              </div>
-              <div class="countdown-cell">
-                <span class="cell-k">SECURITY:</span>
-                <span class="cell-v text-neon-cyan">ENCRYPTED</span>
-              </div>
-              <div class="countdown-cell">
-                <span class="cell-k">NEXT LAUNCH:</span>
-                <span class="cell-v text-neon-purple">Q4 DEPLOYMENT</span>
-              </div>
-            </div>
-
-            <div class="cs-buttons">
-              <a href="#arcade" class="cyber-btn cyber-btn-primary">
-                <i class="fa-solid fa-gamepad"></i> PLAY BUILT-IN MINI-GAMES
+            <div class="coming-soon-actions">
+              <a href="mailto:notjaishnav@gmail.com?subject=Project%20Inquiry" class="btn btn-primary">
+                <i class="fa-solid fa-envelope"></i> Inquire About Work
               </a>
-              <button id="notify-project-btn" class="cyber-btn cyber-btn-secondary">
-                <i class="fa-solid fa-bell"></i> REQUEST PROJECT BRIEFING
-              </button>
+              <a href="#arcade" class="btn btn-secondary">
+                <i class="fa-solid fa-gamepad"></i> Try Built-in Games
+              </a>
             </div>
           </div>
         </div>
 
-        <!-- UPCOMING PROJECT TEASER CARDS -->
-        <div class="upcoming-cards-grid">
-          <!-- Teaser 1 -->
-          <div class="project-teaser-card cyber-panel">
-            <div class="teaser-header">
-              <span class="teaser-type"><i class="fa-brands fa-discord"></i> DISCORD AUTOMATION</span>
-              <span class="teaser-status-pill text-neon-green">50% BUILT</span>
-            </div>
-            <h4 class="teaser-name">Project Aegis: Tactical Bot</h4>
-            <p class="teaser-desc">A custom gaming community Discord bot with server moderation, squad matchmaking, gamer profile inspect, and custom soundboard triggers.</p>
-            <div class="teaser-tags">
-              <span class="cyber-pill">Discord.js / Python</span>
-              <span class="cyber-pill">Slash Commands</span>
-              <span class="cyber-pill">Gaming API</span>
-            </div>
+        <!-- Project Teasers Grid -->
+        <div class="teasers-grid">
+          <div class="teaser-card">
+            <div class="teaser-icon"><i class="fa-brands fa-discord"></i></div>
+            <h4 class="teaser-title">Custom Discord Bot</h4>
+            <p class="teaser-desc">A multifunctional server bot equipped with moderation tools, gaming statistics, and custom slash commands.</p>
+            <span class="teaser-pill">50% Built</span>
           </div>
 
-          <!-- Teaser 2 -->
-          <div class="project-teaser-card cyber-panel">
-            <div class="teaser-header">
-              <span class="teaser-type"><i class="fa-solid fa-palette"></i> GFX &amp; ASSETS</span>
-              <span class="teaser-status-pill text-neon-purple">PRODUCTION</span>
-            </div>
-            <h4 class="teaser-name">Cyber Crest &amp; Stream Overlay Kit</h4>
-            <p class="teaser-desc">A sleek suite of futuristic stream overlays, animated web alerts, and profile banners for FPS and action RPG content creators.</p>
-            <div class="teaser-tags">
-              <span class="cyber-pill">GFX Design</span>
-              <span class="cyber-pill">Vector Graphics</span>
-              <span class="cyber-pill">Stream Ready</span>
-            </div>
+          <div class="teaser-card">
+            <div class="teaser-icon"><i class="fa-solid fa-layer-group"></i></div>
+            <h4 class="teaser-title">Graphic Design Collection</h4>
+            <p class="teaser-desc">A curated set of esports thumbnails, profile banners, and vector design templates for creators.</p>
+            <span class="teaser-pill">Creative</span>
           </div>
 
-          <!-- Teaser 3 -->
-          <div class="project-teaser-card cyber-panel">
-            <div class="teaser-header">
-              <span class="teaser-type"><i class="fa-solid fa-gamepad"></i> WEB GAME</span>
-              <span class="teaser-status-pill text-neon-cyan">LIVE NOW</span>
-            </div>
-            <h4 class="teaser-name">NotNav Arcade Suite</h4>
-            <p class="teaser-desc">Two playable browser games built right into this portfolio using pure HTML5 Canvas and JavaScript with audio synthesizer effects.</p>
-            <div class="teaser-tags">
-              <span class="cyber-pill">HTML5 Canvas</span>
-              <span class="cyber-pill">Flappy Drone</span>
-              <span class="cyber-pill">Cyber Runner</span>
-            </div>
+          <div class="teaser-card">
+            <div class="teaser-icon"><i class="fa-solid fa-gamepad"></i></div>
+            <h4 class="teaser-title">Canvas Mini-Games Suite</h4>
+            <p class="teaser-desc">Two lightweight playable browser mini-games embedded right here in this portfolio using pure HTML5 Canvas.</p>
+            <span class="teaser-pill">Playable Live</span>
           </div>
         </div>
       </div>
     </section>
 
     <!-- ========================================== -->
-    <!-- SECTION 7: MINI-GAMES ARCADE HUB           -->
+    <!-- SECTION 7: PLAYABLE ARCADE                 -->
     <!-- ========================================== -->
-    <section id="arcade" class="hud-section section-arcade" data-section="arcade">
-      <div class="section-container">
-        <div class="cyber-corner top-left"></div>
-        <div class="cyber-corner top-right"></div>
-        <div class="cyber-corner bottom-left"></div>
-        <div class="cyber-corner bottom-right"></div>
-
-        <div class="section-title-wrap">
-          <div class="section-tag"><i class="fa-solid fa-joystick"></i> ARCADE HUB // PLAYABLE LIVE</div>
-          <h2 class="section-title">NOTNAV <span class="neon-text-green">ARCADE</span> ZONE</h2>
-          <p class="section-subtitle">Jump directly into two high-tech browser mini-games built directly into the site with HTML5 Canvas &amp; JavaScript!</p>
+    <section id="arcade" class="content-section">
+      <div class="content-container">
+        <div class="section-header">
+          <span class="section-tag">Interactive</span>
+          <h2 class="section-heading">Playable Arcade</h2>
+          <p class="section-lead">Take a quick break and play two lightweight games built with HTML5 Canvas &amp; JavaScript.</p>
         </div>
 
-        <!-- ARCADE CABINET INTERACTION CONTAINER -->
-        <div class="arcade-cabinet cyber-panel">
-          <!-- Game Switcher Tabs -->
-          <div class="arcade-tabs-bar">
-            <button class="arcade-tab-btn active-tab" id="tab-flappy" data-game="flappy">
+        <div class="arcade-card">
+          <!-- Tab Bar -->
+          <div class="arcade-tabs">
+            <button class="arcade-tab active" id="tab-flappy" data-game="flappy">
               <i class="fa-solid fa-plane-up"></i>
-              <span>GAME 1: CYBER DRONE (FLAPPY CLONE)</span>
+              <span>Game 1: Cyber Drone (Flappy Clone)</span>
             </button>
-            <button class="arcade-tab-btn" id="tab-runner" data-game="runner">
+            <button class="arcade-tab" id="tab-runner" data-game="runner">
               <i class="fa-solid fa-person-running"></i>
-              <span>GAME 2: CYBER RUNNER (T-REX CLONE)</span>
+              <span>Game 2: Cyber Runner (T-Rex Clone)</span>
             </button>
           </div>
 
-          <!-- Arcade Status / HUD Scorebar -->
-          <div class="arcade-hud-bar">
-            <div class="hud-score-display">
-              <span class="score-label">CURRENT SCORE:</span>
-              <span class="score-value text-neon-cyan" id="current-score-text">0</span>
+          <!-- Score & Info Bar -->
+          <div class="arcade-score-bar">
+            <div class="score-group">
+              <span class="score-label">Score:</span>
+              <span class="score-val" id="current-score-text">0</span>
             </div>
-            <div class="hud-score-display">
-              <span class="score-label"><i class="fa-solid fa-crown text-neon-yellow"></i> HIGH SCORE:</span>
-              <span class="score-value text-neon-green" id="high-score-text">0</span>
+            <div class="score-group">
+              <span class="score-label"><i class="fa-solid fa-trophy"></i> Best:</span>
+              <span class="score-val text-emerald" id="high-score-text">0</span>
             </div>
-            <div class="hud-game-controls-help hide-mobile">
-              <span class="ctrl-key">SPACE</span> or <span class="ctrl-key">CLICK / TAP</span> to JUMP
+            <div class="arcade-help-text hide-mobile">
+              Press <kbd>Space</kbd>, <kbd>&uarr;</kbd> or <strong>Click / Tap</strong> to Jump
             </div>
           </div>
 
-          <!-- GAME CANVAS CONTAINER -->
-          <div class="canvas-viewport-wrapper" id="canvas-container">
-            <!-- CANVAS ELEMENT -->
-            <canvas id="game-canvas" width="800" height="420" class="game-canvas"></canvas>
+          <!-- Canvas Viewport -->
+          <div class="canvas-viewport" id="canvas-container">
+            <canvas id="game-canvas" width="800" height="420"></canvas>
 
-            <!-- Touch Jump Area Overlay for Mobile -->
-            <div id="touch-jump-overlay" class="touch-jump-overlay mobile-only" aria-label="Tap here to jump">
-              <span>TAP TO JUMP</span>
-            </div>
-
-            <!-- Start / Game Over Overlay -->
+            <!-- Start / Game Over Modal -->
             <div id="game-modal-overlay" class="game-modal-overlay">
-              <div class="game-modal-content cyber-panel">
-                <div class="modal-status-tag" id="modal-tag">MISSION BRIEFING</div>
-                <h3 class="modal-title" id="modal-title">CYBER DRONE</h3>
-                <p class="modal-desc" id="modal-desc">
-                  Pilot your cyber drone through high-voltage laser gates. Avoid colliding with walls and electrical barriers!
+              <div class="game-modal-box">
+                <span class="modal-tag" id="modal-tag">Ready to Play</span>
+                <h3 class="modal-heading" id="modal-title">Cyber Drone</h3>
+                <p class="modal-sub" id="modal-desc">
+                  Navigate through electric laser gates. Tap or press Space to keep flying!
                 </p>
 
-                <div class="modal-score-summary" id="modal-score-summary" style="display: none;">
-                  <div class="summary-box">
-                    <span>FINAL SCORE</span>
-                    <strong class="text-neon-cyan" id="summary-final-score">0</strong>
+                <div class="modal-score-board" id="modal-score-summary" style="display: none;">
+                  <div class="board-item">
+                    <span>Score</span>
+                    <strong id="summary-final-score">0</strong>
                   </div>
-                  <div class="summary-box">
-                    <span>BEST RECORD</span>
-                    <strong class="text-neon-green" id="summary-best-score">0</strong>
-                  </div>
-                </div>
-
-                <div class="modal-controls-guide">
-                  <div class="guide-item">
-                    <span class="guide-key"><i class="fa-regular fa-keyboard"></i> SPACE / CLICK</span>
-                    <span class="guide-action">Thrust / Jump</span>
-                  </div>
-                  <div class="guide-item">
-                    <span class="guide-key"><i class="fa-solid fa-mobile-screen"></i> TAP SCREEN</span>
-                    <span class="guide-action">Mobile Jump</span>
+                  <div class="board-item">
+                    <span>Best</span>
+                    <strong class="text-emerald" id="summary-best-score">0</strong>
                   </div>
                 </div>
 
-                <button id="start-game-btn" class="cyber-btn cyber-btn-primary launch-game-btn">
-                  <i class="fa-solid fa-play"></i> START MISSION
+                <button id="start-game-btn" class="btn btn-primary btn-play">
+                  <i class="fa-solid fa-play"></i> Start Game
                 </button>
               </div>
             </div>
           </div>
 
-          <!-- Arcade Controls & Info Strip -->
-          <div class="arcade-bottom-controls">
-            <div class="arcade-quick-tips">
-              <span class="tip-badge">HOW TO PLAY:</span>
-              <span id="game-instructions-text">Press Spacebar, Up Arrow, or Click/Tap canvas to keep the drone airborne. Don't hit laser gates!</span>
+          <!-- Arcade Footer Controls -->
+          <div class="arcade-footer-bar">
+            <div class="footer-instructions" id="game-instructions-text">
+              Press Spacebar or Click/Tap canvas to keep drone airborne. Avoid laser gates!
             </div>
-            <div class="arcade-action-buttons">
-              <button id="reset-highscores-btn" class="cyber-btn-mini" title="Reset Records">
-                <i class="fa-solid fa-trash-can"></i> RESET SCORES
-              </button>
-              <button id="fullscreen-game-btn" class="cyber-btn-mini" title="Toggle Full View">
-                <i class="fa-solid fa-expand"></i> EXPAND
+            <div class="footer-actions">
+              <button id="reset-highscores-btn" class="btn btn-ghost btn-sm" title="Reset High Scores">
+                <i class="fa-solid fa-trash-can"></i> Reset Records
               </button>
             </div>
           </div>
@@ -1225,80 +734,30 @@
   </main>
 
   <!-- ========================================== -->
-  <!-- CLI SYSTEM TERMINAL MODAL (EASTER EGG)     -->
-  <!-- ========================================== -->
-  <div id="cli-modal" class="cli-modal" aria-hidden="true">
-    <div class="cli-window cyber-panel">
-      <div class="cli-header">
-        <div class="cli-title">
-          <i class="fa-solid fa-terminal text-neon-green"></i> NOTNAV TACTICAL CONSOLE // AGY-V2
-        </div>
-        <button id="cli-close-btn" class="cli-close" aria-label="Close Terminal">&times;</button>
-      </div>
-      <div class="cli-body" id="cli-output">
-        <p class="cli-line text-neon-cyan">NotNav Terminal Initialized. Type <span class="cmd-highlight">'help'</span> to see available commands.</p>
-        <p class="cli-line text-muted">Operator: NotNav | Clearance: Level 9 | Assam, IN</p>
-      </div>
-      <form id="cli-form" class="cli-input-line">
-        <span class="cli-prompt text-neon-green">notnav@cyber-hud:~$</span>
-        <input type="text" id="cli-input" class="cli-input-field" placeholder="type a command..." autocomplete="off" spellcheck="false">
-        <button type="submit" class="cli-submit-btn"><i class="fa-solid fa-arrow-right"></i></button>
-      </form>
-    </div>
-  </div>
-
-  <!-- ========================================== -->
-  <!-- NOTIFICATION TOAST POPUP                   -->
-  <!-- ========================================== -->
-  <div id="hud-toast" class="hud-toast" role="alert" aria-live="polite">
-    <div class="toast-icon" id="toast-icon"><i class="fa-solid fa-circle-check"></i></div>
-    <div class="toast-content">
-      <span class="toast-title" id="toast-title">TRANSMISSION RECEIVED</span>
-      <span class="toast-message" id="toast-message">Action processed successfully.</span>
-    </div>
-  </div>
-
-  <!-- ========================================== -->
   <!-- FOOTER                                     -->
   <!-- ========================================== -->
-  <footer class="hud-footer">
-    <div class="footer-container">
-      <div class="footer-left">
-        <div class="footer-brand">
-          <span class="text-neon-cyan">[NOTNAV]</span> PORTFOLIO &bull; GAMER &bull; DEV
-        </div>
-        <p class="footer-copy">
-          Designed with dark sci-fi aesthetics &bull; Class 9 Student &bull; Assam, India 🇮🇳
-        </p>
+  <footer class="site-footer">
+    <div class="content-container footer-content">
+      <div class="footer-brand">
+        <strong>Jaishnav M Baro</strong>
+        <span>Student &bull; Developer &bull; Gamer</span>
       </div>
 
-      <div class="footer-center">
-        <div class="footer-transmission">
-          <span>COMMS CHANNEL:</span>
-          <a href="mailto:notmnav@gmail.com" class="footer-mail text-neon-green">
-            <i class="fa-solid fa-envelope"></i> notmnav@gmail.com
-          </a>
-        </div>
-      </div>
-
-      <div class="footer-right">
-        <a href="#about" class="back-to-top-btn" aria-label="Back to Top">
-          <i class="fa-solid fa-chevron-up"></i>
-          <span>TOP</span>
+      <div class="footer-contact">
+        <a href="mailto:notjaishnav@gmail.com" class="footer-email-link">
+          <i class="fa-solid fa-envelope"></i> notjaishnav@gmail.com
         </a>
+        <span class="footer-location">Assam, India 🇮🇳</span>
       </div>
-    </div>
 
-    <div class="footer-bottom-bar">
-      <span>SYSTEM STATUS: OPERATIONAL</span>
-      <span>&bull;</span>
-      <span>SECURE CONNECTION</span>
-      <span>&bull;</span>
-      <span>ALL RIGHTS RESERVED &copy; <span id="current-year">2026</span> NOTNAV</span>
+      <div class="footer-bottom">
+        <p>&copy; <span id="current-year">2026</span> Jaishnav M Baro (NotNav). All rights reserved.</p>
+        <a href="#about" class="back-to-top">Back to top &uarr;</a>
+      </div>
     </div>
   </footer>
 
-  <!-- Main JavaScript File -->
+  <!-- Scripts -->
   <script src="script.js"></script>
 </body>
 </html>
