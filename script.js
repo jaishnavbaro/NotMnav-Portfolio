@@ -588,6 +588,12 @@
 
       // Check and update leaderboard with current high score
       leaderboardSystem.recordUserScore();
+
+      // Automatically switch to the Leaderboard tab so player immediately sees their rank!
+      const tabLb = document.getElementById('tab-leaderboard');
+      if (tabLb) {
+        tabLb.click();
+      }
     });
   }
 
@@ -642,24 +648,35 @@
     },
 
     submitScore(gameKey, score) {
-      if (!authState.user || score <= 0) return;
+      if (!authState.user || score <= 0) return { rank: 0, newBest: false };
 
       const list = this.data[gameKey] || [];
-      const userEmailMasked = authState.user.email.replace(/(.{3})(.*)(@gmail\.com)/, '$1***$3');
+      const userRawEmail = authState.user.email.toLowerCase().trim();
+      const userMasked = userRawEmail.replace(/(.{2,3})(.*)(@gmail\.com)/, '$1***$3');
 
       // Check if user already exists
-      const existingIdx = list.findIndex(p => p.email === userEmailMasked || p.name === authState.user.displayName);
+      const existingIdx = list.findIndex(p => {
+        const pEmail = (p.rawEmail || p.email || '').toLowerCase().trim();
+        return pEmail === userRawEmail || pEmail === userMasked || p.name.toLowerCase() === authState.user.displayName.toLowerCase();
+      });
 
+      let isNewBest = false;
       if (existingIdx !== -1) {
+        list[existingIdx].name = authState.user.displayName;
+        list[existingIdx].rawEmail = userRawEmail;
+        list[existingIdx].email = userMasked;
         if (score > list[existingIdx].score) {
           list[existingIdx].score = score;
+          isNewBest = true;
         }
       } else {
         list.push({
           name: authState.user.displayName,
-          email: userEmailMasked,
+          rawEmail: userRawEmail,
+          email: userMasked,
           score: score
         });
+        isNewBest = true;
       }
 
       // Sort descending
@@ -670,10 +687,17 @@
         item.rank = idx + 1;
       });
 
-      // Keep top 10
-      this.data[gameKey] = list.slice(0, 10);
+      // Keep up to 50 players (prevents losing verified player records)
+      this.data[gameKey] = list.slice(0, 50);
       this.save();
       this.render();
+
+      const myRank = list.findIndex(p => {
+        const pEmail = (p.rawEmail || p.email || '').toLowerCase().trim();
+        return pEmail === userRawEmail || p.name.toLowerCase() === authState.user.displayName.toLowerCase();
+      }) + 1;
+
+      return { rank: myRank > 0 ? myRank : 1, newBest: isNewBest };
     },
 
     recordUserScore() {
@@ -698,6 +722,9 @@
         return;
       }
 
+      const userRawEmail = authState.user ? authState.user.email.toLowerCase().trim() : '';
+      const userDisplayName = authState.user ? authState.user.displayName.toLowerCase().trim() : '';
+
       list.forEach((item) => {
         const tr = document.createElement('tr');
 
@@ -709,15 +736,30 @@
 
         const initial = item.name.charAt(0).toUpperCase();
 
+        const isMe = authState.user && (
+          (item.rawEmail && item.rawEmail.toLowerCase() === userRawEmail) ||
+          (item.email && item.email.toLowerCase().startsWith(userRawEmail.slice(0, 3))) ||
+          item.name.toLowerCase() === userDisplayName
+        );
+
+        if (isMe) {
+          tr.classList.add('my-rank-row');
+        }
+
+        const youBadge = isMe ? '<span class="you-badge">YOU</span>' : '';
+
         tr.innerHTML = `
           <td><span class="rank-badge ${rankClass}">${crown}${item.rank}</span></td>
           <td>
             <div class="player-name-cell">
               <span class="player-avatar-circle">${initial}</span>
-              <span>${item.name}</span>
+              <div class="player-name-meta">
+                <span class="player-name-text">${item.name} ${youBadge}</span>
+                <span class="player-sub-email show-mobile"><i class="fa-solid fa-circle-check text-emerald"></i> ${item.email}</span>
+              </div>
             </div>
           </td>
-          <td><span class="verified-gmail-badge"><i class="fa-solid fa-circle-check"></i> ${item.email}</span></td>
+          <td class="td-verified hide-mobile"><span class="verified-gmail-badge"><i class="fa-solid fa-circle-check"></i> ${item.email}</span></td>
           <td><span class="table-score-val">${item.score}</span></td>
         `;
         tbody.appendChild(tr);
@@ -750,6 +792,26 @@
       openAuthModal();
     });
   }
+
+  const viewMyRankBtn = document.getElementById('modal-view-my-rank-btn');
+  if (viewMyRankBtn) {
+    viewMyRankBtn.addEventListener('click', () => {
+      const modalOverlay = document.getElementById('game-modal-overlay');
+      if (modalOverlay) modalOverlay.classList.add('hidden');
+      const tabLb = document.getElementById('tab-leaderboard');
+      if (tabLb) tabLb.click();
+    });
+  }
+
+  // Cross-tab storage synchronization
+  window.addEventListener('storage', (e) => {
+    if (e.key === 'jaishnav_leaderboard_data') {
+      leaderboardSystem.init();
+    } else if (e.key === 'jaishnav_auth_user') {
+      authState.init();
+      leaderboardSystem.render();
+    }
+  });
 
   /* --------------------------------------------------------------------------
    * 7. PLAYABLE ARCADE SUITE (HTML5 CANVAS)
@@ -1579,23 +1641,26 @@
 
       updateScoreUI(finalScore, highScores[key]);
 
+      const modalLbConfirmed = document.getElementById('modal-lb-confirmed');
+      const modalLbRankText = document.getElementById('modal-lb-rank-text');
+
       // If user is signed in, automatically record to Leaderboard!
       if (authState.user && finalScore > 0) {
-        leaderboardSystem.submitScore(key, finalScore);
-      }
-
-      modalTag.textContent = 'Game Over';
-      modalTitle.textContent = 'Nice Run!';
-      modalDesc.textContent = 'Mission ended. Want to jump back into action or check the leaderboard?';
-      summaryFinalScore.textContent = finalScore;
-      summaryBestScore.textContent = highScores[key];
-      modalScoreSummary.style.display = 'flex';
-
-      // Show leaderboard CTA if guest
-      if (!authState.user) {
-        modalLeaderboardCta.style.display = 'flex';
+        const result = leaderboardSystem.submitScore(key, finalScore);
+        if (modalLbConfirmed && modalLbRankText) {
+          modalLbConfirmed.style.display = 'flex';
+          modalLbRankText.textContent = `Saved to Leaderboard! Rank #${result.rank}`;
+        }
+        if (modalLeaderboardCta) modalLeaderboardCta.style.display = 'none';
+        if (result.newBest) {
+          sfx.playFanfare();
+        }
+      } else if (!authState.user) {
+        if (modalLbConfirmed) modalLbConfirmed.style.display = 'none';
+        if (modalLeaderboardCta) modalLeaderboardCta.style.display = 'flex';
       } else {
-        modalLeaderboardCta.style.display = 'none';
+        if (modalLbConfirmed) modalLbConfirmed.style.display = 'none';
+        if (modalLeaderboardCta) modalLeaderboardCta.style.display = 'none';
       }
 
       startGameBtn.innerHTML = '<i class="fa-solid fa-rotate-right"></i> Play Again';

@@ -51,6 +51,7 @@
           <li><a href="#hardware" class="nav-item">Setup</a></li>
           <li><a href="#projects" class="nav-item">Projects</a></li>
           <li><a href="#arcade" class="nav-item arcade-pill"><i class="fa-solid fa-gamepad"></i> Arcade</a></li>
+          <li><a href="leaderboard.html" class="nav-item leaderboard-nav-pill"><i class="fa-solid fa-trophy text-amber"></i> Leaderboard</a></li>
         </ul>
       </nav>
 
@@ -816,6 +817,17 @@
                   </button>
                 </div>
 
+                <!-- Verified Score Confirmation Badge -->
+                <div class="modal-lb-confirmed" id="modal-lb-confirmed" style="display: none;">
+                  <div class="confirmed-badge">
+                    <i class="fa-solid fa-circle-check text-emerald"></i>
+                    <span id="modal-lb-rank-text">Score Saved to Leaderboard!</span>
+                  </div>
+                  <button id="modal-view-my-rank-btn" class="btn btn-sm btn-secondary">
+                    <i class="fa-solid fa-trophy text-amber"></i> View on Leaderboard
+                  </button>
+                </div>
+
                 <button id="start-game-btn" class="btn btn-primary btn-play">
                   <i class="fa-solid fa-play"></i> Start Game
                 </button>
@@ -831,8 +843,13 @@
                 <button class="lb-filter-btn" data-lb="runner">Nav Cyber Dino</button>
                 <button class="lb-filter-btn" data-lb="snake">Nav Snake</button>
               </div>
-              <div class="lb-status-pill">
-                <span class="live-dot"></span> Verified Players
+              <div class="lb-header-actions">
+                <a href="leaderboard.html" class="btn btn-xs btn-outline-cyan">
+                  <i class="fa-solid fa-arrow-up-right-from-square"></i> Full Page Board
+                </a>
+                <div class="lb-status-pill">
+                  <span class="live-dot"></span> Live Rankings
+                </div>
               </div>
             </div>
 
@@ -843,7 +860,7 @@
                   <tr>
                     <th class="th-rank">Rank</th>
                     <th class="th-player">Player / Gamer Tag</th>
-                    <th class="th-verified">Account</th>
+                    <th class="th-verified hide-mobile">Account</th>
                     <th class="th-score">Score</th>
                   </tr>
                 </thead>

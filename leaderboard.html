@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Arcade Leaderboard &amp; Hall of Fame | Jaishnav M Baro (NotNav)</title>
+  <meta name="description" content="Global leaderboard and Hall of Fame for Nav Cyber Bird, Nav Cyber Dino, and Nav Snake. Compete with players worldwide and submit verified scores!">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    /* Dedicated Page Styling for Standalone Leaderboard */
+    .lb-page-hero {
+      padding: 4.5rem 0 2.5rem;
+      text-align: center;
+    }
+    .lb-page-hero .status-pill {
+      margin: 0 auto 1.4rem;
+    }
+    .lb-page-title {
+      font-size: 3.2rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 1rem;
+      line-height: 1.15;
+    }
+    .lb-page-lead {
+      max-width: 680px;
+      margin: 0 auto 2rem;
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+    .lb-hero-actions {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 3rem;
+    }
+    
+    /* Player Status Card */
+    .lb-user-banner {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-md);
+      padding: 1.2rem 1.6rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1.2rem;
+      margin-bottom: 2.5rem;
+      box-shadow: var(--shadow-card);
+    }
+    .lb-user-meta {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .lb-user-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #0284c7, #818cf8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: #ffffff;
+    }
+    .lb-user-info h4 {
+      font-size: 1.05rem;
+      margin-bottom: 0.2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .lb-user-info p {
+      font-size: 0.82rem;
+      color: var(--text-tertiary);
+    }
+    .lb-user-scores {
+      display: flex;
+      align-items: center;
+      gap: 1.2rem;
+      flex-wrap: wrap;
+    }
+    .lb-mini-score {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0.4rem 0.8rem;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-sm);
+    }
+    .lb-mini-score span {
+      font-size: 0.7rem;
+      color: var(--text-tertiary);
+      text-transform: uppercase;
+    }
+    .lb-mini-score strong {
+      font-size: 1rem;
+      color: var(--accent-sky);
+      font-family: var(--font-heading);
+    }
+
+    /* Podium Row for Top Champions */
+    .podium-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+    }
+    .podium-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-lg);
+      padding: 1.8rem 1.4rem;
+      text-align: center;
+      position: relative;
+      transition: transform var(--transition-normal), border-color var(--transition-normal);
+      overflow: hidden;
+    }
+    .podium-card:hover {
+      transform: translateY(-6px);
+      border-color: var(--border-hover);
+    }
+    .podium-card.gold-podium {
+      border-color: rgba(245, 158, 11, 0.35);
+      background: radial-gradient(circle at top, rgba(245, 158, 11, 0.08), var(--bg-card) 70%);
+    }
+    .podium-game-title {
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-tertiary);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.45rem;
+    }
+    .podium-avatar {
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      margin: 0 auto 0.8rem;
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      color: #ffffff;
+      box-shadow: 0 0 20px rgba(245, 158, 11, 0.25);
+    }
+    .podium-name {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 0.2rem;
+    }
+    .podium-email {
+      font-size: 0.76rem;
+      color: #6ee7b7;
+      margin-bottom: 0.8rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .podium-score {
+      font-size: 2rem;
+      font-weight: 800;
+      font-family: var(--font-heading);
+      color: #fbbf24;
+      line-height: 1;
+    }
+    .podium-score-label {
+      font-size: 0.72rem;
+      color: var(--text-tertiary);
+      text-transform: uppercase;
+      margin-top: 0.2rem;
+    }
+
+    /* Main Board Card */
+    .lb-main-card {
+      background: #0b0f19;
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-card);
+      overflow: hidden;
+      margin-bottom: 3rem;
+    }
+    .lb-toolbar {
+      padding: 1.4rem 1.8rem;
+      background: rgba(0, 0, 0, 0.35);
+      border-bottom: 1px solid var(--border-light);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .lb-search-wrap {
+      position: relative;
+      min-width: 260px;
+    }
+    .lb-search-input {
+      width: 100%;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-pill);
+      padding: 0.55rem 1rem 0.55rem 2.4rem;
+      color: #ffffff;
+      font-size: 0.85rem;
+      font-family: inherit;
+    }
+    .lb-search-input:focus {
+      outline: none;
+      border-color: var(--accent-sky);
+    }
+    .lb-search-icon {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-tertiary);
+      font-size: 0.82rem;
+      pointer-events: none;
+    }
+
+    /* Challenge CTA Card */
+    .challenge-cta-card {
+      background: radial-gradient(circle at 10% 20%, rgba(56, 189, 248, 0.12), transparent 40%),
+                  radial-gradient(circle at 90% 80%, rgba(129, 140, 248, 0.12), transparent 40%),
+                  #0f172a;
+      border: 1px solid var(--border-hover);
+      border-radius: var(--radius-lg);
+      padding: 3rem 2rem;
+      text-align: center;
+      margin-bottom: 4rem;
+    }
+    .challenge-cta-card h3 {
+      font-size: 1.8rem;
+      margin-bottom: 0.8rem;
+    }
+    .challenge-cta-card p {
+      max-width: 580px;
+      margin: 0 auto 1.8rem;
+      color: var(--text-secondary);
+      font-size: 0.98rem;
+    }
+
+    @media (max-width: 992px) {
+      .podium-grid {
+        grid-template-columns: 1fr;
+      }
+      .lb-page-title {
+        font-size: 2.6rem;
+      }
+    }
+    @media (max-width: 768px) {
+      .lb-page-hero {
+        padding: 3rem 0 1.8rem;
+      }
+      .lb-page-title {
+        font-size: 2.2rem;
+      }
+      .lb-user-banner {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .lb-user-scores {
+        justify-content: space-between;
+      }
+      .lb-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .lb-search-wrap {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body class="theme-dark">
+
+  <!-- Ambient Glow Effects -->
+  <div class="ambient-glow glow-cyan" style="top: 10%; left: 15%; width: 500px; height: 500px;"></div>
+  <div class="ambient-glow glow-violet" style="top: 50%; right: 10%; width: 600px; height: 600px;"></div>
+
+  <!-- ========================================== -->
+  <!-- NAVIGATION HEADER                          -->
+  <!-- ========================================== -->
+  <header class="site-header" id="header">
+    <div class="content-container header-inner">
+      <a href="index.html" class="header-brand" aria-label="Jaishnav M Baro Homepage">
+        <span class="brand-avatar">J</span>
+        <div class="brand-text">
+          <span class="brand-name">Jaishnav M Baro</span>
+          <span class="brand-alias"><span class="status-dot"></span> NotNav &bull; Assam, IN</span>
+        </div>
+      </a>
+
+      <nav class="nav-menu" id="nav-menu" aria-label="Main Navigation">
+        <ul class="nav-links">
+          <li><a href="index.html#about" class="nav-item">About</a></li>
+          <li><a href="index.html#skills" class="nav-item">Skills</a></li>
+          <li><a href="index.html#games" class="nav-item">Games</a></li>
+          <li><a href="index.html#projects" class="nav-item">Projects</a></li>
+          <li><a href="index.html#arcade" class="nav-item arcade-pill"><i class="fa-solid fa-gamepad"></i> Arcade</a></li>
+          <li><a href="leaderboard.html" class="nav-item leaderboard-nav-pill active"><i class="fa-solid fa-trophy text-amber"></i> Leaderboard</a></li>
+        </ul>
+      </nav>
+
+      <div class="header-actions">
+        <button id="sfx-toggle" class="action-btn" title="Toggle Sound Feedback" aria-label="Toggle Sound Effects">
+          <i class="fa-solid fa-volume-high" id="sfx-icon"></i>
+        </button>
+
+        <a href="mailto:notjaishnav@gmail.com" class="action-btn email-btn" title="Send Email">
+          <i class="fa-solid fa-envelope"></i>
+          <span class="hide-mobile">Contact</span>
+        </a>
+
+        <button id="mobile-menu-btn" class="action-btn mobile-menu-toggle" aria-label="Toggle Menu" aria-expanded="false">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========================================== -->
+  <!-- MAIN LEADERBOARD VIEWPORT                  -->
+  <!-- ========================================== -->
+  <main class="main-content" style="padding-top: var(--header-height);">
+    <div class="content-container">
+
+      <!-- Hero Header -->
+      <section class="lb-page-hero">
+        <div class="status-pill">
+          <span class="pulse-indicator"></span>
+          <span>Live Hall of Fame &bull; Season 1 Verified Rankings</span>
+        </div>
+
+        <h1 class="lb-page-title">
+          Arcade <span class="gradient-text">Global Leaderboard</span>
+        </h1>
+
+        <p class="lb-page-lead">
+          Official high-score records for <strong>Nav Cyber Bird</strong>, <strong>Nav Cyber Dino</strong>, and <strong>Nav Snake</strong>. Play on mobile or desktop and submit your name to the global board!
+        </p>
+
+        <div class="lb-hero-actions">
+          <a href="index.html#arcade" class="btn btn-primary btn-play">
+            <i class="fa-solid fa-gamepad"></i> Play Games in Arcade
+          </a>
+          <button id="page-open-auth-btn" class="btn btn-secondary">
+            <i class="fa-brands fa-google text-sky"></i> <span id="page-auth-btn-label">Sign In with Gmail</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Player Status Banner -->
+      <div class="lb-user-banner" id="lb-user-banner">
+        <div class="lb-user-meta">
+          <div class="lb-user-avatar" id="page-user-avatar">?</div>
+          <div class="lb-user-info">
+            <h4 id="page-user-display-name">Playing as Guest</h4>
+            <p id="page-user-status-text"><i class="fa-regular fa-user"></i> Sign in with Gmail to save your name on the Leaderboard</p>
+          </div>
+        </div>
+
+        <div class="lb-user-scores">
+          <div class="lb-mini-score">
+            <span>Cyber Bird</span>
+            <strong id="mini-score-bird">0</strong>
+          </div>
+          <div class="lb-mini-score">
+            <span>Cyber Dino</span>
+            <strong id="mini-score-dino">0</strong>
+          </div>
+          <div class="lb-mini-score">
+            <span>Nav Snake</span>
+            <strong id="mini-score-snake">0</strong>
+          </div>
+          <button id="page-user-action-btn" class="btn btn-xs btn-outline-cyan">
+            Sign In
+          </button>
+        </div>
+      </div>
+
+      <!-- Top Champions Podium Cards -->
+      <div class="podium-grid">
+        <!-- Bird Champion -->
+        <div class="podium-card gold-podium">
+          <div class="podium-game-title">
+            <i class="fa-solid fa-dove text-sky"></i> Nav Cyber Bird Champion
+          </div>
+          <div class="podium-avatar">
+            <i class="fa-solid fa-crown text-amber"></i>
+          </div>
+          <h3 class="podium-name" id="podium-bird-name">VajraAce</h3>
+          <span class="podium-email"><i class="fa-solid fa-circle-check"></i> <span id="podium-bird-email">vajra***@gmail.com</span></span>
+          <div class="podium-score" id="podium-bird-score">38</div>
+          <div class="podium-score-label">Points Cleared</div>
+        </div>
+
+        <!-- Dino Champion -->
+        <div class="podium-card gold-podium">
+          <div class="podium-game-title">
+            <i class="fa-solid fa-dragon text-emerald"></i> Nav Cyber Dino Champion
+          </div>
+          <div class="podium-avatar" style="background: linear-gradient(135deg, #10b981, #059669);">
+            <i class="fa-solid fa-crown text-amber"></i>
+          </div>
+          <h3 class="podium-name" id="podium-dino-name">CyberRex</h3>
+          <span class="podium-email"><i class="fa-solid fa-circle-check"></i> <span id="podium-dino-email">cybe***@gmail.com</span></span>
+          <div class="podium-score" id="podium-dino-score">642</div>
+          <div class="podium-score-label">Meters Sprinted</div>
+        </div>
+
+        <!-- Snake Champion -->
+        <div class="podium-card gold-podium">
+          <div class="podium-game-title">
+            <i class="fa-solid fa-staff-snake text-amber"></i> Nav Snake Champion
+          </div>
+          <div class="podium-avatar" style="background: linear-gradient(135deg, #6366f1, #4f46e5);">
+            <i class="fa-solid fa-crown text-amber"></i>
+          </div>
+          <h3 class="podium-name" id="podium-snake-name">ViperKing</h3>
+          <span class="podium-email"><i class="fa-solid fa-circle-check"></i> <span id="podium-snake-email">vipe***@gmail.com</span></span>
+          <div class="podium-score" id="podium-snake-score">210</div>
+          <div class="podium-score-label">Apples Consumed</div>
+        </div>
+      </div>
+
+      <!-- Main Leaderboard Table Section -->
+      <div class="lb-main-card">
+        <!-- Game Tabs -->
+        <div class="arcade-tabs">
+          <button class="arcade-tab active" id="tab-page-flappy" data-lb="flappy">
+            <i class="fa-solid fa-dove"></i>
+            <span>Nav Cyber Bird</span>
+          </button>
+          <button class="arcade-tab" id="tab-page-runner" data-lb="runner">
+            <i class="fa-solid fa-dragon"></i>
+            <span>Nav Cyber Dino</span>
+          </button>
+          <button class="arcade-tab" id="tab-page-snake" data-lb="snake">
+            <i class="fa-solid fa-staff-snake"></i>
+            <span>Nav Snake</span>
+          </button>
+          <button class="arcade-tab leaderboard-tab" id="tab-page-overall" data-lb="overall">
+            <i class="fa-solid fa-trophy"></i>
+            <span>Overall Champions</span>
+            <span class="live-pill">Top</span>
+          </button>
+        </div>
+
+        <!-- Toolbar (Search & Count) -->
+        <div class="lb-toolbar">
+          <div class="lb-search-wrap">
+            <i class="fa-solid fa-magnifying-glass lb-search-icon"></i>
+            <input type="text" id="lb-search-input" class="lb-search-input" placeholder="Search player by gamer tag...">
+          </div>
+          <div class="lb-status-pill">
+            <span class="live-dot"></span> <span id="lb-total-players">Showing Top Players</span>
+          </div>
+        </div>
+
+        <!-- Leaderboard Table -->
+        <div class="leaderboard-table-wrap" style="margin: 0; border: none; border-radius: 0;">
+          <table class="leaderboard-table">
+            <thead>
+              <tr>
+                <th class="th-rank">Rank</th>
+                <th class="th-player">Player / Gamer Tag</th>
+                <th class="th-verified hide-mobile">Account</th>
+                <th class="th-score">Score</th>
+              </tr>
+            </thead>
+            <tbody id="page-leaderboard-tbody">
+              <!-- Dynamically populated via JavaScript -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Footer Notice -->
+        <div class="leaderboard-view" style="padding: 1.2rem 1.8rem; border-top: 1px solid var(--border-light);">
+          <div class="leaderboard-footer-note">
+            <p><i class="fa-solid fa-shield-halved text-emerald"></i> <strong>Safe Community Guidelines:</strong> All registered gamer tags are automatically validated through our community profanity moderation filter to ensure zero abusive or vulgar names. Only verified Gmail users can submit scores to the board.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Challenge Banner -->
+      <section class="challenge-cta-card">
+        <span class="coming-soon-badge" style="margin-bottom: 1rem; display: inline-flex;">
+          <span class="status-dot"></span> Ready to play?
+        </span>
+        <h3>Think you can claim the #1 spot?</h3>
+        <p>Jump directly into the interactive arcade right now, set a new high score, and show your gamer tag on top of the world!</p>
+        <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+          <a href="index.html#arcade" class="btn btn-primary btn-play">
+            <i class="fa-solid fa-play"></i> Launch Built-in Arcade
+          </a>
+          <a href="index.html" class="btn btn-secondary">
+            <i class="fa-solid fa-house"></i> Back to Portfolio
+          </a>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ========================================== -->
+  <!-- MODAL: GMAIL SIGN IN & GAMER TAG CREATION  -->
+  <!-- ========================================== -->
+  <div id="auth-modal" class="auth-modal-overlay" style="display: none;" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="auth-modal-card">
+      <div class="auth-modal-head">
+        <div class="auth-modal-title-group">
+          <div class="google-icon-badge">
+            <svg class="google-svg-icon" viewBox="0 0 24 24" width="22" height="22">
+              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+            </svg>
+          </div>
+          <div>
+            <h3 class="auth-modal-heading">Gmail Leaderboard Portal</h3>
+            <p class="auth-modal-sub">Set your Gamer Tag to compete on the Global Leaderboard</p>
+          </div>
+        </div>
+        <button id="auth-modal-close" class="modal-close-btn" aria-label="Close modal">&times;</button>
+      </div>
+
+      <!-- Warning/Moderation Message -->
+      <div id="auth-mod-warning" class="auth-mod-warning" style="display: none;">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <span id="auth-mod-warning-text"></span>
+      </div>
+
+      <form id="auth-form" class="auth-form">
+        <div class="form-group">
+          <label for="auth-email-input"><i class="fa-solid fa-envelope text-sky"></i> Gmail Address</label>
+          <input type="email" id="auth-email-input" class="form-control" placeholder="yourname@gmail.com" required autocomplete="email">
+          <span class="form-hint">Must end with @gmail.com for verified score validation.</span>
+        </div>
+
+        <div class="form-group">
+          <label for="auth-name-input"><i class="fa-solid fa-gamepad text-emerald"></i> Custom Gamer Tag</label>
+          <input type="text" id="auth-name-input" class="form-control" placeholder="e.g. CyberAce99" maxlength="16" required autocomplete="username">
+          <span class="form-hint">3-16 characters. Moderated for inappropriate or abusive words.</span>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-submit-auth">
+          <i class="fa-solid fa-check"></i> Save &amp; Join Leaderboard
+        </button>
+      </form>
+
+      <div class="auth-modal-footer">
+        <i class="fa-solid fa-shield-halved text-emerald"></i>
+        <span>Safe gaming environment. Inappropriate tags will be rejected by our automated moderation engine.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="content-container footer-content">
+      <div class="footer-brand">
+        <strong>Jaishnav M Baro</strong>
+        <span>Student &bull; Developer &bull; Gamer</span>
+      </div>
+      <div class="footer-contact">
+        <a href="mailto:notjaishnav@gmail.com" class="footer-email-link">
+          <i class="fa-solid fa-envelope"></i> notjaishnav@gmail.com
+        </a>
+        <span class="footer-location">Assam, India 🇮🇳</span>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; <span id="current-year">2026</span> Jaishnav M Baro (NotNav). All rights reserved.</p>
+        <a href="#header" class="back-to-top">Back to top &uarr;</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Page Logic & Storage Sync -->
+  <script>
+    (function() {
+      'use strict';
+
+      // Profanity Filter
+      const BANNED_PATTERNS = [
+        'fuck', 'shit', 'bitch', 'asshole', 'cunt', 'dick', 'pussy', 'nigger', 'nigga',
+        'faggot', 'bastard', 'whore', 'slut', 'cock', 'retard', 'chutiya', 'madarchod',
+        'bhenchod', 'gaand', 'randi', 'harami', 'bsdk', 'mc', 'bc', 'behenchod'
+      ];
+      function containsProfanity(text) {
+        if (!text) return false;
+        let clean = text.toLowerCase()
+          .replace(/[@4]/g, 'a')
+          .replace(/[3]/g, 'e')
+          .replace(/[1!|]/g, 'i')
+          .replace(/[0]/g, 'o')
+          .replace(/[$5]/g, 's')
+          .replace(/[+]/g, 't')
+          .replace(/[^a-z0-9]/g, '');
+        for (const word of BANNED_PATTERNS) {
+          if (clean.includes(word)) return true;
+        }
+        return false;
+      }
+
+      // Default Leaderboard
+      const DEFAULT_LEADERBOARD = {
+        flappy: [
+          { name: 'VajraAce', email: 'vajra***@gmail.com', rawEmail: 'vajraace@gmail.com', score: 38, rank: 1 },
+          { name: 'ShadowStrike', email: 'shad***@gmail.com', rawEmail: 'shadowstrike@gmail.com', score: 29, rank: 2 },
+          { name: 'Phoenix99', email: 'phoe***@gmail.com', rawEmail: 'phoenix99@gmail.com', score: 24, rank: 3 },
+          { name: 'SkySniper', email: 'sky.***@gmail.com', rawEmail: 'skysniper@gmail.com', score: 19, rank: 4 },
+          { name: 'GhostOperator', email: 'ghos***@gmail.com', rawEmail: 'ghostoperator@gmail.com', score: 15, rank: 5 }
+        ],
+        runner: [
+          { name: 'CyberRex', email: 'cybe***@gmail.com', rawEmail: 'cyberrex@gmail.com', score: 642, rank: 1 },
+          { name: 'VajraSprint', email: 'v.sp***@gmail.com', rawEmail: 'vajrasprint@gmail.com', score: 518, rank: 2 },
+          { name: 'NeonRider', email: 'neon***@gmail.com', rawEmail: 'neonrider@gmail.com', score: 430, rank: 3 },
+          { name: 'SpeedyBot', email: 'spee***@gmail.com', rawEmail: 'speedybot@gmail.com', score: 365, rank: 4 },
+          { name: 'PixelDino', email: 'pixe***@gmail.com', rawEmail: 'pixeldino@gmail.com', score: 290, rank: 5 }
+        ],
+        snake: [
+          { name: 'ViperKing', email: 'vipe***@gmail.com', rawEmail: 'viperking@gmail.com', score: 210, rank: 1 },
+          { name: 'AppleHunter', email: 'appl***@gmail.com', rawEmail: 'applehunter@gmail.com', score: 180, rank: 2 },
+          { name: 'VajraClouds', email: 'vajr***@gmail.com', rawEmail: 'vajraclouds@gmail.com', score: 150, rank: 3 },
+          { name: 'Cobra9', email: 'cobr***@gmail.com', rawEmail: 'cobra9@gmail.com', score: 120, rank: 4 },
+          { name: 'GreenMamba', email: 'gree***@gmail.com', rawEmail: 'greenmamba@gmail.com', score: 90, rank: 5 }
+        ]
+      };
+
+      let activeTab = 'flappy';
+      let searchQuery = '';
+
+      function getLeaderboardData() {
+        const saved = localStorage.getItem('jaishnav_leaderboard_data');
+        if (saved) {
+          try { return JSON.parse(saved); } catch(e) {}
+        }
+        return JSON.parse(JSON.stringify(DEFAULT_LEADERBOARD));
+      }
+
+      function getAuthUser() {
+        const saved = localStorage.getItem('jaishnav_auth_user');
+        if (saved) {
+          try { return JSON.parse(saved); } catch(e) {}
+        }
+        return null;
+      }
+
+      function renderPodium(data) {
+        if (data.flappy && data.flappy[0]) {
+          document.getElementById('podium-bird-name').textContent = data.flappy[0].name;
+          document.getElementById('podium-bird-email').textContent = data.flappy[0].email;
+          document.getElementById('podium-bird-score').textContent = data.flappy[0].score;
+        }
+        if (data.runner && data.runner[0]) {
+          document.getElementById('podium-dino-name').textContent = data.runner[0].name;
+          document.getElementById('podium-dino-email').textContent = data.runner[0].email;
+          document.getElementById('podium-dino-score').textContent = data.runner[0].score;
+        }
+        if (data.snake && data.snake[0]) {
+          document.getElementById('podium-snake-name').textContent = data.snake[0].name;
+          document.getElementById('podium-snake-email').textContent = data.snake[0].email;
+          document.getElementById('podium-snake-score').textContent = data.snake[0].score;
+        }
+      }
+
+      function renderUserBanner() {
+        const user = getAuthUser();
+        const avatarEl = document.getElementById('page-user-avatar');
+        const nameEl = document.getElementById('page-user-display-name');
+        const statusEl = document.getElementById('page-user-status-text');
+        const actionBtn = document.getElementById('page-user-action-btn');
+        const heroAuthLabel = document.getElementById('page-auth-btn-label');
+
+        const birdHs = localStorage.getItem('jaishnav_hs_flappy') || '0';
+        const dinoHs = localStorage.getItem('jaishnav_hs_runner') || '0';
+        const snakeHs = localStorage.getItem('jaishnav_hs_snake') || '0';
+
+        document.getElementById('mini-score-bird').textContent = birdHs;
+        document.getElementById('mini-score-dino').textContent = dinoHs;
+        document.getElementById('mini-score-snake').textContent = snakeHs;
+
+        if (user) {
+          avatarEl.textContent = user.displayName.charAt(0).toUpperCase();
+          nameEl.innerHTML = `${user.displayName} <span class="verified-gmail-badge"><i class="fa-solid fa-circle-check"></i> Verified</span>`;
+          statusEl.textContent = `Connected with ${user.email} • Your scores are live on the leaderboard`;
+          actionBtn.textContent = 'Change Tag';
+          heroAuthLabel.textContent = `Signed In as ${user.displayName}`;
+        } else {
+          avatarEl.textContent = '?';
+          nameEl.textContent = 'Playing as Guest';
+          statusEl.innerHTML = '<i class="fa-regular fa-user"></i> Sign in with Gmail to record your scores';
+          actionBtn.textContent = 'Sign In';
+          heroAuthLabel.textContent = 'Sign In with Gmail';
+        }
+      }
+
+      function getOverallList(data) {
+        const playerMap = {};
+        ['flappy', 'runner', 'snake'].forEach(game => {
+          (data[game] || []).forEach(p => {
+            const key = (p.rawEmail || p.email || p.name).toLowerCase();
+            if (!playerMap[key]) {
+              playerMap[key] = {
+                name: p.name,
+                email: p.email,
+                rawEmail: p.rawEmail || p.email,
+                score: 0,
+                gamesCount: 0
+              };
+            }
+            playerMap[key].score += p.score;
+            playerMap[key].gamesCount += 1;
+          });
+        });
+
+        const list = Object.values(playerMap);
+        list.sort((a, b) => b.score - a.score);
+        list.forEach((item, idx) => {
+          item.rank = idx + 1;
+        });
+        return list;
+      }
+
+      function renderTable() {
+        const data = getLeaderboardData();
+        renderPodium(data);
+        renderUserBanner();
+
+        const user = getAuthUser();
+        const tbody = document.getElementById('page-leaderboard-tbody');
+        tbody.innerHTML = '';
+
+        let list = activeTab === 'overall' ? getOverallList(data) : (data[activeTab] || []);
+
+        if (searchQuery) {
+          list = list.filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase()));
+        }
+
+        document.getElementById('lb-total-players').textContent = `${list.length} Player${list.length === 1 ? '' : 's'}`;
+
+        if (list.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-secondary); padding: 3rem;">No player found. Play in the arcade and be the first!</td></tr>`;
+          return;
+        }
+
+        const userRawEmail = user ? user.email.toLowerCase().trim() : '';
+        const userDisplayName = user ? user.displayName.toLowerCase().trim() : '';
+
+        list.forEach((item) => {
+          const tr = document.createElement('tr');
+
+          let rankClass = 'rank-other';
+          let crown = '';
+          if (item.rank === 1) { rankClass = 'rank-1'; crown = '<i class="fa-solid fa-crown text-amber"></i> '; }
+          else if (item.rank === 2) { rankClass = 'rank-2'; crown = '<i class="fa-solid fa-medal text-slate"></i> '; }
+          else if (item.rank === 3) { rankClass = 'rank-3'; crown = '<i class="fa-solid fa-award text-amber"></i> '; }
+
+          const initial = item.name.charAt(0).toUpperCase();
+
+          const isMe = user && (
+            (item.rawEmail && item.rawEmail.toLowerCase() === userRawEmail) ||
+            (item.email && item.email.toLowerCase().startsWith(userRawEmail.slice(0, 3))) ||
+            item.name.toLowerCase() === userDisplayName
+          );
+
+          if (isMe) {
+            tr.classList.add('my-rank-row');
+          }
+
+          const youBadge = isMe ? '<span class="you-badge">YOU</span>' : '';
+
+          tr.innerHTML = `
+            <td><span class="rank-badge ${rankClass}">${crown}${item.rank}</span></td>
+            <td>
+              <div class="player-name-cell">
+                <span class="player-avatar-circle">${initial}</span>
+                <div class="player-name-meta">
+                  <span class="player-name-text">${item.name} ${youBadge}</span>
+                  <span class="player-sub-email show-mobile"><i class="fa-solid fa-circle-check text-emerald"></i> ${item.email}</span>
+                </div>
+              </div>
+            </td>
+            <td class="td-verified hide-mobile"><span class="verified-gmail-badge"><i class="fa-solid fa-circle-check"></i> ${item.email}</span></td>
+            <td><span class="table-score-val">${item.score}</span></td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      // Tab switcher
+      const tabs = [
+        { id: 'tab-page-flappy', key: 'flappy' },
+        { id: 'tab-page-runner', key: 'runner' },
+        { id: 'tab-page-snake', key: 'snake' },
+        { id: 'tab-page-overall', key: 'overall' }
+      ];
+
+      tabs.forEach(t => {
+        const btn = document.getElementById(t.id);
+        if (btn) {
+          btn.addEventListener('click', () => {
+            tabs.forEach(o => {
+              const b = document.getElementById(o.id);
+              if (b) b.classList.remove('active');
+            });
+            btn.classList.add('active');
+            activeTab = t.key;
+            renderTable();
+          });
+        }
+      });
+
+      // Search input
+      const searchInput = document.getElementById('lb-search-input');
+      if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+          searchQuery = e.target.value.trim();
+          renderTable();
+        });
+      }
+
+      // Auth Modal logic
+      const authModal = document.getElementById('auth-modal');
+      const authModalClose = document.getElementById('auth-modal-close');
+      const authForm = document.getElementById('auth-form');
+      const authEmailInput = document.getElementById('auth-email-input');
+      const authNameInput = document.getElementById('auth-name-input');
+      const authModWarning = document.getElementById('auth-mod-warning');
+      const authModWarningText = document.getElementById('auth-mod-warning-text');
+
+      function openModal() {
+        if (!authModal) return;
+        const current = getAuthUser();
+        if (current) {
+          authEmailInput.value = current.email;
+          authNameInput.value = current.displayName;
+        }
+        authModal.style.display = 'flex';
+        authModal.setAttribute('aria-hidden', 'false');
+        if (authModWarning) authModWarning.style.display = 'none';
+        if (authEmailInput) authEmailInput.focus();
+      }
+
+      function closeModal() {
+        if (!authModal) return;
+        authModal.style.display = 'none';
+        authModal.setAttribute('aria-hidden', 'true');
+      }
+
+      const openAuthBtns = [document.getElementById('page-open-auth-btn'), document.getElementById('page-user-action-btn')];
+      openAuthBtns.forEach(b => { if (b) b.addEventListener('click', openModal); });
+
+      if (authModalClose) authModalClose.addEventListener('click', closeModal);
+      if (authModal) {
+        authModal.addEventListener('click', (e) => {
+          if (e.target === authModal) closeModal();
+        });
+      }
+
+      if (authForm) {
+        authForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const email = authEmailInput.value.trim();
+          const name = authNameInput.value.trim();
+
+          if (!email.toLowerCase().endsWith('@gmail.com') || email.length < 11) {
+            authModWarning.style.display = 'flex';
+            authModWarningText.textContent = 'Please enter a valid @gmail.com address.';
+            return;
+          }
+
+          if (name.length < 3 || name.length > 16) {
+            authModWarning.style.display = 'flex';
+            authModWarningText.textContent = 'Gamer tag must be between 3 and 16 characters.';
+            return;
+          }
+
+          if (containsProfanity(name)) {
+            authModWarning.style.display = 'flex';
+            authModWarningText.textContent = '⚠️ Inappropriate or abusive language detected. Please choose a clean gamer tag.';
+            return;
+          }
+
+          const userObj = { email: email.toLowerCase().trim(), displayName: name.trim() };
+          localStorage.setItem('jaishnav_auth_user', JSON.stringify(userObj));
+
+          // Transfer high scores
+          const data = getLeaderboardData();
+          const birdHs = parseInt(localStorage.getItem('jaishnav_hs_flappy') || '0', 10);
+          const dinoHs = parseInt(localStorage.getItem('jaishnav_hs_runner') || '0', 10);
+          const snakeHs = parseInt(localStorage.getItem('jaishnav_hs_snake') || '0', 10);
+
+          function recordScore(gKey, sc) {
+            if (sc <= 0) return;
+            const list = data[gKey] || [];
+            const userRaw = userObj.email;
+            const masked = userRaw.replace(/(.{2,3})(.*)(@gmail\.com)/, '$1***$3');
+            const idx = list.findIndex(p => (p.rawEmail || p.email) === userRaw || p.name.toLowerCase() === userObj.displayName.toLowerCase());
+            if (idx !== -1) {
+              list[idx].name = userObj.displayName;
+              list[idx].rawEmail = userRaw;
+              list[idx].email = masked;
+              if (sc > list[idx].score) list[idx].score = sc;
+            } else {
+              list.push({ name: userObj.displayName, rawEmail: userRaw, email: masked, score: sc });
+            }
+            list.sort((a,b) => b.score - a.score);
+            list.forEach((item, i) => { item.rank = i + 1; });
+            data[gKey] = list.slice(0, 50);
+          }
+
+          recordScore('flappy', birdHs);
+          recordScore('runner', dinoHs);
+          recordScore('snake', snakeHs);
+
+          localStorage.setItem('jaishnav_leaderboard_data', JSON.stringify(data));
+
+          closeModal();
+          renderTable();
+        });
+      }
+
+      // Sync across windows
+      window.addEventListener('storage', () => {
+        renderTable();
+      });
+
+      // Mobile Menu
+      const mobileBtn = document.getElementById('mobile-menu-btn');
+      const navMenu = document.getElementById('nav-menu');
+      if (mobileBtn && navMenu) {
+        mobileBtn.addEventListener('click', () => {
+          navMenu.classList.toggle('mobile-open');
+        });
+      }
+
+      // Initial Render
+      renderTable();
+    })();
+  </script>
+</body>
+</html>

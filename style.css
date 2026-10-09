@@ -1659,6 +1659,53 @@ kbd {
   line-height: 1.5;
 }
 
+.my-rank-row td {
+  background: rgba(56, 189, 248, 0.08) !important;
+  border-top: 1px solid rgba(56, 189, 248, 0.4);
+  border-bottom: 1px solid rgba(56, 189, 248, 0.4) !important;
+}
+.you-badge {
+  display: inline-block;
+  padding: 0.12rem 0.45rem;
+  font-size: 0.65rem;
+  font-weight: 800;
+  background: var(--accent-sky);
+  color: #0b0f19;
+  border-radius: var(--radius-pill);
+  margin-left: 0.4rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  vertical-align: middle;
+}
+.player-sub-email {
+  display: none;
+}
+.lb-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.btn-outline-cyan {
+  border: 1px solid var(--accent-sky);
+  color: var(--accent-sky);
+  background: rgba(56, 189, 248, 0.08);
+}
+.btn-outline-cyan:hover {
+  background: var(--accent-sky);
+  color: #0b0f19;
+}
+.btn-xs {
+  padding: 0.35rem 0.65rem;
+  font-size: 0.75rem;
+  border-radius: var(--radius-sm);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.leaderboard-nav-pill {
+  color: #fde68a !important;
+}
+
 /* --- Snake Mobile On-Screen D-Pad --- */
 .snake-touch-controls {
   position: absolute;
@@ -1839,6 +1886,26 @@ kbd {
 .cta-note {
   font-size: 0.84rem;
   color: #fde68a;
+}
+
+.modal-lb-confirmed {
+  padding: 0.75rem 1rem;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  border-radius: var(--radius-sm);
+  margin-bottom: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+}
+.confirmed-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.86rem;
+  color: #a7f3d0;
+  font-weight: 600;
 }
 
 .canvas-viewport {
@@ -2081,5 +2148,95 @@ kbd {
   }
   .canvas-viewport {
     height: 320px;
+  }
+
+  /* --- Mobile Arcade & Leaderboard Responsive Fixes --- */
+  .arcade-tabs {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    background: rgba(10, 15, 26, 0.95);
+    border-bottom: 1px solid var(--border-light);
+  }
+  .arcade-tab {
+    padding: 0.85rem 0.4rem;
+    font-size: 0.84rem;
+    gap: 0.45rem;
+    border-bottom: 2px solid transparent;
+    justify-content: center;
+    text-align: center;
+  }
+  .arcade-tab span {
+    font-size: 0.82rem;
+  }
+  .arcade-tab.leaderboard-tab {
+    background: rgba(245, 158, 11, 0.08);
+    color: #fde68a;
+  }
+  .arcade-tab.leaderboard-tab.active {
+    background: rgba(245, 158, 11, 0.18);
+    border-bottom-color: var(--accent-amber);
+    color: #ffffff;
+  }
+  .arcade-tab .live-pill {
+    padding: 0.12rem 0.38rem;
+    font-size: 0.65rem;
+  }
+  .arcade-auth-ribbon {
+    padding: 0.75rem 1rem;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.65rem;
+  }
+  .auth-ribbon-right {
+    width: 100%;
+  }
+  .auth-ribbon-right .btn {
+    width: 100%;
+    justify-content: center;
+  }
+  .leaderboard-view {
+    padding: 1rem 0.65rem !important;
+  }
+  .leaderboard-view-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+  .lb-game-filter {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    width: 100%;
+    gap: 0.3rem;
+  }
+  .lb-filter-btn {
+    padding: 0.5rem 0.2rem;
+    font-size: 0.74rem;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .lb-header-actions {
+    justify-content: space-between;
+    width: 100%;
+  }
+  .leaderboard-table th,
+  .leaderboard-table td {
+    padding: 0.7rem 0.5rem !important;
+  }
+  .th-verified,
+  .td-verified {
+    display: none !important;
+  }
+  .player-sub-email {
+    display: flex !important;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.7rem;
+    color: #6ee7b7;
+    margin-top: 0.15rem;
+  }
+  .table-score-val {
+    font-size: 1.05rem;
   }
 }
