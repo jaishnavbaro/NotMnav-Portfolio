@@ -430,12 +430,116 @@ button {
   50% { transform: scale(0.7); opacity: 0.5; }
 }
 
+/* ==========================================================================
+   AESTHETIC HERO TITLE ANIMATION (Smooth, Classy, Non-Harsh)
+   ========================================================================== */
 .hero-title {
   font-size: 3.4rem;
   font-weight: 800;
   letter-spacing: -0.03em;
   margin-bottom: 1rem;
-  line-height: 1.15;
+  line-height: 1.18;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.32em;
+}
+
+.hero-greeting {
+  display: inline-block;
+  color: #ffffff;
+  position: relative;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), color 0.4s ease;
+  animation: heroGreetingBreathe 6s ease-in-out infinite alternate;
+}
+
+.hero-name-wrap {
+  display: inline-block;
+  position: relative;
+}
+
+.gradient-text,
+.hero-name {
+  background: linear-gradient(
+    125deg,
+    #ffffff 0%,
+    #38bdf8 22%,
+    #a5b4fc 48%,
+    #38bdf8 74%,
+    #ffffff 100%
+  );
+  background-size: 260% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: aestheticGradientShift 7s ease-in-out infinite alternate,
+             heroNameLevitate 5s ease-in-out infinite alternate;
+  filter: drop-shadow(0 0 18px rgba(56, 189, 248, 0.22));
+  transition: filter 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: background-position, filter, transform;
+}
+
+/* Tasteful, silky smooth keyframes - organic motion without harsh flickers */
+@keyframes aestheticGradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes heroNameLevitate {
+  0% {
+    filter: drop-shadow(0 0 14px rgba(56, 189, 248, 0.16));
+    transform: translateY(0);
+  }
+  50% {
+    filter: drop-shadow(0 0 26px rgba(129, 140, 248, 0.32));
+    transform: translateY(-2.5px);
+  }
+  100% {
+    filter: drop-shadow(0 0 14px rgba(56, 189, 248, 0.16));
+    transform: translateY(0);
+  }
+}
+
+@keyframes heroGreetingBreathe {
+  0% {
+    transform: translateY(0);
+    opacity: 0.95;
+  }
+  50% {
+    transform: translateY(-1.5px);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 0.95;
+  }
+}
+
+/* Delicate interactive hover enhancement */
+.hero-title:hover .gradient-text,
+.hero-title:hover .hero-name {
+  filter: drop-shadow(0 0 32px rgba(56, 189, 248, 0.45));
+  transform: translateY(-3px) scale(1.012);
+}
+
+.hero-title:hover .hero-greeting {
+  transform: translateY(-1.5px);
+  color: #f8fafc;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-greeting,
+  .gradient-text,
+  .hero-name {
+    animation: none !important;
+  }
 }
 .hero-tagline {
   font-size: 1.2rem;
