@@ -10,6 +10,7 @@ A modern, classy, and sophisticated dark-themed portfolio website for **Jaishnav
 - **Education:** Class 9 Student
 - **Location:** Assam, India 🇮🇳
 - **Email:** [notjaishnav@gmail.com](mailto:notjaishnav@gmail.com)
+- **Discord:** `prime_jalebi`
 - **Primary Platforms:** Xbox & PC
 
 ---
@@ -24,7 +25,7 @@ A modern, classy, and sophisticated dark-themed portfolio website for **Jaishnav
 
 ## 🚀 Sections Included
 1. **About Me:** Clean introduction highlighting academic life, web development, and gaming passions, with a profile card and core pillars.
-2. **Skills:** Core proficiency in **HTML5**, **CSS3**, **Java**, and **GFX Artist** with clean mastery progress bars.
+2. **Skills:** Core proficiency in **HTML5 (50%)**, **CSS3 (50%)**, **Java (25%)**, and **GFX Artist (50%)** with clean mastery progress bars.
 3. **Games Completed:** Conquered story campaigns:
    - Call of Duty: Modern Warfare (2019)
    - Call of Duty: Modern Warfare II (2022)
@@ -35,7 +36,9 @@ A modern, classy, and sophisticated dark-themed portfolio website for **Jaishnav
    - AI / ML: 0%
    - Discord Bot Development: 50%
 5. **Hardware Setup:** Workstation specifications (Lenovo Laptop, AMD Ryzen 5 7530U, 16GB DDR4, AMD Radeon Graphics, Xbox).
-6. **Projects:** Elegant *"Coming Soon — Building something awesome!"* card with project teasers and inquiry button.
+6. **Projects:** 
+   - **VajraClouds:** Minecraft Server Provider Discord community built and architected by Jaishnav (Active Admin).
+   - Classy *"Coming Soon — Building something awesome!"* card with project teasers and inquiry button.
 7. **Playable Arcade:** Two lightweight HTML5 Canvas browser mini-games:
    - **Game 1: Cyber Drone (Flappy Clone)**
    - **Game 2: Cyber Runner (Offline T-Rex Clone)**
