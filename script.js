@@ -900,6 +900,68 @@
     switchGame('flappy');
   }
 
+  /* --------------------------------------------------------------------------
+   * 6. SMOOTH SCROLL REVEAL / POP-UP ANIMATIONS (INTERSECTION OBSERVER)
+   * Cards, sections, and grids smoothly float & pop up as you scroll down
+   * -------------------------------------------------------------------------- */
+  function initScrollReveal() {
+    if (!('IntersectionObserver' in window)) return;
+
+    const revealSelectors = [
+      '.section-header',
+      '.hero-text-col',
+      '.hero-card-col',
+      '.detail-badge',
+      '.skills-grid .skill-card',
+      '.games-grid .game-card',
+      '.roadmap-card',
+      '.hardware-grid .spec-card',
+      '.project-featured-card',
+      '.coming-soon-card',
+      '.teasers-grid .teaser-card',
+      '.arcade-card'
+    ];
+
+    const elementsToReveal = document.querySelectorAll(revealSelectors.join(', '));
+
+    // Stagger delays across grid children for cascading flow
+    const gridContainers = document.querySelectorAll('.skills-grid, .games-grid, .hardware-grid, .teasers-grid, .detail-badges-row');
+    gridContainers.forEach((grid) => {
+      Array.from(grid.children).forEach((child, index) => {
+        child.style.transitionDelay = `${(index % 4) * 0.12}s`;
+      });
+    });
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('revealed');
+
+            // If roadmap is scrolled into view, auto-animate progress bars
+            if (entry.target.classList.contains('roadmap-card')) {
+              triggerProgressAnimations();
+            }
+
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      {
+        root: null,
+        rootMargin: '0px 0px -50px 0px',
+        threshold: 0.1
+      }
+    );
+
+    elementsToReveal.forEach((el) => {
+      el.classList.add('scroll-reveal');
+      observer.observe(el);
+    });
+  }
+
+  initScrollReveal();
+
   // Current year in footer
   const yearEl = document.getElementById('current-year');
   if (yearEl) {
