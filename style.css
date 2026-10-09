@@ -755,29 +755,39 @@ button {
   border-color: var(--border-hover);
 }
 
-.game-banner {
-  height: 150px;
+.game-cover-wrap {
+  position: relative;
+  height: 175px;
+  overflow: hidden;
+  background: #0f172a;
+}
+
+.game-cover-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), filter 0.4s ease;
+  filter: brightness(0.92);
+}
+
+.game-card:hover .game-cover-img {
+  transform: scale(1.06);
+  filter: brightness(1.04);
+}
+
+.game-cover-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   padding: 1rem;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  position: relative;
-}
-.mw-banner {
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-  border-bottom: 1px solid rgba(56, 189, 248, 0.2);
-}
-.mw2-banner {
-  background: linear-gradient(135deg, #064e3b 0%, #0f172a 100%);
-  border-bottom: 1px solid rgba(16, 185, 129, 0.2);
-}
-.mw3-banner {
-  background: linear-gradient(135deg, #881337 0%, #0f172a 100%);
-  border-bottom: 1px solid rgba(244, 63, 94, 0.2);
-}
-.hogwarts-banner {
-  background: linear-gradient(135deg, #312e81 0%, #0f172a 100%);
-  border-bottom: 1px solid rgba(99, 102, 241, 0.2);
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.55) 0%, rgba(15, 23, 42, 0.1) 45%, rgba(15, 23, 42, 0.9) 100%);
+  pointer-events: none;
 }
 
 .game-complete-badge {
