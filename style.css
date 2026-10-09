@@ -200,6 +200,7 @@ button {
   background: linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(99, 102, 241, 0.15));
   border: 1px solid rgba(56, 189, 248, 0.4);
   border-radius: 10px;
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -208,6 +209,18 @@ button {
   font-weight: 800;
   color: var(--accent-sky);
   letter-spacing: -0.02em;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+.brand-monogram:hover .monogram-box {
+  border-color: var(--accent-sky);
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.35);
+}
+.brand-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 12%;
+  display: block;
 }
 .brand-text {
   display: flex;
@@ -619,12 +632,14 @@ button {
   align-items: flex-start;
   margin-bottom: 1.5rem;
 }
+.profile-avatar-circle,
 .avatar-monogram-circle {
-  width: 72px;
-  height: 72px;
+  width: 84px;
+  height: 84px;
   background: linear-gradient(135deg, #1e293b, #0f172a);
-  border: 2px solid rgba(56, 189, 248, 0.4);
+  border: 2.5px solid rgba(56, 189, 248, 0.45);
   border-radius: 50%;
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -632,6 +647,26 @@ button {
   font-size: 1.6rem;
   font-weight: 800;
   color: var(--accent-sky);
+  box-shadow: 0 0 24px rgba(56, 189, 248, 0.22);
+  transition: border-color var(--transition-normal), box-shadow var(--transition-normal);
+  position: relative;
+}
+.profile-card:hover .profile-avatar-circle,
+.profile-card:hover .avatar-monogram-circle {
+  border-color: var(--accent-sky);
+  box-shadow: 0 0 32px rgba(56, 189, 248, 0.42);
+}
+.profile-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 12%;
+  display: block;
+  border-radius: 50%;
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.profile-card:hover .profile-avatar-img {
+  transform: scale(1.08);
 }
 .online-status-badge {
   display: inline-flex;
