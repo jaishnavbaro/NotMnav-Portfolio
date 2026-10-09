@@ -625,6 +625,8 @@
     ]
   };
 
+  const CLOUD_API_URL = '/.netlify/functions/leaderboard';
+
   const leaderboardSystem = {
     data: null,
     activeLbGame: 'flappy',
@@ -641,10 +643,25 @@
         this.data = JSON.parse(JSON.stringify(DEFAULT_LEADERBOARD));
       }
       this.render();
+      this.fetchCloudScores();
     },
 
     save() {
       localStorage.setItem('jaishnav_leaderboard_data', JSON.stringify(this.data));
+    },
+
+    async fetchCloudScores() {
+      try {
+        const res = await fetch(CLOUD_API_URL + '?t=' + Date.now());
+        if (res.ok) {
+          const cloudData = await res.json();
+          if (cloudData && (cloudData.flappy || cloudData.runner || cloudData.snake)) {
+            this.data = cloudData;
+            this.save();
+            this.render();
+          }
+        }
+      } catch (e) {}
     },
 
     submitScore(gameKey, score) {
@@ -696,6 +713,24 @@
         const pEmail = (p.rawEmail || p.email || '').toLowerCase().trim();
         return pEmail === userRawEmail || p.name.toLowerCase() === authState.user.displayName.toLowerCase();
       }) + 1;
+
+      // Sync with cloud database so mobile and laptop see each other!
+      fetch(CLOUD_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          game: gameKey,
+          name: authState.user.displayName,
+          email: authState.user.email,
+          score: score
+        })
+      }).then(res => res.json()).then(resJson => {
+        if (resJson && resJson.data) {
+          this.data = resJson.data;
+          this.save();
+          this.render();
+        }
+      }).catch(() => {});
 
       return { rank: myRank > 0 ? myRank : 1, newBest: isNewBest };
     },
@@ -1555,6 +1590,7 @@
         leaderboardView.style.display = 'block';
         snakeTouchControls.style.display = 'none';
         leaderboardSystem.render();
+        leaderboardSystem.fetchCloudScores();
         return;
       }
 

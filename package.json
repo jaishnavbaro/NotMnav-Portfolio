@@ -1,0 +1,12 @@
+{
+  "name": "notnav-portfolio",
+  "version": "1.0.0",
+  "description": "Jaishnav M Baro (NotNav) Portfolio and Interactive Arcade",
+  "type": "module",
+  "scripts": {
+    "build": "echo 'Build complete'"
+  },
+  "dependencies": {
+    "@netlify/blobs": "^8.1.0"
+  }
+}

@@ -652,6 +652,7 @@
         ]
       };
 
+      const CLOUD_API_URL = '/.netlify/functions/leaderboard';
       let activeTab = 'flappy';
       let searchQuery = '';
 
@@ -661,6 +662,19 @@
           try { return JSON.parse(saved); } catch(e) {}
         }
         return JSON.parse(JSON.stringify(DEFAULT_LEADERBOARD));
+      }
+
+      async function fetchCloudScores() {
+        try {
+          const res = await fetch(CLOUD_API_URL + '?t=' + Date.now());
+          if (res.ok) {
+            const cloudData = await res.json();
+            if (cloudData && (cloudData.flappy || cloudData.runner || cloudData.snake)) {
+              localStorage.setItem('jaishnav_leaderboard_data', JSON.stringify(cloudData));
+              renderTable();
+            }
+          }
+        } catch (e) {}
       }
 
       function getAuthUser() {
@@ -941,6 +955,34 @@
 
           localStorage.setItem('jaishnav_leaderboard_data', JSON.stringify(data));
 
+          // Sync with cloud database so all devices see each other!
+          async function syncCloud(gKey, sc) {
+            if (sc <= 0) return;
+            try {
+              const res = await fetch(CLOUD_API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  game: gKey,
+                  name: userObj.displayName,
+                  email: userObj.email,
+                  score: sc
+                })
+              });
+              if (res.ok) {
+                const resJson = await res.json();
+                if (resJson && resJson.data) {
+                  localStorage.setItem('jaishnav_leaderboard_data', JSON.stringify(resJson.data));
+                  renderTable();
+                }
+              }
+            } catch (e) {}
+          }
+
+          syncCloud('flappy', birdHs);
+          syncCloud('runner', dinoHs);
+          syncCloud('snake', snakeHs);
+
           closeModal();
           renderTable();
         });
@@ -960,8 +1002,9 @@
         });
       }
 
-      // Initial Render
+      // Initial Render & Cloud Fetch
       renderTable();
+      fetchCloudScores();
     })();
   </script>
 </body>
