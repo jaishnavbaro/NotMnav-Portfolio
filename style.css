@@ -771,6 +771,10 @@ button {
   filter: brightness(0.92);
 }
 
+.mw2-img {
+  object-position: center 25%;
+}
+
 .game-card:hover .game-cover-img {
   transform: scale(1.06);
   filter: brightness(1.04);
