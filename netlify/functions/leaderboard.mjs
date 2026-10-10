@@ -95,12 +95,21 @@ export default async (req, context) => {
     }
     if (!Array.isArray(supporterData.supporters)) supporterData.supporters = [];
 
-    // GET: Return current fresh leaderboard data + MacBook Goal & Top Supporters
+    // Filter to strictly VERIFIED donors for public display (unverified/pending are hidden from public)
+    const verifiedSupporters = (supporterData.supporters || [])
+      .filter(s => s.verified === true)
+      .sort((a, b) => b.amount - a.amount || b.timestamp - a.timestamp);
+    verifiedSupporters.forEach((item, idx) => {
+      item.rank = idx + 1;
+    });
+    const verifiedTotalRaised = verifiedSupporters.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
+
+    // GET: Return current fresh leaderboard data + Verified MacBook Goal Supporters
     if (req.method === "GET") {
       const responseData = {
         ...data,
-        supporters: supporterData.supporters || [],
-        totalRaised: Number(supporterData.totalRaised) || 0,
+        supporters: verifiedSupporters,
+        totalRaised: verifiedTotalRaised,
         goal: supporterData.goal || 170000
       };
       return new Response(JSON.stringify(responseData), {
@@ -212,14 +221,14 @@ export default async (req, context) => {
       }
 
       // ---------------------------------------------------------------
-      // ACTION: SUBMIT-DONATION (Record supporter contribution)
+      // ACTION: SUBMIT-DONATION (Record supporter contribution for verification)
       // ---------------------------------------------------------------
       if (action === "submit-donation") {
         const { name, email, amount, message, utr } = payload;
         const cleanName = (name || "").trim().slice(0, 24);
         const numAmount = parseInt(amount, 10);
         const cleanMessage = (message || "").trim().slice(0, 140);
-        const cleanUtr = (utr || "").trim().slice(0, 32);
+        const cleanUtr = (utr || "").replace(/[^a-zA-Z0-9]/g, "").trim().slice(0, 32);
         const cleanEmail = (email || "").toLowerCase().trim();
 
         if (!cleanName || cleanName.length < 2) {
@@ -240,7 +249,22 @@ export default async (req, context) => {
           }), { status: 400, headers: corsHeaders });
         }
 
+        if (!cleanUtr || cleanUtr.length < 6) {
+          return new Response(JSON.stringify({
+            error: "Please enter a valid 12-digit UPI Reference (UTR) number from your payment receipt."
+          }), { status: 400, headers: corsHeaders });
+        }
+
         const list = supporterData.supporters || [];
+
+        // Check if UTR is duplicate
+        const utrExists = list.some(item => (item.utr || "").toLowerCase() === cleanUtr.toLowerCase());
+        if (utrExists) {
+          return new Response(JSON.stringify({
+            error: "This UPI Reference (UTR) number has already been submitted."
+          }), { status: 400, headers: corsHeaders });
+        }
+
         const donationEntry = {
           id: "don_" + Date.now() + "_" + Math.floor(Math.random() * 1000),
           name: cleanName,
@@ -248,41 +272,199 @@ export default async (req, context) => {
           message: cleanMessage || "Supporting Jaishnav's MacBook goal! 💻✨",
           email: cleanEmail.includes("@") ? getMaskedEmail(cleanEmail) : "",
           utr: cleanUtr,
+          verified: false,
+          status: "pending",
           date: new Date().toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }),
           timestamp: Date.now()
         };
 
         list.push(donationEntry);
-
-        // Sort descending by amount, then by timestamp
-        list.sort((a, b) => b.amount - a.amount || b.timestamp - a.timestamp);
-        list.forEach((item, idx) => {
-          item.rank = idx + 1;
-        });
-
-        const totalRaised = list.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
-        supporterData.supporters = list.slice(0, 100);
-        supporterData.totalRaised = totalRaised;
-        supporterData.goal = 170000;
+        supporterData.supporters = list;
 
         await store.setJSON("supporters_v1", supporterData);
 
-        const donorRank = list.findIndex(d => d.id === donationEntry.id) + 1;
-
         return new Response(JSON.stringify({
           success: true,
-          rank: donorRank > 0 ? donorRank : 1,
-          supporters: supporterData.supporters,
-          totalRaised: supporterData.totalRaised,
-          goal: supporterData.goal
+          status: "pending",
+          message: "Payment submitted for review! Once Jaishnav verifies the transaction in FamPay, your name will appear on the Top Supporters Wall.",
+          entry: donationEntry
+        }), { status: 200, headers: corsHeaders });
+      }
+
+      // Read admin passkey (configured in Blobs or default "nav_admin_7788")
+      let currentAdminPasskey = process.env.NAV_ADMIN_SECRET || "nav_admin_7788";
+      try {
+        const config = await store.get("admin_config_v1", { type: "json" });
+        if (config && config.passkey) currentAdminPasskey = config.passkey;
+      } catch (e) {}
+
+      // ---------------------------------------------------------------
+      // ACTION: ADMIN-LOGIN (Validate owner passkey)
+      // ---------------------------------------------------------------
+      if (action === "admin-login") {
+        const { passkey } = payload;
+        if (passkey !== currentAdminPasskey) {
+          return new Response(JSON.stringify({ error: "Incorrect admin passkey." }), { status: 401, headers: corsHeaders });
+        }
+        return new Response(JSON.stringify({ success: true, message: "Authorized." }), { status: 200, headers: corsHeaders });
+      }
+
+      // ---------------------------------------------------------------
+      // ACTION: ADMIN-GET-DONATIONS (View all pending & approved)
+      // ---------------------------------------------------------------
+      if (action === "admin-get-donations") {
+        const { passkey } = payload;
+        if (passkey !== currentAdminPasskey) {
+          return new Response(JSON.stringify({ error: "Unauthorized." }), { status: 401, headers: corsHeaders });
+        }
+        return new Response(JSON.stringify({
+          success: true,
+          donations: supporterData.supporters || [],
+          goal: supporterData.goal || 170000
         }), { status: 200, headers: corsHeaders });
       }
 
       // ---------------------------------------------------------------
-      // ACTION: GET-SUPPORTERS (MacBook Goal & Donors list)
+      // ACTION: ADMIN-APPROVE-DONATION (Approve genuine payment)
+      // ---------------------------------------------------------------
+      if (action === "admin-approve-donation") {
+        const { passkey, id } = payload;
+        if (passkey !== currentAdminPasskey) {
+          return new Response(JSON.stringify({ error: "Unauthorized." }), { status: 401, headers: corsHeaders });
+        }
+
+        const list = supporterData.supporters || [];
+        const target = list.find(d => d.id === id);
+        if (!target) {
+          return new Response(JSON.stringify({ error: "Donation entry not found." }), { status: 404, headers: corsHeaders });
+        }
+
+        target.verified = true;
+        target.status = "approved";
+
+        // Recalculate verified ranks
+        const verified = list.filter(d => d.verified === true);
+        verified.sort((a, b) => b.amount - a.amount || b.timestamp - a.timestamp);
+        verified.forEach((item, idx) => { item.rank = idx + 1; });
+
+        const newTotalRaised = verified.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
+        supporterData.totalRaised = newTotalRaised;
+        supporterData.supporters = list;
+
+        await store.setJSON("supporters_v1", supporterData);
+
+        return new Response(JSON.stringify({
+          success: true,
+          donations: list,
+          totalRaised: newTotalRaised
+        }), { status: 200, headers: corsHeaders });
+      }
+
+      // ---------------------------------------------------------------
+      // ACTION: ADMIN-REJECT-DONATION (Remove fake troll submission)
+      // ---------------------------------------------------------------
+      if (action === "admin-reject-donation") {
+        const { passkey, id } = payload;
+        if (passkey !== currentAdminPasskey) {
+          return new Response(JSON.stringify({ error: "Unauthorized." }), { status: 401, headers: corsHeaders });
+        }
+
+        let list = supporterData.supporters || [];
+        list = list.filter(d => d.id !== id);
+
+        const verified = list.filter(d => d.verified === true);
+        verified.sort((a, b) => b.amount - a.amount || b.timestamp - a.timestamp);
+        verified.forEach((item, idx) => { item.rank = idx + 1; });
+
+        const newTotalRaised = verified.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
+        supporterData.totalRaised = newTotalRaised;
+        supporterData.supporters = list;
+
+        await store.setJSON("supporters_v1", supporterData);
+
+        return new Response(JSON.stringify({
+          success: true,
+          donations: list,
+          totalRaised: newTotalRaised
+        }), { status: 200, headers: corsHeaders });
+      }
+
+      // ---------------------------------------------------------------
+      // ACTION: ADMIN-ADD-DONATION (Manually add verified donor)
+      // ---------------------------------------------------------------
+      if (action === "admin-add-donation") {
+        const { passkey, name, amount, message, utr } = payload;
+        if (passkey !== currentAdminPasskey) {
+          return new Response(JSON.stringify({ error: "Unauthorized." }), { status: 401, headers: corsHeaders });
+        }
+
+        const cleanName = (name || "").trim().slice(0, 24);
+        const numAmount = parseInt(amount, 10);
+        const cleanMessage = (message || "").trim().slice(0, 140);
+        const cleanUtr = (utr || "").trim().slice(0, 32);
+
+        if (!cleanName || numAmount < 1) {
+          return new Response(JSON.stringify({ error: "Invalid name or amount." }), { status: 400, headers: corsHeaders });
+        }
+
+        const list = supporterData.supporters || [];
+        const newEntry = {
+          id: "don_" + Date.now() + "_" + Math.floor(Math.random() * 1000),
+          name: cleanName,
+          amount: numAmount,
+          message: cleanMessage || "Direct FamPay contribution 🚀",
+          email: "",
+          utr: cleanUtr || ("MANUAL_" + Date.now()),
+          verified: true,
+          status: "approved",
+          date: new Date().toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }),
+          timestamp: Date.now()
+        };
+
+        list.push(newEntry);
+
+        const verified = list.filter(d => d.verified === true);
+        verified.sort((a, b) => b.amount - a.amount || b.timestamp - a.timestamp);
+        verified.forEach((item, idx) => { item.rank = idx + 1; });
+
+        const newTotalRaised = verified.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
+        supporterData.totalRaised = newTotalRaised;
+        supporterData.supporters = list;
+
+        await store.setJSON("supporters_v1", supporterData);
+
+        return new Response(JSON.stringify({
+          success: true,
+          donations: list,
+          totalRaised: newTotalRaised
+        }), { status: 200, headers: corsHeaders });
+      }
+
+      // ---------------------------------------------------------------
+      // ACTION: ADMIN-CHANGE-PASSKEY (Change admin PIN)
+      // ---------------------------------------------------------------
+      if (action === "admin-change-passkey") {
+        const { currentPasskey, newPasskey } = payload;
+        if (currentPasskey !== currentAdminPasskey) {
+          return new Response(JSON.stringify({ error: "Incorrect current passkey." }), { status: 401, headers: corsHeaders });
+        }
+        if (!newPasskey || newPasskey.length < 6) {
+          return new Response(JSON.stringify({ error: "New passkey must be at least 6 characters." }), { status: 400, headers: corsHeaders });
+        }
+
+        await store.setJSON("admin_config_v1", { passkey: newPasskey });
+        return new Response(JSON.stringify({ success: true, message: "Admin passkey updated successfully." }), { status: 200, headers: corsHeaders });
+      }
+
+      // ---------------------------------------------------------------
+      // ACTION: GET-SUPPORTERS (MacBook Goal & Verified Donors list)
       // ---------------------------------------------------------------
       if (action === "get-supporters") {
-        return new Response(JSON.stringify(supporterData), {
+        return new Response(JSON.stringify({
+          supporters: verifiedSupporters,
+          totalRaised: verifiedTotalRaised,
+          goal: supporterData.goal || 170000
+        }), {
           status: 200,
           headers: corsHeaders
         });

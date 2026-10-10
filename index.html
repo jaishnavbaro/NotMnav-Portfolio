@@ -908,6 +908,9 @@
                 <button type="button" class="btn btn-sm btn-outline-cyan" id="btn-refresh-supporters">
                   <i class="fa-solid fa-arrows-rotate"></i> Refresh Wall
                 </button>
+                <button type="button" class="btn btn-sm btn-outline-slate" id="btn-open-owner-portal" title="Jaishnav's Owner Verification Portal">
+                  <i class="fa-solid fa-shield-halved text-amber"></i> Owner Verify
+                </button>
               </div>
             </div>
 
@@ -1371,12 +1374,13 @@
         <!-- Step 4: Confirmation & Record to Leaderboard -->
         <div class="donation-confirm-section">
           <div class="form-group" style="margin-bottom: 0.4rem;">
-            <label for="donor-utr-input" class="form-label"><i class="fa-solid fa-receipt text-tertiary"></i> UPI Ref / UTR No. (Optional)</label>
-            <input type="text" id="donor-utr-input" class="form-input" placeholder="e.g. 12-digit UTR from your payment receipt" maxlength="32">
+            <label for="donor-utr-input" class="form-label"><i class="fa-solid fa-receipt text-amber"></i> 12-Digit UPI Ref / UTR No. <span class="required-mark">*</span></label>
+            <input type="text" id="donor-utr-input" class="form-input" placeholder="e.g. 428190382910" required minlength="6" maxlength="32">
+            <span class="form-hint"><i class="fa-solid fa-circle-info text-sky"></i> Found on your GPay, PhonePe, Paytm, or FamApp receipt. Required for verification so fake submissions are prevented!</span>
           </div>
 
           <button type="submit" class="btn btn-submit-donor" id="btn-submit-donor-pledge">
-            <i class="fa-solid fa-circle-check"></i> I've Paid &bull; Put Me on Top Supporters Wall!
+            <i class="fa-solid fa-paper-plane"></i> Submit Payment for Verification
           </button>
         </div>
       </form>
@@ -1384,6 +1388,134 @@
       <div class="auth-modal-footer">
         <i class="fa-solid fa-shield-halved text-emerald"></i>
         <span>Prepaid FamPay UPI. Zero gateway commissions deducted. 100% of your funds directly power Jaishnav's coding MacBook!</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- OWNER / ADMIN VERIFICATION MODAL           -->
+  <!-- ========================================== -->
+  <div id="admin-verify-modal" class="auth-modal-overlay" style="display: none;" aria-hidden="true" role="dialog">
+    <div class="donation-modal-card admin-modal-card">
+      <div class="auth-modal-head">
+        <div class="auth-modal-title-group">
+          <div class="admin-header-icon">
+            <i class="fa-solid fa-shield-halved"></i>
+          </div>
+          <div>
+            <h3 class="auth-modal-heading">Owner Verification Portal</h3>
+            <span class="auth-modal-sub">Jaishnav's FamPay UPI Transaction Manager</span>
+          </div>
+        </div>
+        <button id="admin-modal-close-btn" class="modal-close-btn" aria-label="Close Modal">&times;</button>
+      </div>
+
+      <!-- Admin Passkey Login View -->
+      <div id="admin-login-view" class="admin-view-panel">
+        <div class="form-group mb-sm">
+          <label for="admin-passkey-input" class="form-label"><i class="fa-solid fa-key text-amber"></i> Enter Owner Admin Passkey</label>
+          <div class="input-with-icon">
+            <i class="fa-solid fa-lock"></i>
+            <input type="password" id="admin-passkey-input" class="form-input" placeholder="Enter owner secret passkey" autocomplete="current-password">
+          </div>
+          <span class="form-hint">Default passkey: <code>nav_admin_7788</code> (You can change it once unlocked)</span>
+        </div>
+        <div id="admin-login-error" class="mod-warning-box" style="display: none;">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <span id="admin-login-error-text">Incorrect passkey</span>
+        </div>
+        <button type="button" id="btn-submit-admin-login" class="btn btn-primary btn-block mt-sm">
+          <i class="fa-solid fa-unlock"></i> Unlock Owner Portal
+        </button>
+      </div>
+
+      <!-- Admin Dashboard View (Unlocked) -->
+      <div id="admin-dashboard-view" class="admin-view-panel" style="display: none;">
+        <!-- Admin Nav Tabs -->
+        <div class="auth-nav-tabs admin-nav-tabs">
+          <button type="button" class="auth-nav-tab active" id="tab-admin-pending">
+            <i class="fa-solid fa-clock text-amber"></i> Pending (<span id="admin-pending-count">0</span>)
+          </button>
+          <button type="button" class="auth-nav-tab" id="tab-admin-approved">
+            <i class="fa-solid fa-circle-check text-emerald"></i> Approved (<span id="admin-approved-count">0</span>)
+          </button>
+          <button type="button" class="auth-nav-tab" id="tab-admin-manual">
+            <i class="fa-solid fa-plus text-sky"></i> Add Donor
+          </button>
+          <button type="button" class="auth-nav-tab" id="tab-admin-settings">
+            <i class="fa-solid fa-gear"></i> Settings
+          </button>
+        </div>
+
+        <!-- 1. Pending Submissions List -->
+        <div id="admin-panel-pending" class="admin-tab-content">
+          <div class="admin-content-heading">
+            <h5>Pending Submissions Awaiting FamPay Verification</h5>
+            <span class="admin-subtext">Check your FamPay app notification to confirm the money &amp; UTR, then click Approve!</span>
+          </div>
+          <div id="admin-pending-list" class="admin-donations-list">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+        <!-- 2. Approved Donations List -->
+        <div id="admin-panel-approved" class="admin-tab-content" style="display: none;">
+          <div class="admin-content-heading">
+            <h5>Live Verified Supporters on Leaderboard</h5>
+            <span class="admin-subtext">These contributions are currently counted in the ₹1.7L goal.</span>
+          </div>
+          <div id="admin-approved-list" class="admin-donations-list">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+        <!-- 3. Manual Add Donor Form -->
+        <div id="admin-panel-manual" class="admin-tab-content" style="display: none;">
+          <form id="admin-manual-donor-form" class="admin-form-panel">
+            <div class="form-group">
+              <label for="manual-donor-name" class="form-label">Donor Name / Tag <span class="required-mark">*</span></label>
+              <input type="text" id="manual-donor-name" class="form-input" placeholder="e.g. Rahul Friend" required maxlength="24">
+            </div>
+            <div class="form-group">
+              <label for="manual-donor-amount" class="form-label">Amount in ₹ <span class="required-mark">*</span></label>
+              <input type="number" id="manual-donor-amount" class="form-input" placeholder="e.g. 500" required min="1">
+            </div>
+            <div class="form-group">
+              <label for="manual-donor-utr" class="form-label">FamPay UTR / Note (Optional)</label>
+              <input type="text" id="manual-donor-utr" class="form-input" placeholder="e.g. Direct FamPay Transfer" maxlength="32">
+            </div>
+            <div class="form-group">
+              <label for="manual-donor-msg" class="form-label">Message (Optional)</label>
+              <input type="text" id="manual-donor-msg" class="form-input" placeholder="e.g. Best of luck on MacBook!" maxlength="120">
+            </div>
+            <button type="submit" class="btn btn-success btn-block" id="btn-submit-manual-donor">
+              <i class="fa-solid fa-plus-circle"></i> Add Directly to Leaderboard
+            </button>
+          </form>
+        </div>
+
+        <!-- 4. Settings (Change Passkey) -->
+        <div id="admin-panel-settings" class="admin-tab-content" style="display: none;">
+          <form id="admin-change-passkey-form" class="admin-form-panel">
+            <div class="form-group">
+              <label for="change-passkey-current" class="form-label">Current Passkey</label>
+              <input type="password" id="change-passkey-current" class="form-input" placeholder="Current passkey" required>
+            </div>
+            <div class="form-group">
+              <label for="change-passkey-new" class="form-label">New Passkey</label>
+              <input type="password" id="change-passkey-new" class="form-input" placeholder="At least 6 characters" required minlength="6">
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">
+              <i class="fa-solid fa-key"></i> Update Admin Passkey
+            </button>
+          </form>
+        </div>
+
+        <div class="admin-footer-actions">
+          <button type="button" class="btn btn-xs btn-outline-slate" id="btn-admin-logout">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i> Lock Portal
+          </button>
+        </div>
       </div>
     </div>
   </div>

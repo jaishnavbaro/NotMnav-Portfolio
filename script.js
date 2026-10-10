@@ -1437,24 +1437,36 @@
       const utrInput = document.getElementById('donor-utr-input');
       const alertBox = document.getElementById('donor-alert-box');
       const alertText = document.getElementById('donor-alert-text');
+      const successBox = document.getElementById('donor-success-box');
+      const successText = document.getElementById('donor-success-text');
       const submitBtn = document.getElementById('btn-submit-donor-pledge');
 
       const name = (nameInput ? nameInput.value.trim() : '');
       const message = (messageInput ? messageInput.value.trim() : '');
-      const utr = (utrInput ? utrInput.value.trim() : '');
+      const utr = (utrInput ? utrInput.value.replace(/[^a-zA-Z0-9]/g, '').trim() : '');
       const amount = this.selectedAmount;
+
+      if (alertBox) alertBox.style.display = 'none';
 
       if (!name || name.length < 2) {
         if (alertBox && alertText) {
           alertBox.style.display = 'flex';
-          alertText.textContent = 'Please enter your name or display tag (at least 2 characters).';
+          alertText.textContent = 'Please enter your name or gamer tag (at least 2 characters).';
+        }
+        return;
+      }
+
+      if (!utr || utr.length < 6) {
+        if (alertBox && alertText) {
+          alertBox.style.display = 'flex';
+          alertText.textContent = 'Please enter the 12-digit UPI Reference (UTR) number from your payment receipt.';
         }
         return;
       }
 
       if (submitBtn) {
         submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Submitting Supporter Record...';
+        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Submitting for Verification...';
       }
 
       const email = authState.user ? authState.user.email : '';
@@ -1478,35 +1490,443 @@
           throw new Error(json.error || 'Failed to submit donation');
         }
 
-        if (json.supporters) {
-          this.supporters = json.supporters;
-          this.totalRaised = Number(json.totalRaised) || (this.totalRaised + amount);
-          this.goal = Number(json.goal) || MACBOOK_GOAL;
-          this.save();
-          this.render();
+        if (successBox && successText) {
+          successBox.style.display = 'flex';
+          successText.innerHTML = `<strong>Payment Submitted for Verification!</strong><br>Jaishnav will confirm the transaction (UTR: ${utr}) in his FamPay app and your name will appear on the Top Supporters Wall!`;
         }
 
-        // Show celebration
         if (sfx) sfx.playFanfare();
-        showToast(`🎉 Thank you, ${name}! You are ranked #${json.rank || 1} on the Donors Wall!`);
+        showToast(`✅ Submitted! Jaishnav will verify UTR: ${utr} in FamPay.`);
 
-        this.closeModal();
+        setTimeout(() => {
+          this.closeModal();
+          if (utrInput) utrInput.value = '';
+          if (messageInput) messageInput.value = '';
+        }, 3200);
 
-        // Scroll smoothly to donors wall
-        const wall = document.getElementById('donors-wall');
-        if (wall) {
-          wall.scrollIntoView({ behavior: 'smooth' });
-        }
       } catch (err) {
         if (alertBox && alertText) {
           alertBox.style.display = 'flex';
-          alertText.textContent = err.message || 'Error recording supporter. Please try again.';
+          alertText.textContent = err.message || 'Error submitting for verification. Please check your UTR number.';
         }
       } finally {
         if (submitBtn) {
           submitBtn.disabled = false;
-          submitBtn.innerHTML = '<i class="fa-solid fa-circle-check"></i> I\'ve Paid &bull; Put Me on Top Supporters Wall!';
+          submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Submit Payment for Verification';
         }
+      }
+    }
+  };
+
+  /* --------------------------------------------------------------------------
+   * 6.6. OWNER / ADMIN VERIFICATION PORTAL ENGINE
+   * -------------------------------------------------------------------------- */
+  const adminPortal = {
+    passkey: sessionStorage.getItem('jaishnav_admin_passkey') || '',
+    donations: [],
+    activeTab: 'pending',
+
+    init() {
+      const openBtn = document.getElementById('btn-open-owner-portal');
+      if (openBtn) openBtn.addEventListener('click', () => this.openModal());
+
+      const closeBtn = document.getElementById('admin-modal-close-btn');
+      if (closeBtn) closeBtn.addEventListener('click', () => this.closeModal());
+
+      const modalOverlay = document.getElementById('admin-verify-modal');
+      if (modalOverlay) {
+        modalOverlay.addEventListener('click', (e) => {
+          if (e.target === modalOverlay) this.closeModal();
+        });
+      }
+
+      // Login form submit
+      const loginBtn = document.getElementById('btn-submit-admin-login');
+      const passInput = document.getElementById('admin-passkey-input');
+      if (loginBtn && passInput) {
+        loginBtn.addEventListener('click', () => this.login(passInput.value.trim()));
+        passInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') this.login(passInput.value.trim());
+        });
+      }
+
+      // Logout button
+      const logoutBtn = document.getElementById('btn-admin-logout');
+      if (logoutBtn) {
+        logoutBtn.addEventListener('click', () => {
+          this.passkey = '';
+          sessionStorage.removeItem('jaishnav_admin_passkey');
+          this.showLoginView();
+          showToast('Owner Portal locked.');
+        });
+      }
+
+      // Admin tabs
+      const tabPending = document.getElementById('tab-admin-pending');
+      const tabApproved = document.getElementById('tab-admin-approved');
+      const tabManual = document.getElementById('tab-admin-manual');
+      const tabSettings = document.getElementById('tab-admin-settings');
+
+      if (tabPending) tabPending.addEventListener('click', () => this.switchTab('pending'));
+      if (tabApproved) tabApproved.addEventListener('click', () => this.switchTab('approved'));
+      if (tabManual) tabManual.addEventListener('click', () => this.switchTab('manual'));
+      if (tabSettings) tabSettings.addEventListener('click', () => this.switchTab('settings'));
+
+      // Manual donor form submit
+      const manualForm = document.getElementById('admin-manual-donor-form');
+      if (manualForm) {
+        manualForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          this.submitManualDonor();
+        });
+      }
+
+      // Change passkey form submit
+      const changePassForm = document.getElementById('admin-change-passkey-form');
+      if (changePassForm) {
+        changePassForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          this.changePasskey();
+        });
+      }
+
+      // Auto-unlock if session key exists
+      if (this.passkey) {
+        this.fetchDonations();
+      }
+    },
+
+    openModal() {
+      const modal = document.getElementById('admin-verify-modal');
+      if (!modal) return;
+      modal.style.display = 'flex';
+      modal.setAttribute('aria-hidden', 'false');
+
+      if (this.passkey) {
+        this.showDashboardView();
+        this.fetchDonations();
+      } else {
+        this.showLoginView();
+      }
+      if (sfx) sfx.playClick();
+    },
+
+    closeModal() {
+      const modal = document.getElementById('admin-verify-modal');
+      if (modal) {
+        modal.style.display = 'none';
+        modal.setAttribute('aria-hidden', 'true');
+      }
+    },
+
+    showLoginView() {
+      const loginView = document.getElementById('admin-login-view');
+      const dashboardView = document.getElementById('admin-dashboard-view');
+      if (loginView) loginView.style.display = 'block';
+      if (dashboardView) dashboardView.style.display = 'none';
+    },
+
+    showDashboardView() {
+      const loginView = document.getElementById('admin-login-view');
+      const dashboardView = document.getElementById('admin-dashboard-view');
+      if (loginView) loginView.style.display = 'none';
+      if (dashboardView) dashboardView.style.display = 'block';
+    },
+
+    switchTab(tab) {
+      this.activeTab = tab;
+      const tabPending = document.getElementById('tab-admin-pending');
+      const tabApproved = document.getElementById('tab-admin-approved');
+      const tabManual = document.getElementById('tab-admin-manual');
+      const tabSettings = document.getElementById('tab-admin-settings');
+
+      if (tabPending) tabPending.classList.toggle('active', tab === 'pending');
+      if (tabApproved) tabApproved.classList.toggle('active', tab === 'approved');
+      if (tabManual) tabManual.classList.toggle('active', tab === 'manual');
+      if (tabSettings) tabSettings.classList.toggle('active', tab === 'settings');
+
+      const panelPending = document.getElementById('admin-panel-pending');
+      const panelApproved = document.getElementById('admin-panel-approved');
+      const panelManual = document.getElementById('admin-panel-manual');
+      const panelSettings = document.getElementById('admin-panel-settings');
+
+      if (panelPending) panelPending.style.display = tab === 'pending' ? 'block' : 'none';
+      if (panelApproved) panelApproved.style.display = tab === 'approved' ? 'block' : 'none';
+      if (panelManual) panelManual.style.display = tab === 'manual' ? 'block' : 'none';
+      if (panelSettings) panelSettings.style.display = tab === 'settings' ? 'block' : 'none';
+
+      if (sfx) sfx.playClick();
+    },
+
+    async login(key) {
+      const errorBox = document.getElementById('admin-login-error');
+      const errorText = document.getElementById('admin-login-error-text');
+      const btn = document.getElementById('btn-submit-admin-login');
+
+      if (!key) {
+        if (errorBox) { errorBox.style.display = 'flex'; errorText.textContent = 'Please enter your admin passkey.'; }
+        return;
+      }
+
+      if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Verifying...'; }
+
+      try {
+        const res = await fetch(CLOUD_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'admin-login', passkey: key })
+        });
+        const json = await res.json();
+        if (!res.ok || json.error) throw new Error(json.error || 'Incorrect passkey');
+
+        this.passkey = key;
+        sessionStorage.setItem('jaishnav_admin_passkey', key);
+        if (errorBox) errorBox.style.display = 'none';
+
+        this.showDashboardView();
+        this.fetchDonations();
+        showToast('Owner Portal unlocked successfully!');
+        if (sfx) sfx.playFanfare();
+      } catch (err) {
+        if (errorBox) { errorBox.style.display = 'flex'; errorText.textContent = err.message || 'Incorrect passkey.'; }
+      } finally {
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-unlock"></i> Unlock Owner Portal'; }
+      }
+    },
+
+    async fetchDonations() {
+      if (!this.passkey) return;
+      try {
+        const res = await fetch(CLOUD_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'admin-get-donations', passkey: this.passkey })
+        });
+        const json = await res.json();
+        if (res.ok && json.donations) {
+          this.donations = json.donations;
+          this.render();
+        }
+      } catch (e) {}
+    },
+
+    render() {
+      const pendingList = this.donations.filter(d => !d.verified || d.status === 'pending');
+      const approvedList = this.donations.filter(d => d.verified === true);
+
+      // Update counters
+      const pendingCount = document.getElementById('admin-pending-count');
+      const approvedCount = document.getElementById('admin-approved-count');
+      if (pendingCount) pendingCount.textContent = pendingList.length;
+      if (approvedCount) approvedCount.textContent = approvedList.length;
+
+      // Render Pending List
+      const pendingContainer = document.getElementById('admin-pending-list');
+      if (pendingContainer) {
+        pendingContainer.innerHTML = '';
+        if (pendingList.length === 0) {
+          pendingContainer.innerHTML = '<div class="admin-empty-state"><i class="fa-solid fa-circle-check text-emerald"></i><br>Zero pending donations! All transactions have been verified.</div>';
+        } else {
+          pendingList.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'admin-item-card pending-border';
+            const initial = (item.name || '?').charAt(0).toUpperCase();
+            card.innerHTML = `
+              <div class="admin-item-top">
+                <div class="admin-donor-meta">
+                  <div class="admin-donor-avatar" style="background: linear-gradient(135deg, #f59e0b, #d97706);">${initial}</div>
+                  <div>
+                    <div class="admin-donor-name">${item.name}</div>
+                    <div class="admin-donor-date">${item.date || 'Recently'} &bull; <span class="badge" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24;">Pending Review</span></div>
+                  </div>
+                </div>
+                <div class="admin-donor-amt-badge">₹${Number(item.amount).toLocaleString('en-IN')}</div>
+              </div>
+              <div class="admin-item-details">
+                <div class="admin-utr-row">
+                  <span><strong>UPI UTR No:</strong> <code class="admin-utr-code">${item.utr || 'Not Provided'}</code></span>
+                  <button type="button" class="btn btn-xs btn-outline-cyan btn-copy-utr" data-utr="${item.utr || ''}"><i class="fa-regular fa-copy"></i> Copy UTR</button>
+                </div>
+                ${item.message ? `<div class="admin-donor-msg">"${item.message}"</div>` : ''}
+              </div>
+              <div class="admin-item-actions">
+                <button type="button" class="btn-admin-reject" data-id="${item.id}"><i class="fa-solid fa-trash-can"></i> Reject Fake</button>
+                <button type="button" class="btn-admin-approve" data-id="${item.id}"><i class="fa-solid fa-check"></i> Approve &amp; Crown on Leaderboard</button>
+              </div>
+            `;
+            pendingContainer.appendChild(card);
+          });
+        }
+      }
+
+      // Render Approved List
+      const approvedContainer = document.getElementById('admin-approved-list');
+      if (approvedContainer) {
+        approvedContainer.innerHTML = '';
+        if (approvedList.length === 0) {
+          approvedContainer.innerHTML = '<div class="admin-empty-state"><i class="fa-regular fa-folder-open"></i><br>No approved donations yet. Approve pending ones to show them here!</div>';
+        } else {
+          approvedList.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'admin-item-card approved-border';
+            const initial = (item.name || '?').charAt(0).toUpperCase();
+            card.innerHTML = `
+              <div class="admin-item-top">
+                <div class="admin-donor-meta">
+                  <div class="admin-donor-avatar">${initial}</div>
+                  <div>
+                    <div class="admin-donor-name">${item.name}</div>
+                    <div class="admin-donor-date">${item.date || 'Verified'} &bull; <span class="badge" style="background: rgba(16, 185, 129, 0.2); color: #6ee7b7;">Rank #${item.rank || 1} Live</span></div>
+                  </div>
+                </div>
+                <div class="admin-donor-amt-badge">₹${Number(item.amount).toLocaleString('en-IN')}</div>
+              </div>
+              <div class="admin-item-details">
+                <div class="admin-utr-row">
+                  <span><strong>UTR:</strong> <code class="admin-utr-code">${item.utr || 'N/A'}</code></span>
+                </div>
+                ${item.message ? `<div class="admin-donor-msg">"${item.message}"</div>` : ''}
+              </div>
+              <div class="admin-item-actions">
+                <button type="button" class="btn-admin-reject" data-id="${item.id}"><i class="fa-solid fa-trash-can"></i> Delete</button>
+              </div>
+            `;
+            approvedContainer.appendChild(card);
+          });
+        }
+      }
+
+      // Attach button clicks
+      document.querySelectorAll('.btn-admin-approve').forEach(b => {
+        b.addEventListener('click', () => this.approveDonation(b.dataset.id));
+      });
+      document.querySelectorAll('.btn-admin-reject').forEach(b => {
+        b.addEventListener('click', () => this.rejectDonation(b.dataset.id));
+      });
+      document.querySelectorAll('.btn-copy-utr').forEach(b => {
+        b.addEventListener('click', () => {
+          navigator.clipboard.writeText(b.dataset.utr).then(() => showToast(`Copied UTR: ${b.dataset.utr}`));
+        });
+      });
+    },
+
+    async approveDonation(id) {
+      if (!confirm('Confirm: Have you checked your FamPay app and verified this payment?')) return;
+      try {
+        const res = await fetch(CLOUD_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'admin-approve-donation', passkey: this.passkey, id: id })
+        });
+        const json = await res.json();
+        if (res.ok && json.donations) {
+          this.donations = json.donations;
+          this.render();
+          donationSystem.fetchCloudDonations();
+          showToast('🎉 Donation verified! Added to public Supporters Wall!');
+          if (sfx) sfx.playFanfare();
+        }
+      } catch (e) {
+        showToast('Error approving donation.');
+      }
+    },
+
+    async rejectDonation(id) {
+      if (!confirm('Reject & delete this donation submission?')) return;
+      try {
+        const res = await fetch(CLOUD_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'admin-reject-donation', passkey: this.passkey, id: id })
+        });
+        const json = await res.json();
+        if (res.ok && json.donations) {
+          this.donations = json.donations;
+          this.render();
+          donationSystem.fetchCloudDonations();
+          showToast('Donation entry rejected.');
+        }
+      } catch (e) {
+        showToast('Error rejecting donation.');
+      }
+    },
+
+    async submitManualDonor() {
+      const nameInput = document.getElementById('manual-donor-name');
+      const amountInput = document.getElementById('manual-donor-amount');
+      const utrInput = document.getElementById('manual-donor-utr');
+      const msgInput = document.getElementById('manual-donor-msg');
+
+      const name = nameInput.value.trim();
+      const amount = parseInt(amountInput.value, 10);
+      const utr = utrInput.value.trim();
+      const msg = msgInput.value.trim();
+
+      if (!name || isNaN(amount) || amount < 1) return;
+
+      try {
+        const res = await fetch(CLOUD_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'admin-add-donation',
+            passkey: this.passkey,
+            name: name,
+            amount: amount,
+            utr: utr,
+            message: msg
+          })
+        });
+        const json = await res.json();
+        if (res.ok && json.donations) {
+          this.donations = json.donations;
+          this.render();
+          donationSystem.fetchCloudDonations();
+          showToast(`Added ${name} directly to the Leaderboard!`);
+          nameInput.value = '';
+          amountInput.value = '';
+          utrInput.value = '';
+          msgInput.value = '';
+          this.switchTab('approved');
+        }
+      } catch (e) {
+        showToast('Error adding donor.');
+      }
+    },
+
+    async changePasskey() {
+      const curInput = document.getElementById('change-passkey-current');
+      const newInput = document.getElementById('change-passkey-new');
+      const cur = curInput.value.trim();
+      const nxt = newInput.value.trim();
+
+      if (!cur || !nxt || nxt.length < 6) {
+        showToast('New passkey must be at least 6 characters.');
+        return;
+      }
+
+      try {
+        const res = await fetch(CLOUD_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'admin-change-passkey',
+            currentPasskey: cur,
+            newPasskey: nxt
+          })
+        });
+        const json = await res.json();
+        if (res.ok) {
+          this.passkey = nxt;
+          sessionStorage.setItem('jaishnav_admin_passkey', nxt);
+          curInput.value = '';
+          newInput.value = '';
+          showToast('Admin passkey successfully updated!');
+        } else {
+          showToast(json.error || 'Failed to update passkey.');
+        }
+      } catch (e) {
+        showToast('Error updating passkey.');
       }
     }
   };
@@ -2475,10 +2895,11 @@
       });
     }
 
-    // Initialize Auth & Leaderboard
+    // Initialize Auth & Leaderboard & Owner Admin Portal
     authState.init();
     leaderboardSystem.init();
     donationSystem.init();
+    adminPortal.init();
 
     // Start with Nav Cyber Bird
     switchGame('flappy');
