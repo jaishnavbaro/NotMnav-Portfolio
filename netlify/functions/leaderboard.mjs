@@ -98,6 +98,17 @@ export default async (req, context) => {
     // Filter to strictly VERIFIED donors for public display (unverified/pending are hidden from public)
     const verifiedSupporters = (supporterData.supporters || [])
       .filter(s => s.verified === true)
+      .map(s => ({
+        id: s.id,
+        name: s.name,
+        amount: s.amount,
+        message: s.message,
+        email: s.email,
+        utr: s.utr,
+        hasScreenshot: !!s.screenshot,
+        date: s.date,
+        timestamp: s.timestamp
+      }))
       .sort((a, b) => b.amount - a.amount || b.timestamp - a.timestamp);
     verifiedSupporters.forEach((item, idx) => {
       item.rank = idx + 1;
@@ -224,12 +235,13 @@ export default async (req, context) => {
       // ACTION: SUBMIT-DONATION (Record supporter contribution for verification)
       // ---------------------------------------------------------------
       if (action === "submit-donation") {
-        const { name, email, amount, message, utr } = payload;
+        const { name, email, amount, message, utr, screenshot } = payload;
         const cleanName = (name || "").trim().slice(0, 24);
         const numAmount = parseInt(amount, 10);
         const cleanMessage = (message || "").trim().slice(0, 140);
         const cleanUtr = (utr || "").replace(/[^a-zA-Z0-9]/g, "").trim().slice(0, 32);
         const cleanEmail = (email || "").toLowerCase().trim();
+        const screenshotData = typeof screenshot === "string" && screenshot.startsWith("data:image/") ? screenshot : null;
 
         if (!cleanName || cleanName.length < 2) {
           return new Response(JSON.stringify({
@@ -249,20 +261,25 @@ export default async (req, context) => {
           }), { status: 400, headers: corsHeaders });
         }
 
-        if (!cleanUtr || cleanUtr.length < 6) {
+        const hasValidUtr = cleanUtr && cleanUtr.length >= 6;
+        const hasValidScreenshot = !!screenshotData;
+
+        if (!hasValidUtr && !hasValidScreenshot) {
           return new Response(JSON.stringify({
-            error: "Please enter a valid 12-digit UPI Reference (UTR) number from your payment receipt."
+            error: "Please provide either your 12-digit UPI UTR number OR upload a payment screenshot."
           }), { status: 400, headers: corsHeaders });
         }
 
         const list = supporterData.supporters || [];
 
-        // Check if UTR is duplicate
-        const utrExists = list.some(item => (item.utr || "").toLowerCase() === cleanUtr.toLowerCase());
-        if (utrExists) {
-          return new Response(JSON.stringify({
-            error: "This UPI Reference (UTR) number has already been submitted."
-          }), { status: 400, headers: corsHeaders });
+        // Check if UTR is duplicate (if UTR was provided)
+        if (hasValidUtr) {
+          const utrExists = list.some(item => item.utr && item.utr.toLowerCase() === cleanUtr.toLowerCase());
+          if (utrExists) {
+            return new Response(JSON.stringify({
+              error: "This UPI Reference (UTR) number has already been submitted."
+            }), { status: 400, headers: corsHeaders });
+          }
         }
 
         const donationEntry = {
@@ -271,7 +288,8 @@ export default async (req, context) => {
           amount: numAmount,
           message: cleanMessage || "Supporting Jaishnav's MacBook goal! 💻✨",
           email: cleanEmail.includes("@") ? getMaskedEmail(cleanEmail) : "",
-          utr: cleanUtr,
+          utr: hasValidUtr ? cleanUtr : "SCREENSHOT_PROOF",
+          screenshot: screenshotData,
           verified: false,
           status: "pending",
           date: new Date().toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }),

@@ -1161,6 +1161,9 @@
     totalRaised: 0,
     supporters: [],
     selectedAmount: 100,
+    proofMode: 'utr',
+    screenshotData: null,
+    screenshotName: '',
 
     init() {
       // 1. Load locally cached supporters
@@ -1298,6 +1301,99 @@
       }
     },
 
+    setProofMode(mode) {
+      this.proofMode = mode;
+      const tabUtr = document.getElementById('btn-proof-tab-utr');
+      const tabSs = document.getElementById('btn-proof-tab-ss');
+      const panelUtr = document.getElementById('proof-panel-utr');
+      const panelSs = document.getElementById('proof-panel-ss');
+
+      if (tabUtr) tabUtr.classList.toggle('active', mode === 'utr');
+      if (tabSs) tabSs.classList.toggle('active', mode === 'ss');
+      if (panelUtr) panelUtr.style.display = (mode === 'utr' ? 'block' : 'none');
+      if (panelSs) panelSs.style.display = (mode === 'ss' ? 'block' : 'none');
+      if (sfx) sfx.playClick();
+    },
+
+    compressScreenshot(file) {
+      return new Promise((resolve, reject) => {
+        if (!file || !file.type || !file.type.startsWith('image/')) {
+          return reject(new Error('Please select a valid image file (JPG, PNG, WebP).'));
+        }
+        const reader = new FileReader();
+        reader.onerror = () => reject(new Error('Failed to read image file.'));
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onerror = () => reject(new Error('Failed to parse image data.'));
+          img.onload = () => {
+            const maxDim = 900;
+            let w = img.width;
+            let h = img.height;
+            if (w > maxDim || h > maxDim) {
+              if (w > h) {
+                h = Math.round((h * maxDim) / w);
+                w = maxDim;
+              } else {
+                w = Math.round((w * maxDim) / h);
+                h = maxDim;
+              }
+            }
+            const offCanvas = document.createElement('canvas');
+            offCanvas.width = w;
+            offCanvas.height = h;
+            const offCtx = offCanvas.getContext('2d');
+            offCtx.drawImage(img, 0, 0, w, h);
+            const compressed = offCanvas.toDataURL('image/jpeg', 0.75);
+            resolve(compressed);
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    },
+
+    handleScreenshotFile(file) {
+      if (!file) return;
+      const alertBox = document.getElementById('donor-alert-box');
+      const alertText = document.getElementById('donor-alert-text');
+      if (alertBox) alertBox.style.display = 'none';
+
+      this.compressScreenshot(file).then((dataUrl) => {
+        this.screenshotData = dataUrl;
+        this.screenshotName = file.name || 'screenshot.jpg';
+
+        const previewBox = document.getElementById('donor-ss-preview-box');
+        const previewImg = document.getElementById('donor-ss-preview-img');
+        const filenameEl = document.getElementById('donor-ss-filename');
+        const dropzone = document.getElementById('donor-ss-dropzone');
+
+        if (previewImg) previewImg.src = dataUrl;
+        if (filenameEl) filenameEl.textContent = this.screenshotName;
+        if (previewBox) previewBox.style.display = 'flex';
+        if (dropzone) dropzone.style.display = 'none';
+        showToast('Payment screenshot attached!');
+      }).catch((err) => {
+        if (alertBox && alertText) {
+          alertBox.style.display = 'flex';
+          alertText.textContent = err.message || 'Error processing payment screenshot.';
+        }
+      });
+    },
+
+    clearScreenshot() {
+      this.screenshotData = null;
+      this.screenshotName = '';
+      const fileInput = document.getElementById('donor-ss-file');
+      const previewBox = document.getElementById('donor-ss-preview-box');
+      const previewImg = document.getElementById('donor-ss-preview-img');
+      const dropzone = document.getElementById('donor-ss-dropzone');
+
+      if (fileInput) fileInput.value = '';
+      if (previewImg) previewImg.src = '';
+      if (previewBox) previewBox.style.display = 'none';
+      if (dropzone) dropzone.style.display = 'flex';
+    },
+
     openModal(presetAmt) {
       const modal = document.getElementById('donation-modal');
       if (!modal) return;
@@ -1314,6 +1410,10 @@
       } else {
         this.updateCheckoutAmount(this.selectedAmount || 100);
       }
+
+      // Reset proof mode to UTR and clear any previous screenshot
+      this.setProofMode('utr');
+      this.clearScreenshot();
 
       const alertBox = document.getElementById('donor-alert-box');
       if (alertBox) alertBox.style.display = 'none';
@@ -1332,6 +1432,7 @@
         modal.style.display = 'none';
         modal.setAttribute('aria-hidden', 'true');
       }
+      this.clearScreenshot();
     },
 
     copyUpi(btn) {
@@ -1399,6 +1500,44 @@
         });
       }
 
+      // Verification Proof Tabs (UTR vs Screenshot)
+      const tabUtr = document.getElementById('btn-proof-tab-utr');
+      const tabSs = document.getElementById('btn-proof-tab-ss');
+      if (tabUtr) tabUtr.addEventListener('click', () => this.setProofMode('utr'));
+      if (tabSs) tabSs.addEventListener('click', () => this.setProofMode('ss'));
+
+      // Screenshot dropzone & file selector
+      const dropzone = document.getElementById('donor-ss-dropzone');
+      const fileInput = document.getElementById('donor-ss-file');
+      const removeSsBtn = document.getElementById('btn-remove-donor-ss');
+
+      if (dropzone && fileInput) {
+        dropzone.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', (e) => {
+          if (e.target.files && e.target.files[0]) {
+            this.handleScreenshotFile(e.target.files[0]);
+          }
+        });
+        dropzone.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          dropzone.classList.add('dragover');
+        });
+        dropzone.addEventListener('dragleave', () => {
+          dropzone.classList.remove('dragover');
+        });
+        dropzone.addEventListener('drop', (e) => {
+          e.preventDefault();
+          dropzone.classList.remove('dragover');
+          if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+            this.handleScreenshotFile(e.dataTransfer.files[0]);
+          }
+        });
+      }
+
+      if (removeSsBtn) {
+        removeSsBtn.addEventListener('click', () => this.clearScreenshot());
+      }
+
       // Copy UPI buttons
       const copyBtn1 = document.getElementById('copy-fund-upi-btn');
       if (copyBtn1) copyBtn1.addEventListener('click', () => this.copyUpi(copyBtn1));
@@ -1456,10 +1595,15 @@
         return;
       }
 
-      if (!utr || utr.length < 6) {
+      const hasUtr = utr && utr.length >= 6;
+      const hasSs = !!this.screenshotData;
+
+      if (!hasUtr && !hasSs) {
         if (alertBox && alertText) {
           alertBox.style.display = 'flex';
-          alertText.textContent = 'Please enter the 12-digit UPI Reference (UTR) number from your payment receipt.';
+          alertText.textContent = this.proofMode === 'ss'
+            ? 'Please upload your payment screenshot or switch to 12-Digit UTR.'
+            : 'Please enter the 12-digit UPI Reference (UTR) number or switch to Screenshot upload.';
         }
         return;
       }
@@ -1481,6 +1625,7 @@
             amount: amount,
             message: message,
             utr: utr,
+            screenshot: this.screenshotData,
             email: email
           })
         });
@@ -1492,14 +1637,19 @@
 
         if (successBox && successText) {
           successBox.style.display = 'flex';
-          successText.innerHTML = `<strong>Payment Submitted for Verification!</strong><br>Jaishnav will confirm the transaction (UTR: ${utr}) in his FamPay app and your name will appear on the Top Supporters Wall!`;
+          if (hasSs && !hasUtr) {
+            successText.innerHTML = `<strong>Payment Screenshot Submitted for Verification!</strong><br>Jaishnav will inspect your payment receipt in the Owner Portal and your name will appear on the Top Supporters Wall!`;
+          } else {
+            successText.innerHTML = `<strong>Payment Submitted for Verification!</strong><br>Jaishnav will confirm the transaction (UTR: ${utr}) in his FamPay app and your name will appear on the Top Supporters Wall!`;
+          }
         }
 
         if (sfx) sfx.playFanfare();
-        showToast(`✅ Submitted! Jaishnav will verify UTR: ${utr} in FamPay.`);
+        showToast(`✅ Submitted! Jaishnav will verify ${hasSs && !hasUtr ? 'screenshot' : 'UTR: ' + utr} in FamPay.`);
 
         setTimeout(() => {
           this.closeModal();
+          this.clearScreenshot();
           if (utrInput) utrInput.value = '';
           if (messageInput) messageInput.value = '';
         }, 3200);
@@ -1507,7 +1657,7 @@
       } catch (err) {
         if (alertBox && alertText) {
           alertBox.style.display = 'flex';
-          alertText.textContent = err.message || 'Error submitting for verification. Please check your UTR number.';
+          alertText.textContent = err.message || 'Error submitting for verification. Please check your UTR or screenshot.';
         }
       } finally {
         if (submitBtn) {
@@ -1537,6 +1687,18 @@
       if (modalOverlay) {
         modalOverlay.addEventListener('click', (e) => {
           if (e.target === modalOverlay) this.closeModal();
+        });
+      }
+
+      // Screenshot lightbox close listeners
+      const lbClose1 = document.getElementById('lightbox-close-btn');
+      const lbClose2 = document.getElementById('lightbox-close-btn-2');
+      const lbModal = document.getElementById('admin-screenshot-lightbox');
+      if (lbClose1) lbClose1.addEventListener('click', () => this.closeLightbox());
+      if (lbClose2) lbClose2.addEventListener('click', () => this.closeLightbox());
+      if (lbModal) {
+        lbModal.addEventListener('click', (e) => {
+          if (e.target === lbModal) this.closeLightbox();
         });
       }
 
@@ -1617,6 +1779,33 @@
         modal.style.display = 'none';
         modal.setAttribute('aria-hidden', 'true');
       }
+    },
+
+    openLightbox(donation) {
+      if (!donation || !donation.screenshot) return;
+      const modal = document.getElementById('admin-screenshot-lightbox');
+      const img = document.getElementById('lightbox-img');
+      const meta = document.getElementById('lightbox-donor-meta');
+      if (!modal || !img) return;
+
+      img.src = donation.screenshot;
+      if (meta) {
+        const utrLabel = donation.utr && donation.utr !== 'SCREENSHOT_PROOF' ? `UTR: ${donation.utr}` : 'Screenshot Proof';
+        meta.innerHTML = `<strong>${donation.name}</strong> &bull; ₹${Number(donation.amount).toLocaleString('en-IN')} &bull; ${utrLabel}`;
+      }
+      modal.style.display = 'flex';
+      modal.setAttribute('aria-hidden', 'false');
+      if (sfx) sfx.playClick();
+    },
+
+    closeLightbox() {
+      const modal = document.getElementById('admin-screenshot-lightbox');
+      const img = document.getElementById('lightbox-img');
+      if (modal) {
+        modal.style.display = 'none';
+        modal.setAttribute('aria-hidden', 'true');
+      }
+      if (img) img.src = '';
     },
 
     showLoginView() {
@@ -1731,6 +1920,21 @@
             const card = document.createElement('div');
             card.className = 'admin-item-card pending-border';
             const initial = (item.name || '?').charAt(0).toUpperCase();
+
+            const hasSs = !!item.screenshot;
+            const hasUtr = item.utr && item.utr !== 'SCREENSHOT_PROOF' && item.utr !== 'Not Provided';
+            const utrBadge = hasUtr
+              ? `<span><strong>UPI UTR No:</strong> <code class="admin-utr-code">${item.utr}</code></span>`
+              : `<span><strong>Proof:</strong> <span class="badge" style="background: rgba(56, 189, 248, 0.2); color: #38bdf8;"><i class="fa-solid fa-camera"></i> Screenshot Attached</span></span>`;
+
+            const copyUtrBtn = hasUtr
+              ? `<button type="button" class="btn btn-xs btn-outline-cyan btn-copy-utr" data-utr="${item.utr}"><i class="fa-regular fa-copy"></i> Copy UTR</button>`
+              : '';
+
+            const viewSsBtn = hasSs
+              ? `<button type="button" class="btn btn-xs btn-outline-cyan btn-view-ss" data-id="${item.id}"><i class="fa-solid fa-image text-sky"></i> View Screenshot</button>`
+              : '';
+
             card.innerHTML = `
               <div class="admin-item-top">
                 <div class="admin-donor-meta">
@@ -1744,8 +1948,11 @@
               </div>
               <div class="admin-item-details">
                 <div class="admin-utr-row">
-                  <span><strong>UPI UTR No:</strong> <code class="admin-utr-code">${item.utr || 'Not Provided'}</code></span>
-                  <button type="button" class="btn btn-xs btn-outline-cyan btn-copy-utr" data-utr="${item.utr || ''}"><i class="fa-regular fa-copy"></i> Copy UTR</button>
+                  ${utrBadge}
+                  <div style="display: flex; gap: 0.35rem; align-items: center; flex-wrap: wrap;">
+                    ${viewSsBtn}
+                    ${copyUtrBtn}
+                  </div>
                 </div>
                 ${item.message ? `<div class="admin-donor-msg">"${item.message}"</div>` : ''}
               </div>
@@ -1770,6 +1977,12 @@
             const card = document.createElement('div');
             card.className = 'admin-item-card approved-border';
             const initial = (item.name || '?').charAt(0).toUpperCase();
+
+            const hasSs = !!item.screenshot;
+            const viewSsBtn = hasSs
+              ? `<button type="button" class="btn btn-xs btn-outline-cyan btn-view-ss" data-id="${item.id}"><i class="fa-solid fa-image text-sky"></i> View Screenshot</button>`
+              : '';
+
             card.innerHTML = `
               <div class="admin-item-top">
                 <div class="admin-donor-meta">
@@ -1784,6 +1997,7 @@
               <div class="admin-item-details">
                 <div class="admin-utr-row">
                   <span><strong>UTR:</strong> <code class="admin-utr-code">${item.utr || 'N/A'}</code></span>
+                  ${viewSsBtn}
                 </div>
                 ${item.message ? `<div class="admin-donor-msg">"${item.message}"</div>` : ''}
               </div>
@@ -1806,6 +2020,12 @@
       document.querySelectorAll('.btn-copy-utr').forEach(b => {
         b.addEventListener('click', () => {
           navigator.clipboard.writeText(b.dataset.utr).then(() => showToast(`Copied UTR: ${b.dataset.utr}`));
+        });
+      });
+      document.querySelectorAll('.btn-view-ss').forEach(b => {
+        b.addEventListener('click', () => {
+          const item = this.donations.find(d => d.id === b.dataset.id);
+          if (item) this.openLightbox(item);
         });
       });
     },

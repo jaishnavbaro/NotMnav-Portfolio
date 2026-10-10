@@ -1371,12 +1371,53 @@
           </div>
         </div>
 
-        <!-- Step 4: Confirmation & Record to Leaderboard -->
+        <!-- Step 4: Verification Proof (Either 12-Digit UTR or Screenshot) -->
         <div class="donation-confirm-section">
-          <div class="form-group" style="margin-bottom: 0.4rem;">
-            <label for="donor-utr-input" class="form-label"><i class="fa-solid fa-receipt text-amber"></i> 12-Digit UPI Ref / UTR No. <span class="required-mark">*</span></label>
-            <input type="text" id="donor-utr-input" class="form-input" placeholder="e.g. 428190382910" required minlength="6" maxlength="32">
-            <span class="form-hint"><i class="fa-solid fa-circle-info text-sky"></i> Found on your GPay, PhonePe, Paytm, or FamApp receipt. Required for verification so fake submissions are prevented!</span>
+          <label class="form-label" style="margin-bottom: 0.35rem;">
+            <i class="fa-solid fa-shield-halved text-amber"></i> Verification Proof <span class="required-mark">*</span>
+            <span style="font-size: 0.78rem; font-weight: normal; color: var(--text-tertiary); margin-left: 0.4rem;">(Provide UTR or Screenshot)</span>
+          </label>
+
+          <!-- Toggle Buttons: UTR vs Screenshot -->
+          <div class="proof-toggle-pills">
+            <button type="button" class="proof-toggle-btn active" id="btn-proof-tab-utr">
+              <i class="fa-solid fa-receipt"></i> 12-Digit UTR
+            </button>
+            <button type="button" class="proof-toggle-btn" id="btn-proof-tab-ss">
+              <i class="fa-solid fa-camera"></i> Payment Screenshot
+            </button>
+          </div>
+
+          <!-- Proof Mode A: UTR Number -->
+          <div id="proof-panel-utr" class="proof-panel-wrap">
+            <div class="input-with-icon">
+              <i class="fa-solid fa-receipt"></i>
+              <input type="text" id="donor-utr-input" class="form-input" placeholder="e.g. 428190382910" maxlength="32">
+            </div>
+            <span class="form-hint"><i class="fa-solid fa-circle-info text-sky"></i> Found on your GPay, PhonePe, Paytm, or FamApp receipt.</span>
+          </div>
+
+          <!-- Proof Mode B: Screenshot Upload -->
+          <div id="proof-panel-ss" class="proof-panel-wrap" style="display: none;">
+            <input type="file" id="donor-ss-file" accept="image/*" style="display: none;">
+            <div id="donor-ss-dropzone" class="ss-upload-dropzone">
+              <i class="fa-solid fa-cloud-arrow-up ss-upload-icon"></i>
+              <div class="ss-upload-text">
+                <strong>Click to choose payment screenshot</strong>
+                <span>Supports JPG, PNG, WebP from your UPI app</span>
+              </div>
+            </div>
+
+            <div id="donor-ss-preview-box" class="ss-preview-container" style="display: none;">
+              <img id="donor-ss-preview-img" src="" alt="Payment Screenshot Preview" class="ss-preview-thumb">
+              <div class="ss-preview-meta">
+                <span id="donor-ss-filename">screenshot.jpg</span>
+                <button type="button" class="btn btn-xs btn-outline-danger" id="btn-remove-donor-ss">
+                  <i class="fa-solid fa-trash-can"></i> Remove
+                </button>
+              </div>
+            </div>
+            <span class="form-hint"><i class="fa-solid fa-circle-info text-sky"></i> Jaishnav will inspect your screenshot in the Owner Portal to verify!</span>
           </div>
 
           <button type="submit" class="btn btn-submit-donor" id="btn-submit-donor-pledge">
@@ -1516,6 +1557,25 @@
             <i class="fa-solid fa-arrow-right-from-bracket"></i> Lock Portal
           </button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- SCREENSHOT LIGHTBOX MODAL (FOR OWNER VIEW) -->
+  <!-- ========================================== -->
+  <div id="admin-screenshot-lightbox" class="auth-modal-overlay" style="display: none; z-index: 2500;" aria-hidden="true" role="dialog">
+    <div class="screenshot-lightbox-card">
+      <div class="lightbox-head">
+        <h4 id="lightbox-title"><i class="fa-solid fa-image text-sky"></i> Payment Receipt Screenshot</h4>
+        <button id="lightbox-close-btn" class="modal-close-btn" aria-label="Close Lightbox">&times;</button>
+      </div>
+      <div class="lightbox-img-wrap">
+        <img id="lightbox-img" src="" alt="Payment Receipt Screenshot" class="lightbox-full-img">
+      </div>
+      <div class="lightbox-footer">
+        <span id="lightbox-donor-meta" class="lightbox-donor-meta">Donor Proof</span>
+        <button type="button" class="btn btn-xs btn-secondary" id="lightbox-close-btn-2">Close Preview</button>
       </div>
     </div>
   </div>
