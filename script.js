@@ -360,55 +360,7 @@
     });
   });
 
-  /* --------------------------------------------------------------------------
-   * 3.5 DYNAMIC TYPEWRITER ANIMATION (ABOUT ME HERO)
-   * -------------------------------------------------------------------------- */
-  function initTypewriter() {
-    const el = document.getElementById('hero-typewriter-text');
-    if (!el) return;
 
-    const phrases = [
-      'Developer',
-      'Gamer',
-      'GFX Artist',
-      'VajraClouds',
-      'NotNav'
-    ];
-
-    let phraseIndex = 0;
-    let charIndex = 0;
-    let isDeleting = false;
-    let speed = 90;
-
-    function tick() {
-      const current = phrases[phraseIndex];
-
-      if (isDeleting) {
-        const nextText = current.substring(0, charIndex - 1);
-        el.textContent = nextText || '\u00A0';
-        charIndex--;
-        speed = 45;
-      } else {
-        el.textContent = current.substring(0, charIndex + 1);
-        charIndex++;
-        speed = 90;
-      }
-
-      if (!isDeleting && charIndex === current.length) {
-        isDeleting = true;
-        speed = 1800; // Pause when word is fully typed
-      } else if (isDeleting && charIndex === 0) {
-        isDeleting = false;
-        phraseIndex = (phraseIndex + 1) % phrases.length;
-        speed = 400; // Pause before typing next word
-      }
-
-      setTimeout(tick, speed);
-    }
-
-    tick();
-  }
-  initTypewriter();
 
   /* --------------------------------------------------------------------------
    * 4. ROADMAP PROGRESS COUNTER ANIMATION
