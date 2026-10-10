@@ -249,18 +249,29 @@ button {
 }
 
 /* Nav Menu */
+.nav-menu {
+  display: flex;
+  align-items: center;
+}
 .nav-menu .nav-links {
   display: flex;
   align-items: center;
   list-style: none;
-  gap: 0.35rem;
+  gap: 0.5rem;
+  flex-wrap: nowrap;
 }
 .nav-item {
-  padding: 0.45rem 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.5rem 0.95rem;
   font-size: 0.88rem;
   font-weight: 500;
   color: var(--text-secondary);
   border-radius: var(--radius-sm);
+  white-space: nowrap !important;
+  line-height: 1.2;
   transition: all var(--transition-fast);
 }
 .nav-item:hover {
@@ -273,12 +284,15 @@ button {
   font-weight: 600;
 }
 .arcade-pill {
-  color: var(--accent-sky);
-  background: rgba(56, 189, 248, 0.08);
-  border: 1px solid rgba(56, 189, 248, 0.2);
+  color: var(--accent-sky) !important;
+  background: rgba(56, 189, 248, 0.08) !important;
+  border: 1px solid rgba(56, 189, 248, 0.25) !important;
+  font-weight: 600;
 }
 .arcade-pill:hover {
-  background: rgba(56, 189, 248, 0.16);
+  background: rgba(56, 189, 248, 0.18) !important;
+  border-color: var(--accent-sky) !important;
+  color: #ffffff !important;
 }
 
 /* Header Actions */
@@ -1888,6 +1902,15 @@ kbd {
 }
 .leaderboard-nav-pill {
   color: #fde68a !important;
+  background: rgba(245, 158, 11, 0.08) !important;
+  border: 1px solid rgba(245, 158, 11, 0.25) !important;
+  font-weight: 600;
+}
+.leaderboard-nav-pill:hover,
+.leaderboard-nav-pill.active {
+  background: rgba(245, 158, 11, 0.18) !important;
+  border-color: var(--accent-amber) !important;
+  color: #ffffff !important;
 }
 
 /* --- Snake Mobile On-Screen D-Pad --- */
@@ -2392,7 +2415,25 @@ kbd {
   }
 }
 
+@media (max-width: 1150px) and (min-width: 769px) {
+  .header-container {
+    padding: 0 1rem;
+    gap: 0.5rem;
+  }
+  .nav-menu .nav-links {
+    gap: 0.3rem;
+  }
+  .nav-item {
+    padding: 0.44rem 0.65rem;
+    font-size: 0.82rem;
+    gap: 0.35rem;
+  }
+}
+
 @media (max-width: 768px) {
+  .header-container {
+    justify-content: flex-end;
+  }
   .hide-mobile {
     display: none !important;
   }
@@ -2540,6 +2581,8 @@ kbd {
   border: 1px solid rgba(56, 189, 248, 0.25) !important;
   background: rgba(56, 189, 248, 0.08) !important;
   color: #7dd3fc !important;
+  font-weight: 600;
+  white-space: nowrap !important;
 }
 .fund-nav-pill:hover,
 .fund-nav-pill.active {
