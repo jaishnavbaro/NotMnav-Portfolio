@@ -85,9 +85,25 @@ export default async (req, context) => {
       users = {};
     }
 
-    // GET: Return current fresh leaderboard data
+    // MacBook Goal Supporters & Donors database in Netlify Blobs
+    let supporterData = { goal: 170000, totalRaised: 0, supporters: [] };
+    try {
+      const rawSupporters = await store.get("supporters_v1", { type: "json" });
+      if (rawSupporters) supporterData = rawSupporters;
+    } catch (e) {
+      supporterData = { goal: 170000, totalRaised: 0, supporters: [] };
+    }
+    if (!Array.isArray(supporterData.supporters)) supporterData.supporters = [];
+
+    // GET: Return current fresh leaderboard data + MacBook Goal & Top Supporters
     if (req.method === "GET") {
-      return new Response(JSON.stringify(data), {
+      const responseData = {
+        ...data,
+        supporters: supporterData.supporters || [],
+        totalRaised: Number(supporterData.totalRaised) || 0,
+        goal: supporterData.goal || 170000
+      };
+      return new Response(JSON.stringify(responseData), {
         status: 200,
         headers: corsHeaders
       });
@@ -193,6 +209,83 @@ export default async (req, context) => {
           message: "Leaderboard cleared and reset.",
           data: data
         }), { status: 200, headers: corsHeaders });
+      }
+
+      // ---------------------------------------------------------------
+      // ACTION: SUBMIT-DONATION (Record supporter contribution)
+      // ---------------------------------------------------------------
+      if (action === "submit-donation") {
+        const { name, email, amount, message, utr } = payload;
+        const cleanName = (name || "").trim().slice(0, 24);
+        const numAmount = parseInt(amount, 10);
+        const cleanMessage = (message || "").trim().slice(0, 140);
+        const cleanUtr = (utr || "").trim().slice(0, 32);
+        const cleanEmail = (email || "").toLowerCase().trim();
+
+        if (!cleanName || cleanName.length < 2) {
+          return new Response(JSON.stringify({
+            error: "Please enter your name or display tag (at least 2 characters)."
+          }), { status: 400, headers: corsHeaders });
+        }
+
+        if (containsProfanity(cleanName) || containsProfanity(cleanMessage)) {
+          return new Response(JSON.stringify({
+            error: "Please keep donor names and messages friendly and appropriate."
+          }), { status: 400, headers: corsHeaders });
+        }
+
+        if (isNaN(numAmount) || numAmount < 1) {
+          return new Response(JSON.stringify({
+            error: "Please specify a valid contribution amount of at least ₹1."
+          }), { status: 400, headers: corsHeaders });
+        }
+
+        const list = supporterData.supporters || [];
+        const donationEntry = {
+          id: "don_" + Date.now() + "_" + Math.floor(Math.random() * 1000),
+          name: cleanName,
+          amount: numAmount,
+          message: cleanMessage || "Supporting Jaishnav's MacBook goal! 💻✨",
+          email: cleanEmail.includes("@") ? getMaskedEmail(cleanEmail) : "",
+          utr: cleanUtr,
+          date: new Date().toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }),
+          timestamp: Date.now()
+        };
+
+        list.push(donationEntry);
+
+        // Sort descending by amount, then by timestamp
+        list.sort((a, b) => b.amount - a.amount || b.timestamp - a.timestamp);
+        list.forEach((item, idx) => {
+          item.rank = idx + 1;
+        });
+
+        const totalRaised = list.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
+        supporterData.supporters = list.slice(0, 100);
+        supporterData.totalRaised = totalRaised;
+        supporterData.goal = 170000;
+
+        await store.setJSON("supporters_v1", supporterData);
+
+        const donorRank = list.findIndex(d => d.id === donationEntry.id) + 1;
+
+        return new Response(JSON.stringify({
+          success: true,
+          rank: donorRank > 0 ? donorRank : 1,
+          supporters: supporterData.supporters,
+          totalRaised: supporterData.totalRaised,
+          goal: supporterData.goal
+        }), { status: 200, headers: corsHeaders });
+      }
+
+      // ---------------------------------------------------------------
+      // ACTION: GET-SUPPORTERS (MacBook Goal & Donors list)
+      // ---------------------------------------------------------------
+      if (action === "get-supporters") {
+        return new Response(JSON.stringify(supporterData), {
+          status: 200,
+          headers: corsHeaders
+        });
       }
 
       // ---------------------------------------------------------------

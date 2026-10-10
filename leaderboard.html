@@ -322,6 +322,7 @@
           <li><a href="index.html#skills" class="nav-item">Skills</a></li>
           <li><a href="index.html#games" class="nav-item">Games</a></li>
           <li><a href="index.html#projects" class="nav-item">Projects</a></li>
+          <li><a href="index.html#fundraiser" class="nav-item fund-nav-pill"><i class="fa-solid fa-laptop-code text-cyan"></i> MacBook Goal</a></li>
           <li><a href="index.html#arcade" class="nav-item arcade-pill"><i class="fa-solid fa-gamepad"></i> Arcade</a></li>
           <li><a href="leaderboard.html" class="nav-item leaderboard-nav-pill active"><i class="fa-solid fa-trophy text-amber"></i> Leaderboard</a></li>
         </ul>
@@ -368,6 +369,9 @@
         <div class="lb-hero-actions">
           <a href="index.html#arcade" class="btn btn-primary btn-play">
             <i class="fa-solid fa-gamepad"></i> Play Games in Arcade
+          </a>
+          <a href="index.html#fundraiser" class="btn btn-outline-cyan">
+            <i class="fa-solid fa-heart text-rose"></i> Support MacBook Goal (₹1.7L)
           </a>
           <button id="page-open-auth-btn" class="btn btn-secondary">
             <i class="fa-brands fa-google text-sky"></i> <span id="page-auth-btn-label">Sign In with Gmail</span>
@@ -469,6 +473,11 @@
             <i class="fa-solid fa-trophy"></i>
             <span>Overall Champions</span>
             <span class="live-pill">Top</span>
+          </button>
+          <button class="arcade-tab supporters-tab" id="tab-page-supporters" data-lb="supporters">
+            <i class="fa-solid fa-heart text-rose"></i>
+            <span>Top Supporters Wall</span>
+            <span class="live-pill" style="background: rgba(244,63,94,0.25); color: #fda4af; border-color: rgba(244,63,94,0.4);">Goal: ₹1.7L</span>
           </button>
         </div>
 
@@ -687,7 +696,8 @@
       const DEFAULT_LEADERBOARD = {
         flappy: [],
         runner: [],
-        snake: []
+        snake: [],
+        supporters: []
       };
 
       const CLOUD_API_URL = '/.netlify/functions/leaderboard';
@@ -880,16 +890,33 @@
         const tbody = document.getElementById('page-leaderboard-tbody');
         tbody.innerHTML = '';
 
-        let list = activeTab === 'overall' ? getOverallList(data) : (data[activeTab] || []);
-
-        if (searchQuery) {
-          list = list.filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase()));
+        let list = [];
+        if (activeTab === 'supporters') {
+          list = data.supporters || [];
+        } else if (activeTab === 'overall') {
+          list = getOverallList(data);
+        } else {
+          list = data[activeTab] || [];
         }
 
-        document.getElementById('lb-total-players').textContent = `${list.length} Player${list.length === 1 ? '' : 's'}`;
+        if (searchQuery) {
+          list = list.filter(item => 
+            (item.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+            (item.message || '').toLowerCase().includes(searchQuery.toLowerCase())
+          );
+        }
+
+        document.getElementById('lb-total-players').textContent = 
+          activeTab === 'supporters' 
+            ? `${list.length} Supporter${list.length === 1 ? '' : 's'}` 
+            : `${list.length} Player${list.length === 1 ? '' : 's'}`;
 
         if (list.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="4" class="empty-table-state"><i class="fa-solid fa-trophy-star"></i><br>Leaderboard is completely fresh! Play any game in the arcade to claim the #1 spot!</td></tr>`;
+          if (activeTab === 'supporters') {
+            tbody.innerHTML = `<tr><td colspan="4" class="empty-table-state"><i class="fa-solid fa-heart text-rose"></i><br>No supporters recorded yet! Support Jaishnav's MacBook goal via FamPay UPI and take the #1 donor spot!</td></tr>`;
+          } else {
+            tbody.innerHTML = `<tr><td colspan="4" class="empty-table-state"><i class="fa-solid fa-trophy-star"></i><br>Leaderboard is completely fresh! Play any game in the arcade to claim the #1 spot!</td></tr>`;
+          }
           return;
         }
 
@@ -905,7 +932,7 @@
           else if (item.rank === 2) { rankClass = 'rank-2'; crown = '<i class="fa-solid fa-medal text-slate"></i> '; }
           else if (item.rank === 3) { rankClass = 'rank-3'; crown = '<i class="fa-solid fa-award text-amber"></i> '; }
 
-          const initial = item.name.charAt(0).toUpperCase();
+          const initial = (item.name || '?').charAt(0).toUpperCase();
 
           const isMe = user && (
             (item.rawEmail && item.rawEmail.toLowerCase() === userRawEmail) ||
@@ -919,20 +946,39 @@
 
           const youBadge = isMe ? '<span class="you-badge">YOU</span>' : '';
 
-          tr.innerHTML = `
-            <td><span class="rank-badge ${rankClass}">${crown}${item.rank}</span></td>
-            <td>
-              <div class="player-name-cell">
-                <span class="player-avatar-circle">${initial}</span>
-                <div class="player-name-meta">
-                  <span class="player-name-text">${item.name} ${youBadge}</span>
-                  <span class="player-sub-email show-mobile"><i class="fa-solid fa-circle-check text-emerald"></i> ${item.email}</span>
+          if (activeTab === 'supporters') {
+            const msg = item.message ? `"${item.message}"` : 'Supporting the dream! 🚀';
+            const amtStr = '₹' + Number(item.amount || 0).toLocaleString('en-IN');
+            tr.innerHTML = `
+              <td><span class="rank-badge ${rankClass}">${crown}${item.rank}</span></td>
+              <td>
+                <div class="player-name-cell">
+                  <span class="player-avatar-circle" style="background: linear-gradient(135deg, #f43f5e, #be123c);">${initial}</span>
+                  <div class="player-name-meta">
+                    <span class="player-name-text">${item.name} ${youBadge}</span>
+                    <span class="player-sub-email show-mobile"><i class="fa-solid fa-heart text-rose"></i> ${msg}</span>
+                  </div>
                 </div>
-              </div>
-            </td>
-            <td class="td-verified hide-mobile"><span class="verified-gmail-badge"><i class="fa-solid fa-circle-check"></i> ${item.email}</span></td>
-            <td><span class="table-score-val">${item.score}</span></td>
-          `;
+              </td>
+              <td class="td-verified hide-mobile"><span class="donor-msg-cell">${msg}</span></td>
+              <td><span class="donor-amount-pill">${amtStr}</span></td>
+            `;
+          } else {
+            tr.innerHTML = `
+              <td><span class="rank-badge ${rankClass}">${crown}${item.rank}</span></td>
+              <td>
+                <div class="player-name-cell">
+                  <span class="player-avatar-circle">${initial}</span>
+                  <div class="player-name-meta">
+                    <span class="player-name-text">${item.name} ${youBadge}</span>
+                    <span class="player-sub-email show-mobile"><i class="fa-solid fa-circle-check text-emerald"></i> ${item.email}</span>
+                  </div>
+                </div>
+              </td>
+              <td class="td-verified hide-mobile"><span class="verified-gmail-badge"><i class="fa-solid fa-circle-check"></i> ${item.email}</span></td>
+              <td><span class="table-score-val">${item.score}</span></td>
+            `;
+          }
           tbody.appendChild(tr);
         });
       }
@@ -942,7 +988,8 @@
         { id: 'tab-page-flappy', key: 'flappy' },
         { id: 'tab-page-runner', key: 'runner' },
         { id: 'tab-page-snake', key: 'snake' },
-        { id: 'tab-page-overall', key: 'overall' }
+        { id: 'tab-page-overall', key: 'overall' },
+        { id: 'tab-page-supporters', key: 'supporters' }
       ];
 
       tabs.forEach(t => {

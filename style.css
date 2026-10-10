@@ -2555,3 +2555,692 @@ kbd {
     font-size: 1.05rem;
   }
 }
+
+/* ==========================================================================
+   MACBOOK GOAL FUNDRAISER & FAMPAY UPI PAYMENT GATEWAY
+   ========================================================================== */
+.fundraiser-section {
+  position: relative;
+  background: radial-gradient(ellipse at 15% 20%, rgba(56, 189, 248, 0.07), transparent 45%),
+              radial-gradient(ellipse at 85% 80%, rgba(244, 63, 94, 0.07), transparent 45%),
+              var(--bg-primary);
+}
+
+.fund-nav-pill {
+  border: 1px solid rgba(56, 189, 248, 0.25) !important;
+  background: rgba(56, 189, 248, 0.08) !important;
+  color: #7dd3fc !important;
+}
+.fund-nav-pill:hover,
+.fund-nav-pill.active {
+  background: rgba(56, 189, 248, 0.2) !important;
+  border-color: var(--accent-sky) !important;
+  color: #ffffff !important;
+}
+
+.fundraiser-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: 2.2rem;
+  box-shadow: var(--shadow-card);
+  position: relative;
+  overflow: hidden;
+}
+
+.fund-grid {
+  display: grid;
+  grid-template-columns: 1.3fr 0.9fr;
+  gap: 2.5rem;
+  align-items: start;
+  margin-bottom: 2.8rem;
+}
+
+.fund-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.fund-tech-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.85rem;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: var(--radius-pill);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #f1f5f9;
+  letter-spacing: 0.02em;
+}
+
+.fund-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.35rem 0.8rem;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: var(--radius-pill);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #6ee7b7;
+}
+
+.fund-target-title {
+  font-size: 2.1rem;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+  margin-bottom: 1.2rem;
+  line-height: 1.2;
+}
+
+.fund-target-sub {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--accent-sky);
+}
+
+/* Progress Bar */
+.fund-progress-container {
+  background: rgba(10, 15, 26, 0.6);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 1.2rem;
+  margin-bottom: 1.5rem;
+}
+
+.fund-progress-bar-bg {
+  width: 100%;
+  height: 18px;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 9999px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  position: relative;
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.6);
+}
+
+.fund-progress-bar-fill {
+  height: 100%;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, #38bdf8 0%, #818cf8 50%, #f43f5e 100%);
+  width: 0%;
+  min-width: 4px;
+  transition: width 1s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  box-shadow: 0 0 15px rgba(56, 189, 248, 0.5);
+}
+
+.fund-progress-glow {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  animation: fundShimmer 2.5s infinite;
+}
+
+@keyframes fundShimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+
+.fund-progress-stats {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.85rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.fund-stat-item {
+  font-size: 0.86rem;
+  color: var(--text-secondary);
+}
+
+.fund-stat-item strong {
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 1.05rem;
+  font-family: var(--font-heading);
+}
+
+.fund-story-box {
+  background: rgba(255, 255, 255, 0.025);
+  border-left: 3px solid var(--accent-sky);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.6rem;
+  font-size: 0.92rem;
+  color: var(--text-secondary);
+  line-height: 1.65;
+}
+
+.fund-story-box p:not(:last-child) {
+  margin-bottom: 0.75rem;
+}
+
+.fund-story-box strong {
+  color: #ffffff;
+}
+
+.fund-story-box code {
+  background: rgba(56, 189, 248, 0.15);
+  color: var(--accent-sky);
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.88rem;
+}
+
+.fund-actions-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.4rem;
+  flex-wrap: wrap;
+}
+
+.btn-glow-donate {
+  background: linear-gradient(135deg, #0284c7, #2563eb, #db2777);
+  background-size: 200% 200%;
+  animation: gradientShift 4s ease infinite;
+  box-shadow: 0 4px 20px rgba(37, 99, 235, 0.35);
+  padding: 0.85rem 1.6rem;
+  font-weight: 700;
+  border: none;
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  cursor: pointer;
+}
+.btn-glow-donate:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 25px rgba(219, 39, 119, 0.45);
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.fund-trust-row {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  flex-wrap: wrap;
+}
+
+.trust-badge {
+  font-size: 0.78rem;
+  color: var(--text-tertiary);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* FamPay Preview Card */
+.fampay-card-preview {
+  background: radial-gradient(circle at top, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.95));
+  border: 1px solid var(--border-hover);
+  border-radius: var(--radius-lg);
+  padding: 1.6rem;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+  position: relative;
+  overflow: hidden;
+}
+
+.fampay-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.2rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.fampay-logo-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.fampay-tag {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  border-radius: var(--radius-pill);
+  padding: 0.2rem 0.55rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.fampay-verified-badge {
+  font-size: 0.74rem;
+  color: #6ee7b7;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-weight: 600;
+}
+
+.fampay-name {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: 0.05em;
+}
+
+.fampay-qr-wrap {
+  text-align: center;
+  margin-bottom: 1.4rem;
+}
+
+.fampay-qr-frame {
+  width: 210px;
+  height: 210px;
+  margin: 0 auto 0.8rem;
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 10px;
+  position: relative;
+  box-shadow: 0 0 25px rgba(56, 189, 248, 0.2), 0 8px 20px rgba(0, 0, 0, 0.5);
+}
+
+.fampay-qr-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.qr-scan-corner {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border: 3px solid var(--accent-sky);
+}
+.corner-tl { top: -3px; left: -3px; border-right: none; border-bottom: none; border-top-left-radius: 6px; }
+.corner-tr { top: -3px; right: -3px; border-left: none; border-bottom: none; border-top-right-radius: 6px; }
+.corner-bl { bottom: -3px; left: -3px; border-right: none; border-top: none; border-bottom-left-radius: 6px; }
+.corner-br { bottom: -3px; right: -3px; border-left: none; border-top: none; border-bottom-right-radius: 6px; }
+
+.qr-scan-caption {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+.qr-scan-caption strong {
+  color: #f1f5f9;
+}
+
+.fampay-card-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.upi-id-badge {
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  padding: 0.6rem 0.9rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.upi-id-label {
+  font-size: 0.72rem;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.upi-id-value {
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  color: var(--accent-sky);
+  font-weight: 700;
+}
+
+.upi-copy-icon-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  cursor: pointer;
+  padding: 0.2rem;
+  transition: color var(--transition-fast);
+}
+.upi-copy-icon-btn:hover {
+  color: #ffffff;
+}
+
+.quick-support-pills {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+
+.quick-pills-label {
+  font-size: 0.74rem;
+  color: var(--text-tertiary);
+  font-weight: 600;
+}
+
+.fund-quick-pill {
+  padding: 0.35rem 0.65rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-pill);
+  color: #e2e8f0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+.fund-quick-pill:hover {
+  background: rgba(56, 189, 248, 0.15);
+  border-color: var(--accent-sky);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+/* Donors Wall Table */
+.fund-donors-section {
+  border-top: 1px solid var(--border-light);
+  padding-top: 2rem;
+}
+
+.donors-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.donors-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.2rem;
+}
+
+.donors-subtitle {
+  font-size: 0.84rem;
+  color: var(--text-secondary);
+}
+
+.donors-table .th-amount,
+.donors-table .th-message {
+  text-align: left;
+}
+.donor-msg-cell {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-style: italic;
+  max-width: 320px;
+}
+.donor-amount-pill {
+  font-weight: 800;
+  font-size: 1.05rem;
+  color: #6ee7b7;
+  font-family: var(--font-heading);
+}
+
+/* ==========================================================================
+   FAMPAY DONATION GATEWAY MODAL
+   ========================================================================== */
+.donation-modal-card {
+  width: 100%;
+  max-width: 520px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: #0b1120;
+  border: 1px solid var(--border-hover);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85);
+  position: relative;
+}
+
+.donation-header-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #f43f5e, #be123c);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  color: #ffffff;
+  box-shadow: 0 0 15px rgba(244, 63, 94, 0.35);
+}
+
+.donation-form-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  margin-bottom: 1.2rem;
+}
+
+.required-mark {
+  color: #f43f5e;
+}
+
+.donate-preset-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+}
+
+.donate-amt-btn {
+  padding: 0.6rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  color: #cbd5e1;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-align: center;
+}
+.donate-amt-btn:hover {
+  background: rgba(56, 189, 248, 0.1);
+  border-color: rgba(56, 189, 248, 0.3);
+  color: #ffffff;
+}
+.donate-amt-btn.active {
+  background: rgba(56, 189, 248, 0.2);
+  border-color: var(--accent-sky);
+  color: #38bdf8;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.2);
+}
+
+.donation-checkout-box {
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.checkout-summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+}
+.checkout-amt-text {
+  font-size: 1.45rem;
+  color: #6ee7b7;
+  font-weight: 800;
+  font-family: var(--font-heading);
+}
+
+.btn-upi-launch {
+  width: 100%;
+  padding: 0.85rem 1.2rem;
+  font-size: 1.02rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #0284c7, #2563eb);
+  color: #ffffff;
+  border-radius: var(--radius-sm);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  text-decoration: none;
+  box-shadow: 0 4px 15px rgba(2, 132, 199, 0.35);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+.btn-upi-launch:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5);
+  color: #ffffff;
+}
+
+.donation-qr-checkout {
+  display: flex;
+  align-items: center;
+  gap: 1.1rem;
+  padding-top: 0.8rem;
+  border-top: 1px dashed var(--border-light);
+}
+
+.mini-qr-box {
+  width: 90px;
+  height: 90px;
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 4px;
+  flex-shrink: 0;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+}
+
+.mini-qr-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.mini-qr-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  flex: 1;
+}
+
+.mini-qr-title {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+
+.upi-copy-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  padding: 0.3rem 0.6rem;
+}
+.upi-copy-pill code {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  color: var(--accent-sky);
+}
+
+.beneficiary-text {
+  font-size: 0.72rem;
+  color: var(--text-tertiary);
+}
+
+.donation-confirm-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.btn-submit-donor {
+  width: 100%;
+  padding: 0.85rem;
+  font-weight: 700;
+  font-size: 0.98rem;
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+}
+.btn-submit-donor:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45);
+}
+
+@media (max-width: 992px) {
+  .fund-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}
+
+/* Floating Notification Toast */
+.site-floating-toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: rgba(15, 23, 42, 0.96);
+  border: 1px solid var(--accent-sky);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 20px rgba(56, 189, 248, 0.3);
+  color: #ffffff;
+  padding: 0.85rem 1.4rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.92rem;
+  font-weight: 600;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  opacity: 0;
+  transform: translateY(20px);
+  pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.site-floating-toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+@media (max-width: 768px) {
+  .site-floating-toast {
+    left: 16px;
+    right: 16px;
+    bottom: 16px;
+    justify-content: center;
+    text-align: center;
+  }
+}
+

@@ -934,6 +934,13 @@
             this.save();
             this.render();
           }
+          if (cloudData && Array.isArray(cloudData.supporters) && typeof donationSystem !== 'undefined') {
+            donationSystem.supporters = cloudData.supporters;
+            donationSystem.totalRaised = Number(cloudData.totalRaised) || 0;
+            donationSystem.goal = Number(cloudData.goal) || 170000;
+            donationSystem.save();
+            donationSystem.render();
+          }
         }
       } catch (e) {}
     },
@@ -1116,11 +1123,393 @@
   window.addEventListener('storage', (e) => {
     if (e.key === 'jaishnav_leaderboard_data') {
       leaderboardSystem.init();
+    } else if (e.key === 'jaishnav_supporters_data') {
+      donationSystem.init();
     } else if (e.key === 'jaishnav_auth_user') {
       authState.init();
       leaderboardSystem.render();
+      donationSystem.render();
     }
   });
+
+  // Floating Toast Notification
+  function showToast(msg) {
+    let toast = document.getElementById('global-site-toast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'global-site-toast';
+      toast.className = 'site-floating-toast';
+      document.body.appendChild(toast);
+    }
+    toast.innerHTML = `<i class="fa-solid fa-bell text-sky"></i> <span>${msg}</span>`;
+    toast.classList.add('show');
+    clearTimeout(toast._timer);
+    toast._timer = setTimeout(() => {
+      toast.classList.remove('show');
+    }, 3200);
+  }
+
+  /* --------------------------------------------------------------------------
+   * 6.5. MACBOOK FUNDRAISER & FAMPAY UPI PAYMENT GATEWAY ENGINE
+   * -------------------------------------------------------------------------- */
+  const FAMPAY_UPI_ID = 'primebaro@fam';
+  const FAMPAY_NAME = 'JAIHNAV M BARO';
+  const MACBOOK_GOAL = 170000;
+
+  const donationSystem = {
+    goal: MACBOOK_GOAL,
+    totalRaised: 0,
+    supporters: [],
+    selectedAmount: 100,
+
+    init() {
+      // 1. Load locally cached supporters
+      const saved = localStorage.getItem('jaishnav_supporters_data');
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (parsed && Array.isArray(parsed.supporters)) {
+            this.supporters = parsed.supporters;
+            this.totalRaised = Number(parsed.totalRaised) || 0;
+            this.goal = Number(parsed.goal) || MACBOOK_GOAL;
+          }
+        } catch (e) {}
+      }
+
+      this.render();
+      this.bindEvents();
+      this.fetchCloudDonations();
+    },
+
+    save() {
+      localStorage.setItem('jaishnav_supporters_data', JSON.stringify({
+        goal: this.goal,
+        totalRaised: this.totalRaised,
+        supporters: this.supporters
+      }));
+    },
+
+    async fetchCloudDonations() {
+      try {
+        const res = await fetch(CLOUD_API_URL + '?t=' + Date.now());
+        if (res.ok) {
+          const json = await res.json();
+          if (json && Array.isArray(json.supporters)) {
+            this.supporters = json.supporters;
+            this.totalRaised = Number(json.totalRaised) || 0;
+            this.goal = Number(json.goal) || MACBOOK_GOAL;
+            this.save();
+            this.render();
+          }
+        }
+      } catch (e) {}
+    },
+
+    render() {
+      // 1. Progress Bar in Fundraiser Section
+      const raisedEl = document.getElementById('fund-raised-amount');
+      const percentEl = document.getElementById('fund-percent');
+      const backersEl = document.getElementById('fund-backers-count');
+      const fillBar = document.getElementById('fund-progress-fill');
+
+      const pct = Math.min(100, Math.round((this.totalRaised / this.goal) * 1000) / 10);
+
+      if (raisedEl) raisedEl.textContent = '₹' + this.totalRaised.toLocaleString('en-IN');
+      if (percentEl) percentEl.textContent = pct + '%';
+      if (backersEl) backersEl.textContent = this.supporters.length;
+      if (fillBar) fillBar.style.width = Math.max(pct > 0 ? 2 : 0, pct) + '%';
+
+      // 2. Render Supporters Table on Donors Wall
+      const tbody = document.getElementById('supporters-tbody');
+      if (!tbody) return;
+
+      tbody.innerHTML = '';
+      if (this.supporters.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" class="empty-table-state"><i class="fa-solid fa-heart text-rose"></i><br>No donations recorded yet! Be the first hero to support Jaishnav's MacBook goal and claim Rank #1!</td></tr>`;
+        return;
+      }
+
+      const user = authState.user;
+      const userRawEmail = user ? user.email.toLowerCase().trim() : '';
+      const userDisplayName = user ? user.displayName.toLowerCase().trim() : '';
+
+      this.supporters.forEach((item) => {
+        const tr = document.createElement('tr');
+        let rankClass = 'rank-other';
+        let crown = '';
+        if (item.rank === 1) { rankClass = 'rank-1'; crown = '<i class="fa-solid fa-crown text-amber"></i> '; }
+        else if (item.rank === 2) { rankClass = 'rank-2'; crown = '<i class="fa-solid fa-medal text-slate"></i> '; }
+        else if (item.rank === 3) { rankClass = 'rank-3'; crown = '<i class="fa-solid fa-award text-amber"></i> '; }
+
+        const initial = (item.name || '?').charAt(0).toUpperCase();
+        const isMe = user && (
+          (item.email && item.email.toLowerCase().startsWith(userRawEmail.slice(0, 3))) ||
+          (item.name && item.name.toLowerCase() === userDisplayName)
+        );
+
+        if (isMe) tr.classList.add('my-rank-row');
+        const youBadge = isMe ? '<span class="you-badge">YOU</span>' : '';
+        const msg = item.message ? `"${item.message}"` : 'Supporting Jaishnav\'s MacBook goal! 🚀';
+        const amtStr = '₹' + Number(item.amount || 0).toLocaleString('en-IN');
+
+        tr.innerHTML = `
+          <td><span class="rank-badge ${rankClass}">${crown}${item.rank}</span></td>
+          <td>
+            <div class="player-name-cell">
+              <span class="player-avatar-circle" style="background: linear-gradient(135deg, #f43f5e, #be123c);">${initial}</span>
+              <div class="player-name-meta">
+                <span class="player-name-text">${item.name} ${youBadge}</span>
+                <span class="player-sub-email show-mobile"><i class="fa-solid fa-heart text-rose"></i> ${msg}</span>
+              </div>
+            </div>
+          </td>
+          <td class="td-verified hide-mobile"><span class="donor-msg-cell">${msg}</span></td>
+          <td><span class="donor-amount-pill">${amtStr}</span></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    },
+
+    updateCheckoutAmount(amt) {
+      this.selectedAmount = Math.max(1, parseInt(amt, 10) || 100);
+
+      const displayEl = document.getElementById('checkout-amount-display');
+      const btnAmtEl = document.getElementById('upi-btn-amt');
+      const customInput = document.getElementById('donor-amount-custom');
+      const intentLink = document.getElementById('mobile-upi-launch-link');
+      const nameInput = document.getElementById('donor-name-input');
+
+      if (displayEl) displayEl.textContent = '₹' + this.selectedAmount.toLocaleString('en-IN');
+      if (btnAmtEl) btnAmtEl.textContent = this.selectedAmount.toLocaleString('en-IN');
+      if (customInput && customInput.value !== String(this.selectedAmount)) {
+        customInput.value = this.selectedAmount;
+      }
+
+      // Update preset buttons active state
+      document.querySelectorAll('.donate-amt-btn').forEach(btn => {
+        btn.classList.toggle('active', parseInt(btn.dataset.amt, 10) === this.selectedAmount);
+      });
+
+      // Update mobile UPI intent URL
+      const donorName = (nameInput ? nameInput.value.trim() : '') || 'Supporter';
+      const upiUrl = `upi://pay?pa=${FAMPAY_UPI_ID}&pn=${encodeURIComponent(FAMPAY_NAME)}&am=${this.selectedAmount}&cu=INR&tn=${encodeURIComponent(donorName + ' MacBook Fund')}`;
+      if (intentLink) {
+        intentLink.href = upiUrl;
+      }
+    },
+
+    openModal(presetAmt) {
+      const modal = document.getElementById('donation-modal');
+      if (!modal) return;
+
+      const nameInput = document.getElementById('donor-name-input');
+      if (nameInput) {
+        if (authState.user && authState.user.displayName) {
+          nameInput.value = authState.user.displayName;
+        }
+      }
+
+      if (presetAmt) {
+        this.updateCheckoutAmount(presetAmt);
+      } else {
+        this.updateCheckoutAmount(this.selectedAmount || 100);
+      }
+
+      const alertBox = document.getElementById('donor-alert-box');
+      if (alertBox) alertBox.style.display = 'none';
+
+      const successBox = document.getElementById('donor-success-box');
+      if (successBox) successBox.style.display = 'none';
+
+      modal.style.display = 'flex';
+      modal.setAttribute('aria-hidden', 'false');
+      if (sfx) sfx.playClick();
+    },
+
+    closeModal() {
+      const modal = document.getElementById('donation-modal');
+      if (modal) {
+        modal.style.display = 'none';
+        modal.setAttribute('aria-hidden', 'true');
+      }
+    },
+
+    copyUpi(btn) {
+      navigator.clipboard.writeText(FAMPAY_UPI_ID).then(() => {
+        showToast('FamPay UPI ID copied: primebaro@fam');
+        if (btn) {
+          const orig = btn.innerHTML;
+          btn.innerHTML = '<i class="fa-solid fa-check text-emerald"></i> Copied!';
+          setTimeout(() => { btn.innerHTML = orig; }, 2000);
+        }
+        if (sfx) sfx.playClick();
+      }).catch(() => {
+        showToast('FamPay UPI: primebaro@fam');
+      });
+    },
+
+    bindEvents() {
+      // Modal open triggers
+      const openBtn = document.getElementById('open-fund-modal-btn');
+      if (openBtn) openBtn.addEventListener('click', () => this.openModal(100));
+
+      const closeBtn = document.getElementById('donation-modal-close-btn');
+      if (closeBtn) closeBtn.addEventListener('click', () => this.closeModal());
+
+      const modalOverlay = document.getElementById('donation-modal');
+      if (modalOverlay) {
+        modalOverlay.addEventListener('click', (e) => {
+          if (e.target === modalOverlay) this.closeModal();
+        });
+      }
+
+      // Quick support pills on right column
+      document.querySelectorAll('.fund-quick-pill').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const amt = parseInt(btn.dataset.amount, 10);
+          this.openModal(amt);
+        });
+      });
+
+      // Preset buttons inside modal
+      document.querySelectorAll('.donate-amt-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const amt = parseInt(btn.dataset.amt, 10);
+          this.updateCheckoutAmount(amt);
+          if (sfx) sfx.playClick();
+        });
+      });
+
+      // Custom amount input
+      const customInput = document.getElementById('donor-amount-custom');
+      if (customInput) {
+        customInput.addEventListener('input', (e) => {
+          const val = parseInt(e.target.value, 10);
+          if (val && val > 0) {
+            this.updateCheckoutAmount(val);
+          }
+        });
+      }
+
+      // Donor name input updates the UPI intent URL note
+      const nameInput = document.getElementById('donor-name-input');
+      if (nameInput) {
+        nameInput.addEventListener('input', () => {
+          this.updateCheckoutAmount(this.selectedAmount);
+        });
+      }
+
+      // Copy UPI buttons
+      const copyBtn1 = document.getElementById('copy-fund-upi-btn');
+      if (copyBtn1) copyBtn1.addEventListener('click', () => this.copyUpi(copyBtn1));
+
+      const copyBtn2 = document.getElementById('qr-card-copy-btn');
+      if (copyBtn2) copyBtn2.addEventListener('click', () => this.copyUpi(copyBtn2));
+
+      const copyBtn3 = document.getElementById('modal-copy-upi-btn');
+      if (copyBtn3) copyBtn3.addEventListener('click', () => this.copyUpi(copyBtn3));
+
+      // Refresh button
+      const refreshBtn = document.getElementById('btn-refresh-supporters');
+      if (refreshBtn) {
+        refreshBtn.addEventListener('click', () => {
+          const icon = refreshBtn.querySelector('i');
+          if (icon) icon.classList.add('fa-spin');
+          this.fetchCloudDonations().finally(() => {
+            if (icon) setTimeout(() => icon.classList.remove('fa-spin'), 600);
+          });
+        });
+      }
+
+      // Form submission
+      const form = document.getElementById('donation-form');
+      if (form) {
+        form.addEventListener('submit', (e) => {
+          e.preventDefault();
+          this.submitDonation();
+        });
+      }
+    },
+
+    async submitDonation() {
+      const nameInput = document.getElementById('donor-name-input');
+      const messageInput = document.getElementById('donor-message-input');
+      const utrInput = document.getElementById('donor-utr-input');
+      const alertBox = document.getElementById('donor-alert-box');
+      const alertText = document.getElementById('donor-alert-text');
+      const submitBtn = document.getElementById('btn-submit-donor-pledge');
+
+      const name = (nameInput ? nameInput.value.trim() : '');
+      const message = (messageInput ? messageInput.value.trim() : '');
+      const utr = (utrInput ? utrInput.value.trim() : '');
+      const amount = this.selectedAmount;
+
+      if (!name || name.length < 2) {
+        if (alertBox && alertText) {
+          alertBox.style.display = 'flex';
+          alertText.textContent = 'Please enter your name or display tag (at least 2 characters).';
+        }
+        return;
+      }
+
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Submitting Supporter Record...';
+      }
+
+      const email = authState.user ? authState.user.email : '';
+
+      try {
+        const res = await fetch(CLOUD_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'submit-donation',
+            name: name,
+            amount: amount,
+            message: message,
+            utr: utr,
+            email: email
+          })
+        });
+
+        const json = await res.json();
+        if (!res.ok || json.error) {
+          throw new Error(json.error || 'Failed to submit donation');
+        }
+
+        if (json.supporters) {
+          this.supporters = json.supporters;
+          this.totalRaised = Number(json.totalRaised) || (this.totalRaised + amount);
+          this.goal = Number(json.goal) || MACBOOK_GOAL;
+          this.save();
+          this.render();
+        }
+
+        // Show celebration
+        if (sfx) sfx.playFanfare();
+        showToast(`🎉 Thank you, ${name}! You are ranked #${json.rank || 1} on the Donors Wall!`);
+
+        this.closeModal();
+
+        // Scroll smoothly to donors wall
+        const wall = document.getElementById('donors-wall');
+        if (wall) {
+          wall.scrollIntoView({ behavior: 'smooth' });
+        }
+      } catch (err) {
+        if (alertBox && alertText) {
+          alertBox.style.display = 'flex';
+          alertText.textContent = err.message || 'Error recording supporter. Please try again.';
+        }
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<i class="fa-solid fa-circle-check"></i> I\'ve Paid &bull; Put Me on Top Supporters Wall!';
+        }
+      }
+    }
+  };
 
   /* --------------------------------------------------------------------------
    * 7. PLAYABLE ARCADE SUITE (HTML5 CANVAS)
@@ -2089,6 +2478,7 @@
     // Initialize Auth & Leaderboard
     authState.init();
     leaderboardSystem.init();
+    donationSystem.init();
 
     // Start with Nav Cyber Bird
     switchGame('flappy');
@@ -2112,6 +2502,7 @@
       '.project-featured-card',
       '.coming-soon-card',
       '.teasers-grid .teaser-card',
+      '.fundraiser-card',
       '.arcade-card'
     ];
 

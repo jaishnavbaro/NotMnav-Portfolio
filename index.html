@@ -55,6 +55,7 @@
           <li><a href="#learning" class="nav-item">Roadmap</a></li>
           <li><a href="#hardware" class="nav-item">Setup</a></li>
           <li><a href="#projects" class="nav-item">Projects</a></li>
+          <li><a href="#fundraiser" class="nav-item fund-nav-pill"><i class="fa-solid fa-laptop-code text-cyan"></i> MacBook Goal</a></li>
           <li><a href="#arcade" class="nav-item arcade-pill"><i class="fa-solid fa-gamepad"></i> Arcade</a></li>
           <li><a href="leaderboard.html" class="nav-item leaderboard-nav-pill"><i class="fa-solid fa-trophy text-amber"></i> Leaderboard</a></li>
         </ul>
@@ -789,8 +790,150 @@
     </section>
 
     <!-- ========================================== -->
+    <!-- SECTION 7: MACBOOK DEV FUND & DONORS WALL  -->
     <!-- ========================================== -->
-    <!-- SECTION 7: PLAYABLE ARCADE & LEADERBOARD   -->
+    <section id="fundraiser" class="content-section fundraiser-section">
+      <div class="content-container">
+        <div class="section-header">
+          <span class="section-tag"><i class="fa-solid fa-heart text-rose"></i> Dream Setup Fundraiser</span>
+          <h2 class="section-heading">MacBook Coding Dream Goal</h2>
+          <p class="section-lead">Help fund an Apple MacBook to unlock high-performance development, mobile app compilation, and next-gen cloud engineering. Every contribution goes 100% directly towards the goal!</p>
+        </div>
+
+        <div class="fundraiser-card">
+          <div class="fund-grid">
+            <!-- Left Column: Goal Tracker & Mission -->
+            <div class="fund-left-col">
+              <div class="fund-badge-row">
+                <span class="fund-tech-pill"><i class="fa-brands fa-apple"></i> Apple MacBook Pro / Air</span>
+                <span class="fund-status-pill"><span class="status-dot"></span> Live Goal</span>
+              </div>
+
+              <h3 class="fund-target-title">Target: ₹1,70,000 <span class="fund-target-sub">/ Rs 1 Lakh 70 Thousand</span></h3>
+
+              <!-- Progress Bar -->
+              <div class="fund-progress-container">
+                <div class="fund-progress-bar-bg">
+                  <div class="fund-progress-bar-fill" id="fund-progress-fill" style="width: 0%;">
+                    <div class="fund-progress-glow"></div>
+                  </div>
+                </div>
+                <div class="fund-progress-stats">
+                  <span class="fund-stat-item"><strong id="fund-raised-amount">₹0</strong> Raised</span>
+                  <span class="fund-stat-item"><strong id="fund-percent">0%</strong> Progress</span>
+                  <span class="fund-stat-item"><strong id="fund-backers-count">0</strong> Supporters</span>
+                </div>
+              </div>
+
+              <div class="fund-story-box">
+                <p>
+                  Hey everyone! I'm <strong>Jaishnav (NotNav)</strong>, a 16-year-old student and indie developer from Assam, India. 
+                  I don't have a personal bank account yet, so I manage all my development funds through <strong>FamPay UPI</strong> (<code>primebaro@fam</code>).
+                </p>
+                <p>
+                  My dream is to get an <strong>Apple MacBook</strong> to build and compile cross-platform mobile apps, deploy backend microservices, and produce high-performance gaming projects without hardware throttling. 
+                  Whether you contribute <strong>₹50</strong> or <strong>₹5,000</strong>, your name will be permanently honored on the <strong>Supporters Wall of Fame</strong> below!
+                </p>
+              </div>
+
+              <div class="fund-actions-row">
+                <button type="button" class="btn btn-primary btn-glow-donate" id="open-fund-modal-btn">
+                  <i class="fa-solid fa-heart text-rose"></i> Support via FamPay UPI
+                </button>
+                <button type="button" class="btn btn-secondary" id="copy-fund-upi-btn" title="Copy UPI ID">
+                  <i class="fa-regular fa-copy"></i> Copy UPI: primebaro@fam
+                </button>
+              </div>
+
+              <div class="fund-trust-row">
+                <span class="trust-badge"><i class="fa-solid fa-shield-check text-emerald"></i> 0% Commission Fees</span>
+                <span class="trust-badge"><i class="fa-solid fa-bolt text-amber"></i> Instant FamPay Transfer</span>
+                <span class="trust-badge"><i class="fa-solid fa-crown text-sky"></i> Permanent Supporter Rank</span>
+              </div>
+            </div>
+
+            <!-- Right Column: FamPay QR & Quick Payment Card -->
+            <div class="fund-right-col">
+              <div class="fampay-card-preview">
+                <div class="fampay-card-header">
+                  <div class="fampay-logo-group">
+                    <span class="fampay-tag"><i class="fa-solid fa-qrcode"></i> Instant UPI</span>
+                    <span class="fampay-verified-badge"><i class="fa-solid fa-circle-check"></i> FamPay Verified</span>
+                  </div>
+                  <span class="fampay-name">JAIHNAV M BARO</span>
+                </div>
+
+                <!-- QR Image Viewport -->
+                <div class="fampay-qr-wrap">
+                  <div class="fampay-qr-frame">
+                    <img src="assets/fampay_qr_code.png" alt="FamPay UPI QR Code - primebaro@fam" class="fampay-qr-img" id="fund-qr-img">
+                    <div class="qr-scan-corner corner-tl"></div>
+                    <div class="qr-scan-corner corner-tr"></div>
+                    <div class="qr-scan-corner corner-bl"></div>
+                    <div class="qr-scan-corner corner-br"></div>
+                  </div>
+                  <p class="qr-scan-caption">Scan with <strong>Google Pay</strong>, <strong>PhonePe</strong>, <strong>Paytm</strong>, or <strong>FamApp</strong></p>
+                </div>
+
+                <div class="fampay-card-footer">
+                  <div class="upi-id-badge">
+                    <span class="upi-id-label">FamPay UPI</span>
+                    <span class="upi-id-value">primebaro@fam</span>
+                    <button type="button" class="upi-copy-icon-btn" id="qr-card-copy-btn" title="Copy UPI ID" aria-label="Copy UPI ID">
+                      <i class="fa-regular fa-copy"></i>
+                    </button>
+                  </div>
+
+                  <!-- Quick preset amounts that trigger checkout -->
+                  <div class="quick-support-pills">
+                    <span class="quick-pills-label">Quick Donate:</span>
+                    <button type="button" class="fund-quick-pill" data-amount="50">₹50</button>
+                    <button type="button" class="fund-quick-pill" data-amount="100">₹100</button>
+                    <button type="button" class="fund-quick-pill" data-amount="500">₹500</button>
+                    <button type="button" class="fund-quick-pill" data-amount="1000">₹1,000</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Top Supporters Wall / Leaderboard -->
+          <div class="fund-donors-section" id="donors-wall">
+            <div class="donors-header">
+              <div class="donors-title-group">
+                <h4 class="donors-title"><i class="fa-solid fa-crown text-amber"></i> Top Donors &amp; Supporters Wall</h4>
+                <p class="donors-subtitle">Honoring the generous supporters powering Jaishnav's MacBook goal. Ranked by contribution!</p>
+              </div>
+              <div class="donors-filter-meta">
+                <button type="button" class="btn btn-sm btn-outline-cyan" id="btn-refresh-supporters">
+                  <i class="fa-solid fa-arrows-rotate"></i> Refresh Wall
+                </button>
+              </div>
+            </div>
+
+            <!-- Supporters Table -->
+            <div class="leaderboard-table-wrap">
+              <table class="leaderboard-table donors-table">
+                <thead>
+                  <tr>
+                    <th class="th-rank">Rank</th>
+                    <th class="th-player">Supporter</th>
+                    <th class="th-message">Message / Note</th>
+                    <th class="th-amount">Contribution</th>
+                  </tr>
+                </thead>
+                <tbody id="supporters-tbody">
+                  <!-- Dynamically populated from Netlify Blobs -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SECTION 8: PLAYABLE ARCADE & LEADERBOARD   -->
     <!-- ========================================== -->
     <section id="arcade" class="content-section">
       <div class="content-container">
@@ -1123,6 +1266,124 @@
       <div class="auth-modal-footer">
         <i class="fa-solid fa-shield-halved text-emerald"></i>
         <span>Passwords hashed with SHA-256. Automated moderation prevents abusive names.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- FAMPAY UPI DONATION GATEWAY MODAL          -->
+  <!-- ========================================== -->
+  <div id="donation-modal" class="auth-modal-overlay" style="display: none;" aria-hidden="true" role="dialog">
+    <div class="donation-modal-card">
+      <div class="auth-modal-head">
+        <div class="auth-modal-title-group">
+          <div class="donation-header-icon">
+            <i class="fa-solid fa-heart-pulse"></i>
+          </div>
+          <div>
+            <h3 class="auth-modal-heading">Support MacBook Goal</h3>
+            <span class="auth-modal-sub">Direct FamPay UPI Gateway &bull; Zero Fees</span>
+          </div>
+        </div>
+        <button id="donation-modal-close-btn" class="modal-close-btn" aria-label="Close Modal">&times;</button>
+      </div>
+
+      <!-- Moderation / Alert Box -->
+      <div id="donor-alert-box" class="mod-warning-box" style="display: none;">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <span id="donor-alert-text"></span>
+      </div>
+
+      <!-- Success Box -->
+      <div id="donor-success-box" class="mod-success-box" style="display: none;">
+        <i class="fa-solid fa-circle-check"></i>
+        <span id="donor-success-text">Thank you! Your support has been added to the Donors Leaderboard!</span>
+      </div>
+
+      <!-- Donation Form -->
+      <form id="donation-form" class="donation-form-wrap">
+        <!-- Step 1: Donor Identity -->
+        <div class="form-group">
+          <label for="donor-name-input" class="form-label"><i class="fa-regular fa-user text-sky"></i> Your Name / Gamer Tag <span class="required-mark">*</span></label>
+          <div class="input-with-icon">
+            <i class="fa-solid fa-user-astronaut"></i>
+            <input type="text" id="donor-name-input" class="form-input" placeholder="e.g. Rahul, Alex, or CyberViper" required minlength="2" maxlength="24" autocomplete="name">
+          </div>
+          <span class="form-hint">Displayed on the Top Supporters Wall!</span>
+        </div>
+
+        <!-- Step 2: Choose Amount -->
+        <div class="form-group">
+          <label class="form-label"><i class="fa-solid fa-indian-rupee-sign text-emerald"></i> Choose Contribution Amount</label>
+          <div class="donate-preset-grid">
+            <button type="button" class="donate-amt-btn" data-amt="50">₹50</button>
+            <button type="button" class="donate-amt-btn active" data-amt="100">₹100</button>
+            <button type="button" class="donate-amt-btn" data-amt="250">₹250</button>
+            <button type="button" class="donate-amt-btn" data-amt="500">₹500</button>
+            <button type="button" class="donate-amt-btn" data-amt="1000">₹1,000</button>
+            <button type="button" class="donate-amt-btn" data-amt="2500">₹2,500</button>
+          </div>
+          <div class="input-with-icon" style="margin-top: 0.5rem;">
+            <i class="fa-solid fa-wallet"></i>
+            <input type="number" id="donor-amount-custom" class="form-input" placeholder="Custom amount in ₹ (e.g. 500)" min="1" step="1" value="100">
+          </div>
+        </div>
+
+        <!-- Optional Message -->
+        <div class="form-group">
+          <label for="donor-message-input" class="form-label"><i class="fa-regular fa-comment-dots text-sky"></i> Message / Motivation (Optional)</label>
+          <div class="input-with-icon">
+            <i class="fa-solid fa-pen-nib"></i>
+            <input type="text" id="donor-message-input" class="form-input" placeholder="e.g. Best of luck on the MacBook! Keep grinding! 🔥" maxlength="120">
+          </div>
+        </div>
+
+        <!-- Step 3: Payment Gateway Checkout -->
+        <div class="donation-checkout-box">
+          <div class="checkout-summary-row">
+            <span>Amount to Pay:</span>
+            <strong class="checkout-amt-text" id="checkout-amount-display">₹100</strong>
+          </div>
+
+          <!-- Mobile Instant UPI Launch Link -->
+          <a id="mobile-upi-launch-link" href="upi://pay?pa=primebaro@fam&pn=JAIHNAV%20M%20BARO&am=100&cu=INR&tn=Jaishnav%20MacBook%20Goal" class="btn btn-upi-launch">
+            <i class="fa-solid fa-mobile-screen"></i> Pay ₹<span id="upi-btn-amt">100</span> via UPI App (GPay / PhonePe / FamApp)
+          </a>
+
+          <!-- QR Code and Manual Details for Desktop -->
+          <div class="donation-qr-checkout">
+            <div class="mini-qr-box">
+              <img src="assets/fampay_qr_code.png" alt="FamPay UPI QR Code" class="mini-qr-img">
+            </div>
+            <div class="mini-qr-info">
+              <span class="mini-qr-title">Or scan QR with any UPI app:</span>
+              <div class="upi-copy-pill">
+                <code>primebaro@fam</code>
+                <button type="button" class="btn btn-xs btn-outline-cyan" id="modal-copy-upi-btn">
+                  <i class="fa-regular fa-copy"></i> Copy
+                </button>
+              </div>
+              <span class="beneficiary-text"><i class="fa-solid fa-circle-check text-emerald"></i> Beneficiary: <strong>JAIHNAV M BARO</strong></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 4: Confirmation & Record to Leaderboard -->
+        <div class="donation-confirm-section">
+          <div class="form-group" style="margin-bottom: 0.4rem;">
+            <label for="donor-utr-input" class="form-label"><i class="fa-solid fa-receipt text-tertiary"></i> UPI Ref / UTR No. (Optional)</label>
+            <input type="text" id="donor-utr-input" class="form-input" placeholder="e.g. 12-digit UTR from your payment receipt" maxlength="32">
+          </div>
+
+          <button type="submit" class="btn btn-submit-donor" id="btn-submit-donor-pledge">
+            <i class="fa-solid fa-circle-check"></i> I've Paid &bull; Put Me on Top Supporters Wall!
+          </button>
+        </div>
+      </form>
+
+      <div class="auth-modal-footer">
+        <i class="fa-solid fa-shield-halved text-emerald"></i>
+        <span>Prepaid FamPay UPI. Zero gateway commissions deducted. 100% of your funds directly power Jaishnav's coding MacBook!</span>
       </div>
     </div>
   </div>
