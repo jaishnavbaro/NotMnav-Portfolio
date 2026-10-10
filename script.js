@@ -371,7 +371,7 @@
       'Developer',
       'Gamer',
       'GFX Artist',
-      'Admin @ VajraClouds',
+      'VajraClouds',
       'NotNav'
     ];
 
@@ -384,7 +384,8 @@
       const current = phrases[phraseIndex];
 
       if (isDeleting) {
-        el.textContent = current.substring(0, charIndex - 1);
+        const nextText = current.substring(0, charIndex - 1);
+        el.textContent = nextText || '\u00A0';
         charIndex--;
         speed = 45;
       } else {
